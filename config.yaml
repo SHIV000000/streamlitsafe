@@ -1,0 +1,18 @@
+# config.yaml
+
+credentials:
+  usernames:
+    admin:
+      email: pickengine@gmail.com
+      name: Admin User
+      password: $2b$12$wJWXUxxnsacTM8s3r4BU4.Thgjl7I4bixxQrunHfki.CACQB1iQT.
+    analyst:
+      email: shiv@dev.com
+      name: Analyst User
+      password: $2b$12$eEeKdDLTCUE22Xp.Gm4e7uSeewmL3dGDthgio8XZL/OWwZyeR2Mgy
+cookie:
+  expiry_days: 30
+  key: nba_predictions_signature_key
+  name: nba_predictions_auth
+
+

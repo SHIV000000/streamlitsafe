@@ -1,0 +1,138 @@
+2024-11-23 03:05:13,766 - 12028 - MainThread - DEBUG - app.py:683 - Removed old prediction file: predictions/scheduled\game_14351_20241123_025923.json
+2024-11-23 03:05:13,767 - 12028 - MainThread - DEBUG - app.py:683 - Removed old prediction file: predictions/scheduled\game_14352_20241123_025925.json
+2024-11-23 03:07:43,977 - 21424 - ScriptRunner.scriptThread - WARNING - module_wrapper.py:149 - From C:\Users\SHIVAM\nnba\nba\env\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+2024-11-23 03:07:54,902 - 21424 - ScriptRunner.scriptThread - INFO - test_predictions.py:204 - Starting prediction update...
+2024-11-23 03:07:57,144 - 21424 - ScriptRunner.scriptThread - WARNING - prediction_service.py:43 - Scaler does not have feature names; using default feature names
+2024-11-23 03:07:57,145 - 21424 - ScriptRunner.scriptThread - INFO - prediction_service.py:48 - Loaded scaler successfully
+2024-11-23 03:07:58,575 - 21424 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded random_forest model successfully
+2024-11-23 03:07:58,800 - 21424 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded xgboost model successfully
+2024-11-23 03:07:58,896 - 21424 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded svm model successfully
+2024-11-23 03:07:58,944 - 21424 - ScriptRunner.scriptThread - DEBUG - attrs.py:78 - Creating converter from 3 to 5
+2024-11-23 03:07:59,665 - 21424 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-23 03:07:59,706 - 21424 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded lstm model successfully
+2024-11-23 03:08:00,293 - 21424 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-23 03:08:00,350 - 21424 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded gru model successfully
+2024-11-23 03:08:00,351 - 21424 - ScriptRunner.scriptThread - INFO - test_predictions.py:213 - Fetching live games...
+2024-11-23 03:08:00,362 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:08:01,747 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?live=all&league=standard&season=2024 HTTP/11" 200 None
+2024-11-23 03:08:01,750 - 21424 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-23
+2024-11-23 03:08:01,753 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:08:02,882 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-23&season=2024&league=standard HTTP/11" 200 None
+2024-11-23 03:08:02,884 - 21424 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 9 games for 2024-11-23
+2024-11-23 03:08:02,888 - 21424 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: LA Clippers vs Sacramento Kings at 2024-11-23T03:30:00.000Z
+2024-11-23 03:08:02,890 - 21424 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Utah Jazz vs New York Knicks at 2024-11-23T22:00:00.000Z
+2024-11-23 03:08:02,894 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:08:03,983 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=16&season=2024 HTTP/11" 200 None
+2024-11-23 03:08:03,991 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:08:04,455 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=30&season=2024 HTTP/11" 200 None
+2024-11-23 03:08:10,140 - 21424 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14351_20241123_030810.json
+2024-11-23 03:08:10,158 - 21424 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        LA Clippers vs Sacramento Kings
+        Scheduled Start: 2024-11-23T03:30:00.000Z
+        
+        Win Probabilities:
+        - LA Clippers: 57.2%
+        - Sacramento Kings: 42.8%
+        
+        Predicted Score Ranges:
+        - LA Clippers: 97-118
+        - Sacramento Kings: 101-124
+        
+        Predicted Winner: LA Clippers
+        Confidence: 57.2%
+        
+2024-11-23 03:08:10,179 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:08:10,749 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=40&season=2024 HTTP/11" 200 None
+2024-11-23 03:08:10,756 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:08:11,317 - 21424 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=24&season=2024 HTTP/11" 200 None
+2024-11-23 03:08:11,894 - 21424 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14352_20241123_030811.json
+2024-11-23 03:08:11,898 - 21424 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Utah Jazz vs New York Knicks
+        Scheduled Start: 2024-11-23T22:00:00.000Z
+        
+        Win Probabilities:
+        - Utah Jazz: 58.5%
+        - New York Knicks: 41.5%
+        
+        Predicted Score Ranges:
+        - Utah Jazz: 98-120
+        - New York Knicks: 105-128
+        
+        Predicted Winner: Utah Jazz
+        Confidence: 58.5%
+        
+2024-11-23 03:08:11,901 - 21424 - ScriptRunner.scriptThread - INFO - test_predictions.py:238 - Predictions completed successfully
+2024-11-23 03:08:12,768 - 21424 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 0.9 seconds since last update
+2024-11-23 03:09:15,919 - 21424 - MainThread - DEBUG - app.py:552 - Removed old prediction file: predictions/scheduled\game_14351_20241123_030427.json
+2024-11-23 03:09:15,921 - 21424 - MainThread - DEBUG - app.py:552 - Removed old prediction file: predictions/scheduled\game_14352_20241123_030430.json
+2024-11-23 03:12:23,146 - 14492 - ScriptRunner.scriptThread - WARNING - module_wrapper.py:149 - From C:\Users\SHIVAM\nnba\nba\env\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+2024-11-23 03:12:39,474 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:204 - Starting prediction update...
+2024-11-23 03:12:41,746 - 14492 - ScriptRunner.scriptThread - WARNING - prediction_service.py:43 - Scaler does not have feature names; using default feature names
+2024-11-23 03:12:41,747 - 14492 - ScriptRunner.scriptThread - INFO - prediction_service.py:48 - Loaded scaler successfully
+2024-11-23 03:12:43,170 - 14492 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded random_forest model successfully
+2024-11-23 03:12:43,422 - 14492 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded xgboost model successfully
+2024-11-23 03:12:43,461 - 14492 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded svm model successfully
+2024-11-23 03:12:43,567 - 14492 - ScriptRunner.scriptThread - DEBUG - attrs.py:78 - Creating converter from 3 to 5
+2024-11-23 03:12:44,876 - 14492 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-23 03:12:44,917 - 14492 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded lstm model successfully
+2024-11-23 03:12:45,349 - 14492 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-23 03:12:45,376 - 14492 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded gru model successfully
+2024-11-23 03:12:45,376 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:213 - Fetching live games...
+2024-11-23 03:12:45,384 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:12:46,824 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?live=all&league=standard&season=2024 HTTP/11" 200 None
+2024-11-23 03:12:46,835 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-23
+2024-11-23 03:12:46,846 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:12:48,166 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-23&season=2024&league=standard HTTP/11" 200 None
+2024-11-23 03:12:48,169 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 9 games for 2024-11-23
+2024-11-23 03:12:48,173 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: LA Clippers vs Sacramento Kings at 2024-11-23T03:30:00.000Z
+2024-11-23 03:12:48,174 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Utah Jazz vs New York Knicks at 2024-11-23T22:00:00.000Z
+2024-11-23 03:12:48,177 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:12:49,121 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=16&season=2024 HTTP/11" 200 None
+2024-11-23 03:12:49,124 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:12:50,426 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=30&season=2024 HTTP/11" 200 None
+2024-11-23 03:12:57,048 - 14492 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14351_20241123_031257.json
+2024-11-23 03:12:57,050 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        LA Clippers vs Sacramento Kings
+        Scheduled Start: 2024-11-23T03:30:00.000Z
+        
+        Win Probabilities:
+        - LA Clippers: 57.2%
+        - Sacramento Kings: 42.8%
+        
+        Predicted Score Ranges:
+        - LA Clippers: 97-118
+        - Sacramento Kings: 101-124
+        
+        Predicted Winner: LA Clippers
+        Confidence: 57.2%
+        
+2024-11-23 03:12:57,054 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:12:58,088 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=40&season=2024 HTTP/11" 200 None
+2024-11-23 03:12:58,092 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-23 03:12:58,916 - 14492 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=24&season=2024 HTTP/11" 200 None
+2024-11-23 03:12:59,415 - 14492 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14352_20241123_031259.json
+2024-11-23 03:12:59,417 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Utah Jazz vs New York Knicks
+        Scheduled Start: 2024-11-23T22:00:00.000Z
+        
+        Win Probabilities:
+        - Utah Jazz: 58.5%
+        - New York Knicks: 41.5%
+        
+        Predicted Score Ranges:
+        - Utah Jazz: 98-120
+        - New York Knicks: 105-128
+        
+        Predicted Winner: Utah Jazz
+        Confidence: 58.5%
+        
+2024-11-23 03:12:59,419 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:238 - Predictions completed successfully
+2024-11-23 03:13:00,032 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 0.6 seconds since last update
+2024-11-23 03:13:47,569 - 14492 - MainThread - DEBUG - app.py:552 - Removed old prediction file: predictions/scheduled\game_14351_20241123_030810.json
+2024-11-23 03:13:47,571 - 14492 - MainThread - DEBUG - app.py:552 - Removed old prediction file: predictions/scheduled\game_14352_20241123_030811.json
