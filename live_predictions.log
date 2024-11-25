@@ -136,3 +136,1907 @@
 2024-11-23 03:13:00,032 - 14492 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 0.6 seconds since last update
 2024-11-23 03:13:47,569 - 14492 - MainThread - DEBUG - app.py:552 - Removed old prediction file: predictions/scheduled\game_14351_20241123_030810.json
 2024-11-23 03:13:47,571 - 14492 - MainThread - DEBUG - app.py:552 - Removed old prediction file: predictions/scheduled\game_14352_20241123_030811.json
+2024-11-25 21:56:33,750 - 8200 - ScriptRunner.scriptThread - WARNING - module_wrapper.py:149 - From C:\Users\SHIVAM\mnba\streamlitsafe\env\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+2024-11-25 21:56:38,187 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:204 - Starting prediction update...
+2024-11-25 21:56:40,500 - 8200 - ScriptRunner.scriptThread - WARNING - prediction_service.py:43 - Scaler does not have feature names; using default feature names
+2024-11-25 21:56:40,500 - 8200 - ScriptRunner.scriptThread - INFO - prediction_service.py:48 - Loaded scaler successfully
+2024-11-25 21:56:41,765 - 8200 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded random_forest model successfully
+2024-11-25 21:56:41,950 - 8200 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded xgboost model successfully
+2024-11-25 21:56:41,979 - 8200 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded svm model successfully
+2024-11-25 21:56:42,025 - 8200 - ScriptRunner.scriptThread - DEBUG - attrs.py:78 - Creating converter from 3 to 5
+2024-11-25 21:56:42,364 - 8200 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 21:56:42,375 - 8200 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded lstm model successfully
+2024-11-25 21:56:42,543 - 8200 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 21:56:42,552 - 8200 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded gru model successfully
+2024-11-25 21:56:42,553 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:213 - Fetching live games...
+2024-11-25 21:56:42,557 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:43,524 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?live=all&league=standard&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:43,527 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-25
+2024-11-25 21:56:43,531 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:44,134 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-25&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 21:56:44,137 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 2 games for 2024-11-25
+2024-11-25 21:56:44,141 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-26
+2024-11-25 21:56:44,145 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:45,286 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-26&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 21:56:45,288 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 9 games for 2024-11-26
+2024-11-25 21:56:45,289 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Charlotte Hornets vs Orlando Magic at 2024-11-26T00:00:00.000Z
+2024-11-25 21:56:45,289 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Detroit Pistons vs Toronto Raptors at 2024-11-26T00:00:00.000Z
+2024-11-25 21:56:45,290 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Indiana Pacers vs New Orleans Pelicans at 2024-11-26T00:00:00.000Z
+2024-11-25 21:56:45,290 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Atlanta Hawks vs Dallas Mavericks at 2024-11-26T00:30:00.000Z
+2024-11-25 21:56:45,291 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Boston Celtics vs LA Clippers at 2024-11-26T00:30:00.000Z
+2024-11-25 21:56:45,291 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Memphis Grizzlies vs Portland Trail Blazers at 2024-11-26T01:00:00.000Z
+2024-11-25 21:56:45,292 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Denver Nuggets vs New York Knicks at 2024-11-26T02:00:00.000Z
+2024-11-25 21:56:45,292 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Golden State Warriors vs Brooklyn Nets at 2024-11-26T03:00:00.000Z
+2024-11-25 21:56:45,293 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Sacramento Kings vs Oklahoma City Thunder at 2024-11-26T03:00:00.000Z
+2024-11-25 21:56:45,295 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:45,842 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=5&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:45,845 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:46,443 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=26&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:48,538 - 8200 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14365_20241125_215648.json
+2024-11-25 21:56:48,538 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Charlotte Hornets vs Orlando Magic
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Charlotte Hornets: 56.5%
+        - Orlando Magic: 43.5%
+        
+        Predicted Score Ranges:
+        - Charlotte Hornets: 99-122
+        - Orlando Magic: 96-117
+        
+        Predicted Winner: Charlotte Hornets
+        Confidence: 56.5%
+        
+2024-11-25 21:56:48,540 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:49,126 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=10&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:49,133 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:49,724 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=38&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:49,970 - 8200 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14366_20241125_215649.json
+2024-11-25 21:56:49,970 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Detroit Pistons vs Toronto Raptors
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Detroit Pistons: 57.3%
+        - Toronto Raptors: 42.7%
+        
+        Predicted Score Ranges:
+        - Detroit Pistons: 97-119
+        - Toronto Raptors: 101-124
+        
+        Predicted Winner: Detroit Pistons
+        Confidence: 57.3%
+        
+2024-11-25 21:56:49,972 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:50,563 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=15&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:50,570 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:51,141 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=23&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:51,420 - 8200 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14367_20241125_215651.json
+2024-11-25 21:56:51,421 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Indiana Pacers vs New Orleans Pelicans
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Indiana Pacers: 56.5%
+        - New Orleans Pelicans: 43.5%
+        
+        Predicted Score Ranges:
+        - Indiana Pacers: 104-127
+        - New Orleans Pelicans: 93-113
+        
+        Predicted Winner: Indiana Pacers
+        Confidence: 56.5%
+        
+2024-11-25 21:56:51,422 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:52,014 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=1&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:52,020 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:52,567 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=8&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:52,857 - 8200 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14368_20241125_215652.json
+2024-11-25 21:56:52,857 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Atlanta Hawks vs Dallas Mavericks
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Atlanta Hawks: 56.5%
+        - Dallas Mavericks: 43.5%
+        
+        Predicted Score Ranges:
+        - Atlanta Hawks: 102-125
+        - Dallas Mavericks: 102-125
+        
+        Predicted Winner: Atlanta Hawks
+        Confidence: 56.5%
+        
+2024-11-25 21:56:52,858 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:53,646 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=2&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:53,654 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:54,315 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=16&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:54,557 - 8200 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14369_20241125_215654.json
+2024-11-25 21:56:54,557 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Boston Celtics vs LA Clippers
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Boston Celtics: 55.1%
+        - LA Clippers: 44.9%
+        
+        Predicted Score Ranges:
+        - Boston Celtics: 107-131
+        - LA Clippers: 97-119
+        
+        Predicted Winner: Boston Celtics
+        Confidence: 55.1%
+        
+2024-11-25 21:56:54,558 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:55,138 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=19&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:55,141 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:55,837 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=29&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:56,046 - 8200 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14370_20241125_215656.json
+2024-11-25 21:56:56,047 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Memphis Grizzlies vs Portland Trail Blazers
+        Scheduled Start: 2024-11-26T01:00:00.000Z
+        
+        Win Probabilities:
+        - Memphis Grizzlies: 56.3%
+        - Portland Trail Blazers: 43.7%
+        
+        Predicted Score Ranges:
+        - Memphis Grizzlies: 106-130
+        - Portland Trail Blazers: 95-116
+        
+        Predicted Winner: Memphis Grizzlies
+        Confidence: 56.3%
+        
+2024-11-25 21:56:56,048 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:56,598 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=9&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:56,604 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:57,190 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=24&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:57,379 - 8200 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14371_20241125_215657.json
+2024-11-25 21:56:57,379 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Denver Nuggets vs New York Knicks
+        Scheduled Start: 2024-11-26T02:00:00.000Z
+        
+        Win Probabilities:
+        - Denver Nuggets: 56.9%
+        - New York Knicks: 43.1%
+        
+        Predicted Score Ranges:
+        - Denver Nuggets: 103-126
+        - New York Knicks: 105-128
+        
+        Predicted Winner: Denver Nuggets
+        Confidence: 56.9%
+        
+2024-11-25 21:56:57,381 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:58,212 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=11&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:58,219 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:56:59,240 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=4&season=2024 HTTP/11" 200 None
+2024-11-25 21:56:59,425 - 8200 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14372_20241125_215659.json
+2024-11-25 21:56:59,425 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Golden State Warriors vs Brooklyn Nets
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Golden State Warriors: 57.3%
+        - Brooklyn Nets: 42.7%
+        
+        Predicted Score Ranges:
+        - Golden State Warriors: 104-127
+        - Brooklyn Nets: 99-121
+        
+        Predicted Winner: Golden State Warriors
+        Confidence: 57.3%
+        
+2024-11-25 21:56:59,426 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:57:00,389 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=30&season=2024 HTTP/11" 200 None
+2024-11-25 21:57:00,394 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 21:57:00,982 - 8200 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=25&season=2024 HTTP/11" 200 None
+2024-11-25 21:57:01,175 - 8200 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14373_20241125_215701.json
+2024-11-25 21:57:01,176 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Sacramento Kings vs Oklahoma City Thunder
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Sacramento Kings: 56.4%
+        - Oklahoma City Thunder: 43.6%
+        
+        Predicted Score Ranges:
+        - Sacramento Kings: 100-122
+        - Oklahoma City Thunder: 102-125
+        
+        Predicted Winner: Sacramento Kings
+        Confidence: 56.4%
+        
+2024-11-25 21:57:01,176 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:238 - Predictions completed successfully
+2024-11-25 21:57:01,491 - 8200 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 0.3 seconds since last update
+2024-11-25 22:14:32,116 - 17048 - ScriptRunner.scriptThread - WARNING - module_wrapper.py:149 - From C:\Users\SHIVAM\mnba\streamlitsafe\env\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+2024-11-25 22:15:11,749 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:204 - Starting prediction update...
+2024-11-25 22:15:14,534 - 17048 - ScriptRunner.scriptThread - WARNING - prediction_service.py:43 - Scaler does not have feature names; using default feature names
+2024-11-25 22:15:14,534 - 17048 - ScriptRunner.scriptThread - INFO - prediction_service.py:48 - Loaded scaler successfully
+2024-11-25 22:15:15,337 - 17048 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded random_forest model successfully
+2024-11-25 22:15:15,503 - 17048 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded xgboost model successfully
+2024-11-25 22:15:15,515 - 17048 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded svm model successfully
+2024-11-25 22:15:15,564 - 17048 - ScriptRunner.scriptThread - DEBUG - attrs.py:78 - Creating converter from 3 to 5
+2024-11-25 22:15:15,984 - 17048 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 22:15:15,997 - 17048 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded lstm model successfully
+2024-11-25 22:15:16,327 - 17048 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 22:15:16,346 - 17048 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded gru model successfully
+2024-11-25 22:15:16,346 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:213 - Fetching live games...
+2024-11-25 22:15:16,354 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:17,074 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?live=all&league=standard&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:17,081 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-25
+2024-11-25 22:15:17,083 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:17,726 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-25&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 22:15:17,729 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 2 games for 2024-11-25
+2024-11-25 22:15:17,734 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-26
+2024-11-25 22:15:17,739 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:18,483 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-26&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 22:15:18,486 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 9 games for 2024-11-26
+2024-11-25 22:15:18,487 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Charlotte Hornets vs Orlando Magic at 2024-11-26T00:00:00.000Z
+2024-11-25 22:15:18,488 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Detroit Pistons vs Toronto Raptors at 2024-11-26T00:00:00.000Z
+2024-11-25 22:15:18,489 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Indiana Pacers vs New Orleans Pelicans at 2024-11-26T00:00:00.000Z
+2024-11-25 22:15:18,491 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Atlanta Hawks vs Dallas Mavericks at 2024-11-26T00:30:00.000Z
+2024-11-25 22:15:18,492 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Boston Celtics vs LA Clippers at 2024-11-26T00:30:00.000Z
+2024-11-25 22:15:18,493 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Memphis Grizzlies vs Portland Trail Blazers at 2024-11-26T01:00:00.000Z
+2024-11-25 22:15:18,495 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Denver Nuggets vs New York Knicks at 2024-11-26T02:00:00.000Z
+2024-11-25 22:15:18,497 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Golden State Warriors vs Brooklyn Nets at 2024-11-26T03:00:00.000Z
+2024-11-25 22:15:18,498 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Sacramento Kings vs Oklahoma City Thunder at 2024-11-26T03:00:00.000Z
+2024-11-25 22:15:18,502 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:19,240 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=5&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:19,248 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:19,957 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=26&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:21,862 - 17048 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14365_20241125_221521.json
+2024-11-25 22:15:21,862 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Charlotte Hornets vs Orlando Magic
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Charlotte Hornets: 56.5%
+        - Orlando Magic: 43.5%
+        
+        Predicted Score Ranges:
+        - Charlotte Hornets: 99-122
+        - Orlando Magic: 96-117
+        
+        Predicted Winner: Charlotte Hornets
+        Confidence: 56.5%
+        
+2024-11-25 22:15:21,864 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:22,441 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=10&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:22,448 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:23,027 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=38&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:23,252 - 17048 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14366_20241125_221523.json
+2024-11-25 22:15:23,253 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Detroit Pistons vs Toronto Raptors
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Detroit Pistons: 57.3%
+        - Toronto Raptors: 42.7%
+        
+        Predicted Score Ranges:
+        - Detroit Pistons: 97-119
+        - Toronto Raptors: 101-124
+        
+        Predicted Winner: Detroit Pistons
+        Confidence: 57.3%
+        
+2024-11-25 22:15:23,254 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:23,807 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=15&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:23,813 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:24,627 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=23&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:24,911 - 17048 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14367_20241125_221524.json
+2024-11-25 22:15:24,912 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Indiana Pacers vs New Orleans Pelicans
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Indiana Pacers: 56.5%
+        - New Orleans Pelicans: 43.5%
+        
+        Predicted Score Ranges:
+        - Indiana Pacers: 104-127
+        - New Orleans Pelicans: 93-113
+        
+        Predicted Winner: Indiana Pacers
+        Confidence: 56.5%
+        
+2024-11-25 22:15:24,913 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:25,546 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=1&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:25,552 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:26,085 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=8&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:26,281 - 17048 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14368_20241125_221526.json
+2024-11-25 22:15:26,282 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Atlanta Hawks vs Dallas Mavericks
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Atlanta Hawks: 56.5%
+        - Dallas Mavericks: 43.5%
+        
+        Predicted Score Ranges:
+        - Atlanta Hawks: 102-125
+        - Dallas Mavericks: 102-125
+        
+        Predicted Winner: Atlanta Hawks
+        Confidence: 56.5%
+        
+2024-11-25 22:15:26,284 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:26,991 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=2&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:26,997 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:27,583 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=16&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:27,837 - 17048 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14369_20241125_221527.json
+2024-11-25 22:15:27,838 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Boston Celtics vs LA Clippers
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Boston Celtics: 55.1%
+        - LA Clippers: 44.9%
+        
+        Predicted Score Ranges:
+        - Boston Celtics: 107-131
+        - LA Clippers: 97-119
+        
+        Predicted Winner: Boston Celtics
+        Confidence: 55.1%
+        
+2024-11-25 22:15:27,839 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:28,448 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=19&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:28,453 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:29,038 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=29&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:29,267 - 17048 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14370_20241125_221529.json
+2024-11-25 22:15:29,268 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Memphis Grizzlies vs Portland Trail Blazers
+        Scheduled Start: 2024-11-26T01:00:00.000Z
+        
+        Win Probabilities:
+        - Memphis Grizzlies: 56.3%
+        - Portland Trail Blazers: 43.7%
+        
+        Predicted Score Ranges:
+        - Memphis Grizzlies: 106-130
+        - Portland Trail Blazers: 95-116
+        
+        Predicted Winner: Memphis Grizzlies
+        Confidence: 56.3%
+        
+2024-11-25 22:15:29,269 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:29,983 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=9&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:29,990 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:30,705 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=24&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:30,937 - 17048 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14371_20241125_221530.json
+2024-11-25 22:15:30,938 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Denver Nuggets vs New York Knicks
+        Scheduled Start: 2024-11-26T02:00:00.000Z
+        
+        Win Probabilities:
+        - Denver Nuggets: 56.9%
+        - New York Knicks: 43.1%
+        
+        Predicted Score Ranges:
+        - Denver Nuggets: 103-126
+        - New York Knicks: 105-128
+        
+        Predicted Winner: Denver Nuggets
+        Confidence: 56.9%
+        
+2024-11-25 22:15:30,942 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:31,500 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=11&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:31,507 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:32,217 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=4&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:32,470 - 17048 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14372_20241125_221532.json
+2024-11-25 22:15:32,470 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Golden State Warriors vs Brooklyn Nets
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Golden State Warriors: 57.3%
+        - Brooklyn Nets: 42.7%
+        
+        Predicted Score Ranges:
+        - Golden State Warriors: 104-127
+        - Brooklyn Nets: 99-121
+        
+        Predicted Winner: Golden State Warriors
+        Confidence: 57.3%
+        
+2024-11-25 22:15:32,472 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:33,130 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=30&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:33,139 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:15:33,764 - 17048 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=25&season=2024 HTTP/11" 200 None
+2024-11-25 22:15:33,969 - 17048 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14373_20241125_221533.json
+2024-11-25 22:15:33,969 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Sacramento Kings vs Oklahoma City Thunder
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Sacramento Kings: 56.4%
+        - Oklahoma City Thunder: 43.6%
+        
+        Predicted Score Ranges:
+        - Sacramento Kings: 100-122
+        - Oklahoma City Thunder: 102-125
+        
+        Predicted Winner: Sacramento Kings
+        Confidence: 56.4%
+        
+2024-11-25 22:15:33,969 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:238 - Predictions completed successfully
+2024-11-25 22:15:34,268 - 17048 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 0.3 seconds since last update
+2024-11-25 22:34:46,878 - 17048 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14365_20241125_215648.json
+2024-11-25 22:34:46,880 - 17048 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14366_20241125_215649.json
+2024-11-25 22:34:46,882 - 17048 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14367_20241125_215651.json
+2024-11-25 22:34:46,883 - 17048 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14368_20241125_215652.json
+2024-11-25 22:34:46,884 - 17048 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14369_20241125_215654.json
+2024-11-25 22:34:46,885 - 17048 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14370_20241125_215656.json
+2024-11-25 22:34:46,886 - 17048 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14371_20241125_215657.json
+2024-11-25 22:34:46,888 - 17048 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14372_20241125_215659.json
+2024-11-25 22:34:46,888 - 17048 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14373_20241125_215701.json
+2024-11-25 22:35:42,850 - 9600 - ScriptRunner.scriptThread - WARNING - module_wrapper.py:149 - From C:\Users\SHIVAM\mnba\streamlitsafe\env\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+2024-11-25 22:35:48,047 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:204 - Starting prediction update...
+2024-11-25 22:35:48,887 - 9600 - ScriptRunner.scriptThread - WARNING - prediction_service.py:43 - Scaler does not have feature names; using default feature names
+2024-11-25 22:35:48,889 - 9600 - ScriptRunner.scriptThread - INFO - prediction_service.py:48 - Loaded scaler successfully
+2024-11-25 22:35:49,278 - 9600 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded random_forest model successfully
+2024-11-25 22:35:49,338 - 9600 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded xgboost model successfully
+2024-11-25 22:35:49,355 - 9600 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded svm model successfully
+2024-11-25 22:35:49,387 - 9600 - ScriptRunner.scriptThread - DEBUG - attrs.py:78 - Creating converter from 3 to 5
+2024-11-25 22:35:49,649 - 9600 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 22:35:49,662 - 9600 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded lstm model successfully
+2024-11-25 22:35:49,838 - 9600 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 22:35:49,846 - 9600 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded gru model successfully
+2024-11-25 22:35:49,847 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:213 - Fetching live games...
+2024-11-25 22:35:49,850 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:35:51,504 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?live=all&league=standard&season=2024 HTTP/11" 200 None
+2024-11-25 22:35:51,507 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-25
+2024-11-25 22:35:51,516 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:35:52,438 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-25&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 22:35:52,441 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 2 games for 2024-11-25
+2024-11-25 22:35:52,445 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-26
+2024-11-25 22:35:52,449 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:35:53,602 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-26&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 22:35:53,605 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 9 games for 2024-11-26
+2024-11-25 22:35:53,605 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Charlotte Hornets vs Orlando Magic at 2024-11-26T00:00:00.000Z
+2024-11-25 22:35:53,606 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Detroit Pistons vs Toronto Raptors at 2024-11-26T00:00:00.000Z
+2024-11-25 22:35:53,607 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Indiana Pacers vs New Orleans Pelicans at 2024-11-26T00:00:00.000Z
+2024-11-25 22:35:53,607 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Atlanta Hawks vs Dallas Mavericks at 2024-11-26T00:30:00.000Z
+2024-11-25 22:35:53,608 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Boston Celtics vs LA Clippers at 2024-11-26T00:30:00.000Z
+2024-11-25 22:35:53,610 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Memphis Grizzlies vs Portland Trail Blazers at 2024-11-26T01:00:00.000Z
+2024-11-25 22:35:53,610 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Denver Nuggets vs New York Knicks at 2024-11-26T02:00:00.000Z
+2024-11-25 22:35:53,611 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Golden State Warriors vs Brooklyn Nets at 2024-11-26T03:00:00.000Z
+2024-11-25 22:35:53,611 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Sacramento Kings vs Oklahoma City Thunder at 2024-11-26T03:00:00.000Z
+2024-11-25 22:35:53,613 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:35:54,839 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=5&season=2024 HTTP/11" 200 None
+2024-11-25 22:35:54,844 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:35:56,350 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=26&season=2024 HTTP/11" 200 None
+2024-11-25 22:35:58,036 - 9600 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14365_20241125_223558.json
+2024-11-25 22:35:58,037 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Charlotte Hornets vs Orlando Magic
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Charlotte Hornets: 56.5%
+        - Orlando Magic: 43.5%
+        
+        Predicted Score Ranges:
+        - Charlotte Hornets: 99-122
+        - Orlando Magic: 96-117
+        
+        Predicted Winner: Charlotte Hornets
+        Confidence: 56.5%
+        
+2024-11-25 22:35:58,038 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:35:58,949 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=10&season=2024 HTTP/11" 200 None
+2024-11-25 22:35:58,955 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:00,277 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=38&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:00,475 - 9600 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14366_20241125_223600.json
+2024-11-25 22:36:00,475 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Detroit Pistons vs Toronto Raptors
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Detroit Pistons: 57.3%
+        - Toronto Raptors: 42.7%
+        
+        Predicted Score Ranges:
+        - Detroit Pistons: 97-119
+        - Toronto Raptors: 101-124
+        
+        Predicted Winner: Detroit Pistons
+        Confidence: 57.3%
+        
+2024-11-25 22:36:00,476 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:01,493 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=15&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:01,501 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:02,684 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=23&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:02,920 - 9600 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14367_20241125_223602.json
+2024-11-25 22:36:02,921 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Indiana Pacers vs New Orleans Pelicans
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Indiana Pacers: 56.5%
+        - New Orleans Pelicans: 43.5%
+        
+        Predicted Score Ranges:
+        - Indiana Pacers: 104-127
+        - New Orleans Pelicans: 93-113
+        
+        Predicted Winner: Indiana Pacers
+        Confidence: 56.5%
+        
+2024-11-25 22:36:02,922 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:03,906 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=1&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:03,912 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:04,898 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=8&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:05,091 - 9600 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14368_20241125_223605.json
+2024-11-25 22:36:05,092 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Atlanta Hawks vs Dallas Mavericks
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Atlanta Hawks: 56.5%
+        - Dallas Mavericks: 43.5%
+        
+        Predicted Score Ranges:
+        - Atlanta Hawks: 102-125
+        - Dallas Mavericks: 102-125
+        
+        Predicted Winner: Atlanta Hawks
+        Confidence: 56.5%
+        
+2024-11-25 22:36:05,093 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:06,358 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=2&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:06,365 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:07,505 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=16&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:07,732 - 9600 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14369_20241125_223607.json
+2024-11-25 22:36:07,733 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Boston Celtics vs LA Clippers
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Boston Celtics: 55.1%
+        - LA Clippers: 44.9%
+        
+        Predicted Score Ranges:
+        - Boston Celtics: 107-131
+        - LA Clippers: 97-119
+        
+        Predicted Winner: Boston Celtics
+        Confidence: 55.1%
+        
+2024-11-25 22:36:07,735 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:08,932 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=19&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:08,934 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:10,065 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=29&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:10,271 - 9600 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14370_20241125_223610.json
+2024-11-25 22:36:10,271 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Memphis Grizzlies vs Portland Trail Blazers
+        Scheduled Start: 2024-11-26T01:00:00.000Z
+        
+        Win Probabilities:
+        - Memphis Grizzlies: 56.3%
+        - Portland Trail Blazers: 43.7%
+        
+        Predicted Score Ranges:
+        - Memphis Grizzlies: 106-130
+        - Portland Trail Blazers: 95-116
+        
+        Predicted Winner: Memphis Grizzlies
+        Confidence: 56.3%
+        
+2024-11-25 22:36:10,272 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:11,130 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=9&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:11,134 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:11,998 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=24&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:12,192 - 9600 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14371_20241125_223612.json
+2024-11-25 22:36:12,193 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Denver Nuggets vs New York Knicks
+        Scheduled Start: 2024-11-26T02:00:00.000Z
+        
+        Win Probabilities:
+        - Denver Nuggets: 56.9%
+        - New York Knicks: 43.1%
+        
+        Predicted Score Ranges:
+        - Denver Nuggets: 103-126
+        - New York Knicks: 105-128
+        
+        Predicted Winner: Denver Nuggets
+        Confidence: 56.9%
+        
+2024-11-25 22:36:12,194 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:12,926 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=11&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:12,932 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:13,645 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=4&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:13,875 - 9600 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14372_20241125_223613.json
+2024-11-25 22:36:13,876 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Golden State Warriors vs Brooklyn Nets
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Golden State Warriors: 57.3%
+        - Brooklyn Nets: 42.7%
+        
+        Predicted Score Ranges:
+        - Golden State Warriors: 104-127
+        - Brooklyn Nets: 99-121
+        
+        Predicted Winner: Golden State Warriors
+        Confidence: 57.3%
+        
+2024-11-25 22:36:13,877 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:15,218 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=30&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:15,222 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 22:36:16,207 - 9600 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=25&season=2024 HTTP/11" 200 None
+2024-11-25 22:36:16,438 - 9600 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14373_20241125_223616.json
+2024-11-25 22:36:16,438 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Sacramento Kings vs Oklahoma City Thunder
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Sacramento Kings: 56.4%
+        - Oklahoma City Thunder: 43.6%
+        
+        Predicted Score Ranges:
+        - Sacramento Kings: 100-122
+        - Oklahoma City Thunder: 102-125
+        
+        Predicted Winner: Sacramento Kings
+        Confidence: 56.4%
+        
+2024-11-25 22:36:16,439 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:238 - Predictions completed successfully
+2024-11-25 22:36:16,725 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 0.3 seconds since last update
+2024-11-25 22:36:26,734 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 10.3 seconds since last update
+2024-11-25 22:36:27,116 - 9600 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 10.7 seconds since last update
+2024-11-25 22:36:40,912 - 9600 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14365_20241125_221521.json
+2024-11-25 22:36:40,915 - 9600 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14366_20241125_221523.json
+2024-11-25 22:36:40,917 - 9600 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14367_20241125_221524.json
+2024-11-25 22:36:40,918 - 9600 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14368_20241125_221526.json
+2024-11-25 22:36:40,921 - 9600 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14369_20241125_221527.json
+2024-11-25 22:36:40,923 - 9600 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14370_20241125_221529.json
+2024-11-25 22:36:40,924 - 9600 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14371_20241125_221530.json
+2024-11-25 22:36:40,926 - 9600 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14372_20241125_221532.json
+2024-11-25 22:36:40,927 - 9600 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14373_20241125_221533.json
+2024-11-25 23:05:15,098 - 7884 - ScriptRunner.scriptThread - WARNING - module_wrapper.py:149 - From C:\Users\SHIVAM\mnba\streamlitsafe\env\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+2024-11-25 23:05:20,102 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:204 - Starting prediction update...
+2024-11-25 23:05:22,404 - 7884 - ScriptRunner.scriptThread - WARNING - prediction_service.py:43 - Scaler does not have feature names; using default feature names
+2024-11-25 23:05:22,405 - 7884 - ScriptRunner.scriptThread - INFO - prediction_service.py:48 - Loaded scaler successfully
+2024-11-25 23:05:23,670 - 7884 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded random_forest model successfully
+2024-11-25 23:05:23,839 - 7884 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded xgboost model successfully
+2024-11-25 23:05:23,857 - 7884 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded svm model successfully
+2024-11-25 23:05:23,900 - 7884 - ScriptRunner.scriptThread - DEBUG - attrs.py:78 - Creating converter from 3 to 5
+2024-11-25 23:05:24,281 - 7884 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 23:05:24,296 - 7884 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded lstm model successfully
+2024-11-25 23:05:24,458 - 7884 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 23:05:24,468 - 7884 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded gru model successfully
+2024-11-25 23:05:24,468 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:213 - Fetching live games...
+2024-11-25 23:05:24,473 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:25,179 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?live=all&league=standard&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:25,183 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-25
+2024-11-25 23:05:25,189 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:25,797 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-25&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 23:05:25,801 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 2 games for 2024-11-25
+2024-11-25 23:05:25,806 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-26
+2024-11-25 23:05:25,810 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:26,350 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-26&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 23:05:26,356 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 9 games for 2024-11-26
+2024-11-25 23:05:26,358 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Charlotte Hornets vs Orlando Magic at 2024-11-26T00:00:00.000Z
+2024-11-25 23:05:26,358 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Detroit Pistons vs Toronto Raptors at 2024-11-26T00:00:00.000Z
+2024-11-25 23:05:26,359 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Indiana Pacers vs New Orleans Pelicans at 2024-11-26T00:00:00.000Z
+2024-11-25 23:05:26,361 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Atlanta Hawks vs Dallas Mavericks at 2024-11-26T00:30:00.000Z
+2024-11-25 23:05:26,362 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Boston Celtics vs LA Clippers at 2024-11-26T00:30:00.000Z
+2024-11-25 23:05:26,363 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Memphis Grizzlies vs Portland Trail Blazers at 2024-11-26T01:00:00.000Z
+2024-11-25 23:05:26,364 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Denver Nuggets vs New York Knicks at 2024-11-26T02:00:00.000Z
+2024-11-25 23:05:26,365 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Golden State Warriors vs Brooklyn Nets at 2024-11-26T03:00:00.000Z
+2024-11-25 23:05:26,367 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Sacramento Kings vs Oklahoma City Thunder at 2024-11-26T03:00:00.000Z
+2024-11-25 23:05:26,371 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:26,831 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=5&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:26,832 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:27,359 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=26&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:29,274 - 7884 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14365_20241125_230529.json
+2024-11-25 23:05:29,275 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Charlotte Hornets vs Orlando Magic
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Charlotte Hornets: 56.5%
+        - Orlando Magic: 43.5%
+        
+        Predicted Score Ranges:
+        - Charlotte Hornets: 99-122
+        - Orlando Magic: 96-117
+        
+        Predicted Winner: Charlotte Hornets
+        Confidence: 56.5%
+        
+2024-11-25 23:05:29,277 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:29,819 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=10&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:29,825 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:30,410 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=38&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:30,617 - 7884 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14366_20241125_230530.json
+2024-11-25 23:05:30,617 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Detroit Pistons vs Toronto Raptors
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Detroit Pistons: 57.3%
+        - Toronto Raptors: 42.7%
+        
+        Predicted Score Ranges:
+        - Detroit Pistons: 97-119
+        - Toronto Raptors: 101-124
+        
+        Predicted Winner: Detroit Pistons
+        Confidence: 57.3%
+        
+2024-11-25 23:05:30,619 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:31,125 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=15&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:31,127 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:31,699 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=23&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:31,933 - 7884 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14367_20241125_230531.json
+2024-11-25 23:05:31,933 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Indiana Pacers vs New Orleans Pelicans
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Indiana Pacers: 56.5%
+        - New Orleans Pelicans: 43.5%
+        
+        Predicted Score Ranges:
+        - Indiana Pacers: 104-127
+        - New Orleans Pelicans: 93-113
+        
+        Predicted Winner: Indiana Pacers
+        Confidence: 56.5%
+        
+2024-11-25 23:05:31,935 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:32,570 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=1&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:32,578 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:33,467 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=8&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:33,734 - 7884 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14368_20241125_230533.json
+2024-11-25 23:05:33,734 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Atlanta Hawks vs Dallas Mavericks
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Atlanta Hawks: 56.5%
+        - Dallas Mavericks: 43.5%
+        
+        Predicted Score Ranges:
+        - Atlanta Hawks: 102-125
+        - Dallas Mavericks: 102-125
+        
+        Predicted Winner: Atlanta Hawks
+        Confidence: 56.5%
+        
+2024-11-25 23:05:33,735 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:34,482 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=2&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:34,485 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:35,281 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=16&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:35,481 - 7884 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14369_20241125_230535.json
+2024-11-25 23:05:35,481 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Boston Celtics vs LA Clippers
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Boston Celtics: 55.1%
+        - LA Clippers: 44.9%
+        
+        Predicted Score Ranges:
+        - Boston Celtics: 107-131
+        - LA Clippers: 97-119
+        
+        Predicted Winner: Boston Celtics
+        Confidence: 55.1%
+        
+2024-11-25 23:05:35,483 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:36,007 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=19&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:36,013 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:36,583 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=29&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:36,837 - 7884 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14370_20241125_230536.json
+2024-11-25 23:05:36,838 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Memphis Grizzlies vs Portland Trail Blazers
+        Scheduled Start: 2024-11-26T01:00:00.000Z
+        
+        Win Probabilities:
+        - Memphis Grizzlies: 56.3%
+        - Portland Trail Blazers: 43.7%
+        
+        Predicted Score Ranges:
+        - Memphis Grizzlies: 106-130
+        - Portland Trail Blazers: 95-116
+        
+        Predicted Winner: Memphis Grizzlies
+        Confidence: 56.3%
+        
+2024-11-25 23:05:36,839 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:37,329 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=9&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:37,338 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:37,857 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=24&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:38,085 - 7884 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14371_20241125_230538.json
+2024-11-25 23:05:38,085 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Denver Nuggets vs New York Knicks
+        Scheduled Start: 2024-11-26T02:00:00.000Z
+        
+        Win Probabilities:
+        - Denver Nuggets: 56.9%
+        - New York Knicks: 43.1%
+        
+        Predicted Score Ranges:
+        - Denver Nuggets: 103-126
+        - New York Knicks: 105-128
+        
+        Predicted Winner: Denver Nuggets
+        Confidence: 56.9%
+        
+2024-11-25 23:05:38,087 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:38,602 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=11&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:38,604 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:39,172 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=4&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:39,437 - 7884 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14372_20241125_230539.json
+2024-11-25 23:05:39,437 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Golden State Warriors vs Brooklyn Nets
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Golden State Warriors: 57.3%
+        - Brooklyn Nets: 42.7%
+        
+        Predicted Score Ranges:
+        - Golden State Warriors: 104-127
+        - Brooklyn Nets: 99-121
+        
+        Predicted Winner: Golden State Warriors
+        Confidence: 57.3%
+        
+2024-11-25 23:05:39,439 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:39,902 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=30&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:39,903 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:05:40,407 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=25&season=2024 HTTP/11" 200 None
+2024-11-25 23:05:40,643 - 7884 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14373_20241125_230540.json
+2024-11-25 23:05:40,643 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Sacramento Kings vs Oklahoma City Thunder
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Sacramento Kings: 56.4%
+        - Oklahoma City Thunder: 43.6%
+        
+        Predicted Score Ranges:
+        - Sacramento Kings: 100-122
+        - Oklahoma City Thunder: 102-125
+        
+        Predicted Winner: Sacramento Kings
+        Confidence: 56.4%
+        
+2024-11-25 23:05:40,643 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:238 - Predictions completed successfully
+2024-11-25 23:05:40,944 - 7884 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 0.3 seconds since last update
+2024-11-25 23:05:46,090 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:05:46,790 - 7884 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F26%2F2024&DateTo=11%2F26%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 602
+2024-11-25 23:22:41,392 - 13476 - ScriptRunner.scriptThread - WARNING - module_wrapper.py:149 - From C:\Users\SHIVAM\mnba\streamlitsafe\env\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+2024-11-25 23:22:45,921 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:204 - Starting prediction update...
+2024-11-25 23:22:47,005 - 13476 - ScriptRunner.scriptThread - WARNING - prediction_service.py:43 - Scaler does not have feature names; using default feature names
+2024-11-25 23:22:47,005 - 13476 - ScriptRunner.scriptThread - INFO - prediction_service.py:48 - Loaded scaler successfully
+2024-11-25 23:22:47,526 - 13476 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded random_forest model successfully
+2024-11-25 23:22:47,710 - 13476 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded xgboost model successfully
+2024-11-25 23:22:47,723 - 13476 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded svm model successfully
+2024-11-25 23:22:47,769 - 13476 - ScriptRunner.scriptThread - DEBUG - attrs.py:78 - Creating converter from 3 to 5
+2024-11-25 23:22:48,192 - 13476 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 23:22:48,207 - 13476 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded lstm model successfully
+2024-11-25 23:22:48,370 - 13476 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 23:22:48,381 - 13476 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded gru model successfully
+2024-11-25 23:22:48,381 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:213 - Fetching live games...
+2024-11-25 23:22:48,390 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:48,678 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:22:48,975 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?live=all&league=standard&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:48,984 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-25
+2024-11-25 23:22:48,989 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:49,344 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:22:49,373 - 13476 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:53 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:22:49,386 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:22:49,466 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:22:49,469 - 13476 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:53 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:22:49,479 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:22:49,560 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-25&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 23:22:49,563 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 2 games for 2024-11-25
+2024-11-25 23:22:49,568 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-26
+2024-11-25 23:22:49,574 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:49,610 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:22:49,618 - 13476 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:53 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:22:49,634 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:22:49,691 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:22:49,694 - 13476 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:53 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:22:50,118 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-26&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 23:22:50,119 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 9 games for 2024-11-26
+2024-11-25 23:22:50,121 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Charlotte Hornets vs Orlando Magic at 2024-11-26T00:00:00.000Z
+2024-11-25 23:22:50,121 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Detroit Pistons vs Toronto Raptors at 2024-11-26T00:00:00.000Z
+2024-11-25 23:22:50,122 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Indiana Pacers vs New Orleans Pelicans at 2024-11-26T00:00:00.000Z
+2024-11-25 23:22:50,122 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Atlanta Hawks vs Dallas Mavericks at 2024-11-26T00:30:00.000Z
+2024-11-25 23:22:50,123 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Boston Celtics vs LA Clippers at 2024-11-26T00:30:00.000Z
+2024-11-25 23:22:50,123 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Memphis Grizzlies vs Portland Trail Blazers at 2024-11-26T01:00:00.000Z
+2024-11-25 23:22:50,124 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Denver Nuggets vs New York Knicks at 2024-11-26T02:00:00.000Z
+2024-11-25 23:22:50,124 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Golden State Warriors vs Brooklyn Nets at 2024-11-26T03:00:00.000Z
+2024-11-25 23:22:50,124 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Sacramento Kings vs Oklahoma City Thunder at 2024-11-26T03:00:00.000Z
+2024-11-25 23:22:50,126 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:50,868 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=5&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:50,871 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:51,398 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=26&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:54,380 - 13476 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14365_20241125_232254.json
+2024-11-25 23:22:54,381 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Charlotte Hornets vs Orlando Magic
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Charlotte Hornets: 56.5%
+        - Orlando Magic: 43.5%
+        
+        Predicted Score Ranges:
+        - Charlotte Hornets: 99-122
+        - Orlando Magic: 96-117
+        
+        Predicted Winner: Charlotte Hornets
+        Confidence: 56.5%
+        
+2024-11-25 23:22:54,382 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:54,871 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=10&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:54,874 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:55,384 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=38&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:55,628 - 13476 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14366_20241125_232255.json
+2024-11-25 23:22:55,628 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Detroit Pistons vs Toronto Raptors
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Detroit Pistons: 57.3%
+        - Toronto Raptors: 42.7%
+        
+        Predicted Score Ranges:
+        - Detroit Pistons: 97-119
+        - Toronto Raptors: 101-124
+        
+        Predicted Winner: Detroit Pistons
+        Confidence: 57.3%
+        
+2024-11-25 23:22:55,630 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:56,175 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=15&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:56,177 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:56,701 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=23&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:56,914 - 13476 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14367_20241125_232256.json
+2024-11-25 23:22:56,914 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Indiana Pacers vs New Orleans Pelicans
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Indiana Pacers: 56.5%
+        - New Orleans Pelicans: 43.5%
+        
+        Predicted Score Ranges:
+        - Indiana Pacers: 104-127
+        - New Orleans Pelicans: 93-113
+        
+        Predicted Winner: Indiana Pacers
+        Confidence: 56.5%
+        
+2024-11-25 23:22:56,915 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:57,481 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=1&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:57,489 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:58,033 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=8&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:58,272 - 13476 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14368_20241125_232258.json
+2024-11-25 23:22:58,272 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Atlanta Hawks vs Dallas Mavericks
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Atlanta Hawks: 56.5%
+        - Dallas Mavericks: 43.5%
+        
+        Predicted Score Ranges:
+        - Atlanta Hawks: 102-125
+        - Dallas Mavericks: 102-125
+        
+        Predicted Winner: Atlanta Hawks
+        Confidence: 56.5%
+        
+2024-11-25 23:22:58,274 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:58,810 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=2&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:58,815 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:22:59,339 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=16&season=2024 HTTP/11" 200 None
+2024-11-25 23:22:59,586 - 13476 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14369_20241125_232259.json
+2024-11-25 23:22:59,587 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Boston Celtics vs LA Clippers
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Boston Celtics: 55.1%
+        - LA Clippers: 44.9%
+        
+        Predicted Score Ranges:
+        - Boston Celtics: 107-131
+        - LA Clippers: 97-119
+        
+        Predicted Winner: Boston Celtics
+        Confidence: 55.1%
+        
+2024-11-25 23:22:59,588 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:23:00,080 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=19&season=2024 HTTP/11" 200 None
+2024-11-25 23:23:00,093 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:23:00,643 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=29&season=2024 HTTP/11" 200 None
+2024-11-25 23:23:00,857 - 13476 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14370_20241125_232300.json
+2024-11-25 23:23:00,858 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Memphis Grizzlies vs Portland Trail Blazers
+        Scheduled Start: 2024-11-26T01:00:00.000Z
+        
+        Win Probabilities:
+        - Memphis Grizzlies: 56.3%
+        - Portland Trail Blazers: 43.7%
+        
+        Predicted Score Ranges:
+        - Memphis Grizzlies: 106-130
+        - Portland Trail Blazers: 95-116
+        
+        Predicted Winner: Memphis Grizzlies
+        Confidence: 56.3%
+        
+2024-11-25 23:23:00,859 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:23:01,378 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=9&season=2024 HTTP/11" 200 None
+2024-11-25 23:23:01,385 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:23:01,878 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=24&season=2024 HTTP/11" 200 None
+2024-11-25 23:23:02,178 - 13476 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14371_20241125_232302.json
+2024-11-25 23:23:02,179 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Denver Nuggets vs New York Knicks
+        Scheduled Start: 2024-11-26T02:00:00.000Z
+        
+        Win Probabilities:
+        - Denver Nuggets: 56.9%
+        - New York Knicks: 43.1%
+        
+        Predicted Score Ranges:
+        - Denver Nuggets: 103-126
+        - New York Knicks: 105-128
+        
+        Predicted Winner: Denver Nuggets
+        Confidence: 56.9%
+        
+2024-11-25 23:23:02,180 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:23:02,752 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=11&season=2024 HTTP/11" 200 None
+2024-11-25 23:23:02,758 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:23:03,294 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=4&season=2024 HTTP/11" 200 None
+2024-11-25 23:23:03,534 - 13476 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14372_20241125_232303.json
+2024-11-25 23:23:03,534 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Golden State Warriors vs Brooklyn Nets
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Golden State Warriors: 57.3%
+        - Brooklyn Nets: 42.7%
+        
+        Predicted Score Ranges:
+        - Golden State Warriors: 104-127
+        - Brooklyn Nets: 99-121
+        
+        Predicted Winner: Golden State Warriors
+        Confidence: 57.3%
+        
+2024-11-25 23:23:03,535 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:23:04,086 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=30&season=2024 HTTP/11" 200 None
+2024-11-25 23:23:04,097 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:23:04,660 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=25&season=2024 HTTP/11" 200 None
+2024-11-25 23:23:04,970 - 13476 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14373_20241125_232304.json
+2024-11-25 23:23:04,971 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Sacramento Kings vs Oklahoma City Thunder
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Sacramento Kings: 56.4%
+        - Oklahoma City Thunder: 43.6%
+        
+        Predicted Score Ranges:
+        - Sacramento Kings: 100-122
+        - Oklahoma City Thunder: 102-125
+        
+        Predicted Winner: Sacramento Kings
+        Confidence: 56.4%
+        
+2024-11-25 23:23:04,971 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:238 - Predictions completed successfully
+2024-11-25 23:24:20,618 - 13476 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 75.6 seconds since last update
+2024-11-25 23:24:22,754 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:24:22,828 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:24:22,833 - 13476 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:53 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:24:22,836 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:24:22,983 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:24:22,986 - 13476 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:53 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:24:22,989 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:24:23,059 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:24:23,063 - 13476 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:53 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:24:23,065 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:24:23,130 - 13476 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:24:23,133 - 13476 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:53 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:28:32,540 - 13476 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14365_20241125_230529.json
+2024-11-25 23:28:32,541 - 13476 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14366_20241125_230530.json
+2024-11-25 23:28:32,542 - 13476 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14367_20241125_230531.json
+2024-11-25 23:28:32,544 - 13476 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14368_20241125_230533.json
+2024-11-25 23:28:32,545 - 13476 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14369_20241125_230535.json
+2024-11-25 23:28:32,547 - 13476 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14370_20241125_230536.json
+2024-11-25 23:28:32,548 - 13476 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14371_20241125_230538.json
+2024-11-25 23:28:32,550 - 13476 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14372_20241125_230539.json
+2024-11-25 23:28:32,552 - 13476 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14373_20241125_230540.json
+2024-11-25 23:29:11,558 - 17160 - ScriptRunner.scriptThread - WARNING - module_wrapper.py:149 - From C:\Users\SHIVAM\mnba\streamlitsafe\env\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+2024-11-25 23:29:18,346 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:204 - Starting prediction update...
+2024-11-25 23:29:19,693 - 17160 - ScriptRunner.scriptThread - WARNING - prediction_service.py:43 - Scaler does not have feature names; using default feature names
+2024-11-25 23:29:19,694 - 17160 - ScriptRunner.scriptThread - INFO - prediction_service.py:48 - Loaded scaler successfully
+2024-11-25 23:29:20,134 - 17160 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded random_forest model successfully
+2024-11-25 23:29:20,194 - 17160 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded xgboost model successfully
+2024-11-25 23:29:20,206 - 17160 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded svm model successfully
+2024-11-25 23:29:20,233 - 17160 - ScriptRunner.scriptThread - DEBUG - attrs.py:78 - Creating converter from 3 to 5
+2024-11-25 23:29:20,532 - 17160 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 23:29:20,545 - 17160 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded lstm model successfully
+2024-11-25 23:29:20,727 - 17160 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 23:29:20,738 - 17160 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded gru model successfully
+2024-11-25 23:29:20,739 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:213 - Fetching live games...
+2024-11-25 23:29:20,744 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:21,347 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?live=all&league=standard&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:21,348 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-25
+2024-11-25 23:29:21,350 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:21,903 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-25&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 23:29:21,906 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 2 games for 2024-11-25
+2024-11-25 23:29:21,909 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-26
+2024-11-25 23:29:21,911 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:22,446 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-26&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 23:29:22,448 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 9 games for 2024-11-26
+2024-11-25 23:29:22,450 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Charlotte Hornets vs Orlando Magic at 2024-11-26T00:00:00.000Z
+2024-11-25 23:29:22,451 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Detroit Pistons vs Toronto Raptors at 2024-11-26T00:00:00.000Z
+2024-11-25 23:29:22,452 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Indiana Pacers vs New Orleans Pelicans at 2024-11-26T00:00:00.000Z
+2024-11-25 23:29:22,452 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Atlanta Hawks vs Dallas Mavericks at 2024-11-26T00:30:00.000Z
+2024-11-25 23:29:22,453 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Boston Celtics vs LA Clippers at 2024-11-26T00:30:00.000Z
+2024-11-25 23:29:22,454 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Memphis Grizzlies vs Portland Trail Blazers at 2024-11-26T01:00:00.000Z
+2024-11-25 23:29:22,455 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Denver Nuggets vs New York Knicks at 2024-11-26T02:00:00.000Z
+2024-11-25 23:29:22,455 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Golden State Warriors vs Brooklyn Nets at 2024-11-26T03:00:00.000Z
+2024-11-25 23:29:22,456 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Sacramento Kings vs Oklahoma City Thunder at 2024-11-26T03:00:00.000Z
+2024-11-25 23:29:22,459 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:22,995 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=5&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:22,997 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:23,466 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=26&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:26,297 - 17160 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14365_20241125_232926.json
+2024-11-25 23:29:26,297 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Charlotte Hornets vs Orlando Magic
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Charlotte Hornets: 56.5%
+        - Orlando Magic: 43.5%
+        
+        Predicted Score Ranges:
+        - Charlotte Hornets: 99-122
+        - Orlando Magic: 96-117
+        
+        Predicted Winner: Charlotte Hornets
+        Confidence: 56.5%
+        
+2024-11-25 23:29:26,299 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:26,809 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=10&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:26,813 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:27,309 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=38&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:27,520 - 17160 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14366_20241125_232927.json
+2024-11-25 23:29:27,520 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Detroit Pistons vs Toronto Raptors
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Detroit Pistons: 57.3%
+        - Toronto Raptors: 42.7%
+        
+        Predicted Score Ranges:
+        - Detroit Pistons: 97-119
+        - Toronto Raptors: 101-124
+        
+        Predicted Winner: Detroit Pistons
+        Confidence: 57.3%
+        
+2024-11-25 23:29:27,522 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:28,055 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=15&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:28,057 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:28,606 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=23&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:28,817 - 17160 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14367_20241125_232928.json
+2024-11-25 23:29:28,818 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Indiana Pacers vs New Orleans Pelicans
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Indiana Pacers: 56.5%
+        - New Orleans Pelicans: 43.5%
+        
+        Predicted Score Ranges:
+        - Indiana Pacers: 104-127
+        - New Orleans Pelicans: 93-113
+        
+        Predicted Winner: Indiana Pacers
+        Confidence: 56.5%
+        
+2024-11-25 23:29:28,820 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:29,379 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=1&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:29,382 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:29,889 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=8&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:30,297 - 17160 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14368_20241125_232930.json
+2024-11-25 23:29:30,298 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Atlanta Hawks vs Dallas Mavericks
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Atlanta Hawks: 56.5%
+        - Dallas Mavericks: 43.5%
+        
+        Predicted Score Ranges:
+        - Atlanta Hawks: 102-125
+        - Dallas Mavericks: 102-125
+        
+        Predicted Winner: Atlanta Hawks
+        Confidence: 56.5%
+        
+2024-11-25 23:29:30,301 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:30,874 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=2&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:30,877 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:31,372 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=16&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:31,582 - 17160 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14369_20241125_232931.json
+2024-11-25 23:29:31,583 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Boston Celtics vs LA Clippers
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Boston Celtics: 55.1%
+        - LA Clippers: 44.9%
+        
+        Predicted Score Ranges:
+        - Boston Celtics: 107-131
+        - LA Clippers: 97-119
+        
+        Predicted Winner: Boston Celtics
+        Confidence: 55.1%
+        
+2024-11-25 23:29:31,584 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:32,244 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=19&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:32,247 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:33,181 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=29&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:33,393 - 17160 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14370_20241125_232933.json
+2024-11-25 23:29:33,393 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Memphis Grizzlies vs Portland Trail Blazers
+        Scheduled Start: 2024-11-26T01:00:00.000Z
+        
+        Win Probabilities:
+        - Memphis Grizzlies: 56.3%
+        - Portland Trail Blazers: 43.7%
+        
+        Predicted Score Ranges:
+        - Memphis Grizzlies: 106-130
+        - Portland Trail Blazers: 95-116
+        
+        Predicted Winner: Memphis Grizzlies
+        Confidence: 56.3%
+        
+2024-11-25 23:29:33,395 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:33,977 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=9&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:33,981 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:34,502 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=24&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:35,029 - 17160 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14371_20241125_232935.json
+2024-11-25 23:29:35,029 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Denver Nuggets vs New York Knicks
+        Scheduled Start: 2024-11-26T02:00:00.000Z
+        
+        Win Probabilities:
+        - Denver Nuggets: 56.9%
+        - New York Knicks: 43.1%
+        
+        Predicted Score Ranges:
+        - Denver Nuggets: 103-126
+        - New York Knicks: 105-128
+        
+        Predicted Winner: Denver Nuggets
+        Confidence: 56.9%
+        
+2024-11-25 23:29:35,032 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:35,552 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=11&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:35,555 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:36,039 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=4&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:36,255 - 17160 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14372_20241125_232936.json
+2024-11-25 23:29:36,256 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Golden State Warriors vs Brooklyn Nets
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Golden State Warriors: 57.3%
+        - Brooklyn Nets: 42.7%
+        
+        Predicted Score Ranges:
+        - Golden State Warriors: 104-127
+        - Brooklyn Nets: 99-121
+        
+        Predicted Winner: Golden State Warriors
+        Confidence: 57.3%
+        
+2024-11-25 23:29:36,257 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:36,734 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=30&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:36,737 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:29:37,253 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=25&season=2024 HTTP/11" 200 None
+2024-11-25 23:29:37,655 - 17160 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14373_20241125_232937.json
+2024-11-25 23:29:37,656 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Sacramento Kings vs Oklahoma City Thunder
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Sacramento Kings: 56.4%
+        - Oklahoma City Thunder: 43.6%
+        
+        Predicted Score Ranges:
+        - Sacramento Kings: 100-122
+        - Oklahoma City Thunder: 102-125
+        
+        Predicted Winner: Sacramento Kings
+        Confidence: 56.4%
+        
+2024-11-25 23:29:37,658 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:238 - Predictions completed successfully
+2024-11-25 23:29:38,100 - 17160 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 0.4 seconds since last update
+2024-11-25 23:29:41,175 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:29:41,347 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:29:41,352 - 17160 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:52 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:29:41,354 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:29:41,529 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:29:41,533 - 17160 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:52 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:29:41,536 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:29:41,592 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:29:41,596 - 17160 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:52 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:29:41,598 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:29:41,638 - 17160 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1451
+2024-11-25 23:29:41,641 - 17160 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:52 - Error fetching NBA game results: 'OPPONENT'
+2024-11-25 23:32:41,672 - 17160 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14365_20241125_232254.json
+2024-11-25 23:32:41,673 - 17160 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14366_20241125_232255.json
+2024-11-25 23:32:41,674 - 17160 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14367_20241125_232256.json
+2024-11-25 23:32:41,675 - 17160 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14368_20241125_232258.json
+2024-11-25 23:32:41,676 - 17160 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14369_20241125_232259.json
+2024-11-25 23:32:41,677 - 17160 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14370_20241125_232300.json
+2024-11-25 23:32:41,678 - 17160 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14371_20241125_232302.json
+2024-11-25 23:32:41,679 - 17160 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14372_20241125_232303.json
+2024-11-25 23:32:41,680 - 17160 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14373_20241125_232304.json
+2024-11-25 23:33:24,023 - 19760 - ScriptRunner.scriptThread - WARNING - module_wrapper.py:149 - From C:\Users\SHIVAM\mnba\streamlitsafe\env\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+2024-11-25 23:33:30,424 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:204 - Starting prediction update...
+2024-11-25 23:33:32,068 - 19760 - ScriptRunner.scriptThread - WARNING - prediction_service.py:43 - Scaler does not have feature names; using default feature names
+2024-11-25 23:33:32,069 - 19760 - ScriptRunner.scriptThread - INFO - prediction_service.py:48 - Loaded scaler successfully
+2024-11-25 23:33:32,557 - 19760 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded random_forest model successfully
+2024-11-25 23:33:32,640 - 19760 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded xgboost model successfully
+2024-11-25 23:33:32,657 - 19760 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded svm model successfully
+2024-11-25 23:33:32,701 - 19760 - ScriptRunner.scriptThread - DEBUG - attrs.py:78 - Creating converter from 3 to 5
+2024-11-25 23:33:33,147 - 19760 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 23:33:33,167 - 19760 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded lstm model successfully
+2024-11-25 23:33:33,510 - 19760 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 23:33:33,530 - 19760 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded gru model successfully
+2024-11-25 23:33:33,531 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:213 - Fetching live games...
+2024-11-25 23:33:33,539 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:34,126 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?live=all&league=standard&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:34,128 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-25
+2024-11-25 23:33:34,131 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:34,628 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-25&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 23:33:34,631 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 2 games for 2024-11-25
+2024-11-25 23:33:34,633 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-26
+2024-11-25 23:33:34,636 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:35,194 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-26&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 23:33:35,195 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 9 games for 2024-11-26
+2024-11-25 23:33:35,196 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Charlotte Hornets vs Orlando Magic at 2024-11-26T00:00:00.000Z
+2024-11-25 23:33:35,196 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Detroit Pistons vs Toronto Raptors at 2024-11-26T00:00:00.000Z
+2024-11-25 23:33:35,196 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Indiana Pacers vs New Orleans Pelicans at 2024-11-26T00:00:00.000Z
+2024-11-25 23:33:35,197 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Atlanta Hawks vs Dallas Mavericks at 2024-11-26T00:30:00.000Z
+2024-11-25 23:33:35,197 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Boston Celtics vs LA Clippers at 2024-11-26T00:30:00.000Z
+2024-11-25 23:33:35,197 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Memphis Grizzlies vs Portland Trail Blazers at 2024-11-26T01:00:00.000Z
+2024-11-25 23:33:35,198 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Denver Nuggets vs New York Knicks at 2024-11-26T02:00:00.000Z
+2024-11-25 23:33:35,198 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Golden State Warriors vs Brooklyn Nets at 2024-11-26T03:00:00.000Z
+2024-11-25 23:33:35,199 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Sacramento Kings vs Oklahoma City Thunder at 2024-11-26T03:00:00.000Z
+2024-11-25 23:33:35,201 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:35,718 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=5&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:35,720 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:36,260 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=26&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:39,491 - 19760 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14365_20241125_233339.json
+2024-11-25 23:33:39,492 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Charlotte Hornets vs Orlando Magic
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Charlotte Hornets: 56.5%
+        - Orlando Magic: 43.5%
+        
+        Predicted Score Ranges:
+        - Charlotte Hornets: 99-122
+        - Orlando Magic: 96-117
+        
+        Predicted Winner: Charlotte Hornets
+        Confidence: 56.5%
+        
+2024-11-25 23:33:39,495 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:40,059 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=10&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:40,063 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:40,608 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=38&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:41,049 - 19760 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14366_20241125_233341.json
+2024-11-25 23:33:41,049 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Detroit Pistons vs Toronto Raptors
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Detroit Pistons: 57.3%
+        - Toronto Raptors: 42.7%
+        
+        Predicted Score Ranges:
+        - Detroit Pistons: 97-119
+        - Toronto Raptors: 101-124
+        
+        Predicted Winner: Detroit Pistons
+        Confidence: 57.3%
+        
+2024-11-25 23:33:41,051 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:41,572 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=15&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:41,573 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:42,081 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=23&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:42,292 - 19760 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14367_20241125_233342.json
+2024-11-25 23:33:42,292 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Indiana Pacers vs New Orleans Pelicans
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Indiana Pacers: 56.5%
+        - New Orleans Pelicans: 43.5%
+        
+        Predicted Score Ranges:
+        - Indiana Pacers: 104-127
+        - New Orleans Pelicans: 93-113
+        
+        Predicted Winner: Indiana Pacers
+        Confidence: 56.5%
+        
+2024-11-25 23:33:42,293 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:42,773 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=1&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:42,777 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:43,285 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=8&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:43,704 - 19760 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14368_20241125_233343.json
+2024-11-25 23:33:43,705 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Atlanta Hawks vs Dallas Mavericks
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Atlanta Hawks: 56.5%
+        - Dallas Mavericks: 43.5%
+        
+        Predicted Score Ranges:
+        - Atlanta Hawks: 102-125
+        - Dallas Mavericks: 102-125
+        
+        Predicted Winner: Atlanta Hawks
+        Confidence: 56.5%
+        
+2024-11-25 23:33:43,708 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:44,220 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=2&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:44,221 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:44,768 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=16&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:44,995 - 19760 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14369_20241125_233344.json
+2024-11-25 23:33:44,996 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Boston Celtics vs LA Clippers
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Boston Celtics: 55.1%
+        - LA Clippers: 44.9%
+        
+        Predicted Score Ranges:
+        - Boston Celtics: 107-131
+        - LA Clippers: 97-119
+        
+        Predicted Winner: Boston Celtics
+        Confidence: 55.1%
+        
+2024-11-25 23:33:44,997 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:45,498 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=19&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:45,499 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:46,019 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=29&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:46,416 - 19760 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14370_20241125_233346.json
+2024-11-25 23:33:46,417 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Memphis Grizzlies vs Portland Trail Blazers
+        Scheduled Start: 2024-11-26T01:00:00.000Z
+        
+        Win Probabilities:
+        - Memphis Grizzlies: 56.3%
+        - Portland Trail Blazers: 43.7%
+        
+        Predicted Score Ranges:
+        - Memphis Grizzlies: 106-130
+        - Portland Trail Blazers: 95-116
+        
+        Predicted Winner: Memphis Grizzlies
+        Confidence: 56.3%
+        
+2024-11-25 23:33:46,419 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:46,947 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=9&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:46,951 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:47,470 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=24&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:47,676 - 19760 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14371_20241125_233347.json
+2024-11-25 23:33:47,677 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Denver Nuggets vs New York Knicks
+        Scheduled Start: 2024-11-26T02:00:00.000Z
+        
+        Win Probabilities:
+        - Denver Nuggets: 56.9%
+        - New York Knicks: 43.1%
+        
+        Predicted Score Ranges:
+        - Denver Nuggets: 103-126
+        - New York Knicks: 105-128
+        
+        Predicted Winner: Denver Nuggets
+        Confidence: 56.9%
+        
+2024-11-25 23:33:47,678 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:48,218 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=11&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:48,220 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:48,696 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=4&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:49,121 - 19760 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14372_20241125_233349.json
+2024-11-25 23:33:49,121 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Golden State Warriors vs Brooklyn Nets
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Golden State Warriors: 57.3%
+        - Brooklyn Nets: 42.7%
+        
+        Predicted Score Ranges:
+        - Golden State Warriors: 104-127
+        - Brooklyn Nets: 99-121
+        
+        Predicted Winner: Golden State Warriors
+        Confidence: 57.3%
+        
+2024-11-25 23:33:49,124 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:49,660 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=30&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:49,663 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:33:50,183 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=25&season=2024 HTTP/11" 200 None
+2024-11-25 23:33:50,399 - 19760 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14373_20241125_233350.json
+2024-11-25 23:33:50,400 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Sacramento Kings vs Oklahoma City Thunder
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Sacramento Kings: 56.4%
+        - Oklahoma City Thunder: 43.6%
+        
+        Predicted Score Ranges:
+        - Sacramento Kings: 100-122
+        - Oklahoma City Thunder: 102-125
+        
+        Predicted Winner: Sacramento Kings
+        Confidence: 56.4%
+        
+2024-11-25 23:33:50,400 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:238 - Predictions completed successfully
+2024-11-25 23:33:50,666 - 19760 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 0.3 seconds since last update
+2024-11-25 23:33:53,946 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:34:09,505 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:34:23,963 - 19760 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:83 - Error fetching NBA game results: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=30)
+2024-11-25 23:34:23,983 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:34:39,544 - 19760 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:83 - Error fetching NBA game results: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=30)
+2024-11-25 23:34:39,548 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:34:54,037 - 19760 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:83 - Error fetching NBA game results: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=30)
+2024-11-25 23:34:54,059 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:35:05,877 - 19760 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:83 - Error fetching NBA game results: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-25 23:35:05,879 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:35:20,418 - 19760 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:83 - Error fetching NBA game results: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-25 23:35:20,431 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:35:35,892 - 19760 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:83 - Error fetching NBA game results: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=30)
+2024-11-25 23:35:35,895 - 19760 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:35:50,519 - 19760 - ScriptRunner.scriptThread - ERROR - nba_api_client.py:83 - Error fetching NBA game results: HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=30)
+2024-11-25 23:35:50,955 - 19760 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14365_20241125_232926.json
+2024-11-25 23:35:50,956 - 19760 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14366_20241125_232927.json
+2024-11-25 23:35:50,957 - 19760 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14367_20241125_232928.json
+2024-11-25 23:35:50,960 - 19760 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14368_20241125_232930.json
+2024-11-25 23:35:50,964 - 19760 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14369_20241125_232931.json
+2024-11-25 23:35:50,966 - 19760 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14370_20241125_232933.json
+2024-11-25 23:35:50,967 - 19760 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14371_20241125_232935.json
+2024-11-25 23:35:50,968 - 19760 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14372_20241125_232936.json
+2024-11-25 23:35:50,969 - 19760 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14373_20241125_232937.json
+2024-11-25 23:37:09,603 - 18288 - ScriptRunner.scriptThread - WARNING - module_wrapper.py:149 - From C:\Users\SHIVAM\mnba\streamlitsafe\env\Lib\site-packages\keras\src\backend\common\global_state.py:82: The name tf.reset_default_graph is deprecated. Please use tf.compat.v1.reset_default_graph instead.
+
+2024-11-25 23:37:15,783 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:204 - Starting prediction update...
+2024-11-25 23:37:16,541 - 18288 - ScriptRunner.scriptThread - WARNING - prediction_service.py:43 - Scaler does not have feature names; using default feature names
+2024-11-25 23:37:16,541 - 18288 - ScriptRunner.scriptThread - INFO - prediction_service.py:48 - Loaded scaler successfully
+2024-11-25 23:37:16,899 - 18288 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded random_forest model successfully
+2024-11-25 23:37:16,954 - 18288 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded xgboost model successfully
+2024-11-25 23:37:16,964 - 18288 - ScriptRunner.scriptThread - INFO - prediction_service.py:142 - Loaded svm model successfully
+2024-11-25 23:37:16,993 - 18288 - ScriptRunner.scriptThread - DEBUG - attrs.py:78 - Creating converter from 3 to 5
+2024-11-25 23:37:17,257 - 18288 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 23:37:17,268 - 18288 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded lstm model successfully
+2024-11-25 23:37:17,424 - 18288 - ScriptRunner.scriptThread - WARNING - saving_utils.py:256 - Compiled the loaded model, but the compiled metrics have yet to be built. `model.compile_metrics` will be empty until you train or evaluate the model.
+2024-11-25 23:37:17,432 - 18288 - ScriptRunner.scriptThread - INFO - prediction_service.py:151 - Loaded gru model successfully
+2024-11-25 23:37:17,432 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:213 - Fetching live games...
+2024-11-25 23:37:17,441 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:18,145 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?live=all&league=standard&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:18,148 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-25
+2024-11-25 23:37:18,154 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:18,716 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-25&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 23:37:18,720 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 2 games for 2024-11-25
+2024-11-25 23:37:18,725 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:454 - Checking schedule for date: 2024-11-26
+2024-11-25 23:37:18,729 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:19,255 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /games?date=2024-11-26&season=2024&league=standard HTTP/11" 200 None
+2024-11-25 23:37:19,256 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:468 - Found 9 games for 2024-11-26
+2024-11-25 23:37:19,257 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Charlotte Hornets vs Orlando Magic at 2024-11-26T00:00:00.000Z
+2024-11-25 23:37:19,258 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Detroit Pistons vs Toronto Raptors at 2024-11-26T00:00:00.000Z
+2024-11-25 23:37:19,258 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Indiana Pacers vs New Orleans Pelicans at 2024-11-26T00:00:00.000Z
+2024-11-25 23:37:19,258 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Atlanta Hawks vs Dallas Mavericks at 2024-11-26T00:30:00.000Z
+2024-11-25 23:37:19,259 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Boston Celtics vs LA Clippers at 2024-11-26T00:30:00.000Z
+2024-11-25 23:37:19,259 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Memphis Grizzlies vs Portland Trail Blazers at 2024-11-26T01:00:00.000Z
+2024-11-25 23:37:19,259 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Denver Nuggets vs New York Knicks at 2024-11-26T02:00:00.000Z
+2024-11-25 23:37:19,259 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Golden State Warriors vs Brooklyn Nets at 2024-11-26T03:00:00.000Z
+2024-11-25 23:37:19,261 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:504 - Added game: Sacramento Kings vs Oklahoma City Thunder at 2024-11-26T03:00:00.000Z
+2024-11-25 23:37:19,263 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:19,830 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=5&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:19,834 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:20,406 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=26&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:22,080 - 18288 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14365_20241125_233722.json
+2024-11-25 23:37:22,081 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Charlotte Hornets vs Orlando Magic
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Charlotte Hornets: 56.5%
+        - Orlando Magic: 43.5%
+        
+        Predicted Score Ranges:
+        - Charlotte Hornets: 99-122
+        - Orlando Magic: 96-117
+        
+        Predicted Winner: Charlotte Hornets
+        Confidence: 56.5%
+        
+2024-11-25 23:37:22,082 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:22,584 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=10&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:22,591 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:23,119 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=38&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:23,379 - 18288 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14366_20241125_233723.json
+2024-11-25 23:37:23,380 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Detroit Pistons vs Toronto Raptors
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Detroit Pistons: 57.3%
+        - Toronto Raptors: 42.7%
+        
+        Predicted Score Ranges:
+        - Detroit Pistons: 97-119
+        - Toronto Raptors: 101-124
+        
+        Predicted Winner: Detroit Pistons
+        Confidence: 57.3%
+        
+2024-11-25 23:37:23,382 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:23,954 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=15&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:23,962 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:24,501 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=23&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:24,722 - 18288 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14367_20241125_233724.json
+2024-11-25 23:37:24,723 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Indiana Pacers vs New Orleans Pelicans
+        Scheduled Start: 2024-11-26T00:00:00.000Z
+        
+        Win Probabilities:
+        - Indiana Pacers: 56.5%
+        - New Orleans Pelicans: 43.5%
+        
+        Predicted Score Ranges:
+        - Indiana Pacers: 104-127
+        - New Orleans Pelicans: 93-113
+        
+        Predicted Winner: Indiana Pacers
+        Confidence: 56.5%
+        
+2024-11-25 23:37:24,724 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:25,237 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=1&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:25,245 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:25,780 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=8&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:26,005 - 18288 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14368_20241125_233726.json
+2024-11-25 23:37:26,006 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Atlanta Hawks vs Dallas Mavericks
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Atlanta Hawks: 56.5%
+        - Dallas Mavericks: 43.5%
+        
+        Predicted Score Ranges:
+        - Atlanta Hawks: 102-125
+        - Dallas Mavericks: 102-125
+        
+        Predicted Winner: Atlanta Hawks
+        Confidence: 56.5%
+        
+2024-11-25 23:37:26,007 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:26,572 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=2&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:26,578 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:27,187 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=16&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:27,403 - 18288 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14369_20241125_233727.json
+2024-11-25 23:37:27,404 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Boston Celtics vs LA Clippers
+        Scheduled Start: 2024-11-26T00:30:00.000Z
+        
+        Win Probabilities:
+        - Boston Celtics: 55.1%
+        - LA Clippers: 44.9%
+        
+        Predicted Score Ranges:
+        - Boston Celtics: 107-131
+        - LA Clippers: 97-119
+        
+        Predicted Winner: Boston Celtics
+        Confidence: 55.1%
+        
+2024-11-25 23:37:27,405 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:27,920 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=19&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:27,922 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:28,417 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=29&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:28,703 - 18288 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14370_20241125_233728.json
+2024-11-25 23:37:28,704 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Memphis Grizzlies vs Portland Trail Blazers
+        Scheduled Start: 2024-11-26T01:00:00.000Z
+        
+        Win Probabilities:
+        - Memphis Grizzlies: 56.3%
+        - Portland Trail Blazers: 43.7%
+        
+        Predicted Score Ranges:
+        - Memphis Grizzlies: 106-130
+        - Portland Trail Blazers: 95-116
+        
+        Predicted Winner: Memphis Grizzlies
+        Confidence: 56.3%
+        
+2024-11-25 23:37:28,705 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:29,241 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=9&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:29,253 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:29,838 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=24&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:30,077 - 18288 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14371_20241125_233730.json
+2024-11-25 23:37:30,077 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Denver Nuggets vs New York Knicks
+        Scheduled Start: 2024-11-26T02:00:00.000Z
+        
+        Win Probabilities:
+        - Denver Nuggets: 56.9%
+        - New York Knicks: 43.1%
+        
+        Predicted Score Ranges:
+        - Denver Nuggets: 103-126
+        - New York Knicks: 105-128
+        
+        Predicted Winner: Denver Nuggets
+        Confidence: 56.9%
+        
+2024-11-25 23:37:30,079 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:30,633 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=11&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:30,641 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:31,186 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=4&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:31,605 - 18288 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14372_20241125_233731.json
+2024-11-25 23:37:31,605 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Golden State Warriors vs Brooklyn Nets
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Golden State Warriors: 57.3%
+        - Brooklyn Nets: 42.7%
+        
+        Predicted Score Ranges:
+        - Golden State Warriors: 104-127
+        - Brooklyn Nets: 99-121
+        
+        Predicted Winner: Golden State Warriors
+        Confidence: 57.3%
+        
+2024-11-25 23:37:31,606 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:32,137 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=30&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:32,139 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): api-nba-v1.p.rapidapi.com:443
+2024-11-25 23:37:32,771 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://api-nba-v1.p.rapidapi.com:443 "GET /teams/statistics?id=25&season=2024 HTTP/11" 200 None
+2024-11-25 23:37:33,002 - 18288 - ScriptRunner.scriptThread - DEBUG - test_predictions.py:658 - Saved scheduled prediction to predictions/scheduled/game_14373_20241125_233733.json
+2024-11-25 23:37:33,003 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:677 - 
+        Prediction Summary:
+        Sacramento Kings vs Oklahoma City Thunder
+        Scheduled Start: 2024-11-26T03:00:00.000Z
+        
+        Win Probabilities:
+        - Sacramento Kings: 56.4%
+        - Oklahoma City Thunder: 43.6%
+        
+        Predicted Score Ranges:
+        - Sacramento Kings: 100-122
+        - Oklahoma City Thunder: 102-125
+        
+        Predicted Winner: Sacramento Kings
+        Confidence: 56.4%
+        
+2024-11-25 23:37:33,003 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:238 - Predictions completed successfully
+2024-11-25 23:37:33,317 - 18288 - ScriptRunner.scriptThread - INFO - test_predictions.py:201 - Not updating - only 0.3 seconds since last update
+2024-11-25 23:37:37,797 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:1051 - Starting new HTTPS connection (1): stats.nba.com:443
+2024-11-25 23:37:38,559 - 18288 - ScriptRunner.scriptThread - DEBUG - connectionpool.py:546 - https://stats.nba.com:443 "GET /stats/leaguegamefinder?Conference=&DateFrom=11%2F24%2F2024&DateTo=11%2F24%2F2024&Division=&DraftNumber=&DraftRound=&DraftTeamID=&DraftYear=&EqAST=&EqBLK=&EqDD=&EqDREB=&EqFG3A=&EqFG3M=&EqFG3_PCT=&EqFGA=&EqFGM=&EqFG_PCT=&EqFTA=&EqFTM=&EqFT_PCT=&EqMINUTES=&EqOREB=&EqPF=&EqPTS=&EqREB=&EqSTL=&EqTD=&EqTOV=&GameID=&GtAST=&GtBLK=&GtDD=&GtDREB=&GtFG3A=&GtFG3M=&GtFG3_PCT=&GtFGA=&GtFGM=&GtFG_PCT=&GtFTA=&GtFTM=&GtFT_PCT=&GtMINUTES=&GtOREB=&GtPF=&GtPTS=&GtREB=&GtSTL=&GtTD=&GtTOV=&LeagueID=00&Location=&LtAST=&LtBLK=&LtDD=&LtDREB=&LtFG3A=&LtFG3M=&LtFG3_PCT=&LtFGA=&LtFGM=&LtFG_PCT=&LtFTA=&LtFTM=&LtFT_PCT=&LtMINUTES=&LtOREB=&LtPF=&LtPTS=&LtREB=&LtSTL=&LtTD=&LtTOV=&Outcome=&PORound=&PlayerID=&PlayerOrTeam=T&RookieYear=&Season=&SeasonSegment=&SeasonType=Regular+Season&StarterBench=&TeamID=&VsConference=&VsDivision=&VsTeamID=&YearsExperience= HTTP/11" 200 1461
+2024-11-25 23:37:38,570 - 18288 - ScriptRunner.scriptThread - DEBUG - nba_api_client.py:97 - Available columns: ['SEASON_ID', 'TEAM_ID', 'TEAM_ABBREVIATION', 'TEAM_NAME', 'GAME_ID', 'GAME_DATE', 'MATCHUP', 'WL', 'MIN', 'PTS', 'FGM', 'FGA', 'FG_PCT', 'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA', 'FT_PCT', 'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PLUS_MINUS']
+2024-11-25 23:42:53,770 - 18288 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14365_20241125_233339.json
+2024-11-25 23:42:53,772 - 18288 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14366_20241125_233341.json
+2024-11-25 23:42:53,773 - 18288 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14367_20241125_233342.json
+2024-11-25 23:42:53,775 - 18288 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14368_20241125_233343.json
+2024-11-25 23:42:53,778 - 18288 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14369_20241125_233344.json
+2024-11-25 23:42:53,779 - 18288 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14370_20241125_233346.json
+2024-11-25 23:42:53,782 - 18288 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14371_20241125_233347.json
+2024-11-25 23:42:53,783 - 18288 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14372_20241125_233349.json
+2024-11-25 23:42:53,785 - 18288 - MainThread - DEBUG - home.py:563 - Removed old prediction file: predictions/scheduled\game_14373_20241125_233350.json
