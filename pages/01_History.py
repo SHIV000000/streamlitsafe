@@ -4,7 +4,7 @@ import streamlit as st
 import pandas as pd
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
 from typing import Dict, List
@@ -82,30 +82,41 @@ def load_prediction_history() -> List[Dict]:
     if not os.path.exists(history_dir):
         return []
     
+    # Load and group predictions by date
+    date_predictions = {}
     for file in os.listdir(history_dir):
         if file.endswith('.json'):
             try:
                 with open(os.path.join(history_dir, file), 'r') as f:
                     prediction = json.load(f)
+                    # Extract date from filename (assuming format game_XXXXX_YYYYMMDD_HHMMSS.json)
+                    date_str = file.split('_')[2][:8]  # Extract YYYYMMDD
+                    game_date = datetime.strptime(date_str, '%Y%m%d').date()
                     
-                    # Get game date from scheduled_start
-                    game_date = datetime.fromisoformat(
-                        prediction['game_info']['scheduled_start'].replace('Z', '+00:00')
-                    ).date()
+                    if game_date not in date_predictions:
+                        date_predictions[game_date] = []
+                    date_predictions[game_date].append(prediction)
                     
-                    # Only fetch results for past games
-                    if game_date < datetime.now().date():
-                        # Fetch actual result from NBA API
-                        results = nba_fetcher.get_game_results(game_date)
-                        
-                        # Match teams and determine actual winner
+            except Exception as e:
+                logging.error(f"Error loading prediction file {file}: {str(e)}")
+                continue
+    
+    # Process each date's predictions
+    for game_date, predictions in date_predictions.items():
+        if game_date < datetime.now().date():
+            try:
+                logging.info(f"Processing predictions for date: {game_date}")
+                results = nba_fetcher.get_game_results(game_date)
+                
+                if results:
+                    for prediction in predictions:
                         home_team = prediction['game_info']['home_team']
                         away_team = prediction['game_info']['away_team']
                         
+                        # Match with results
                         for game_result in results.values():
                             if (game_result['home_team'] == home_team and 
                                 game_result['away_team'] == away_team):
-                                # Add actual result to prediction
                                 prediction['nba_result'] = {
                                     'winner': game_result['winner'],
                                     'score': {
@@ -113,12 +124,21 @@ def load_prediction_history() -> List[Dict]:
                                         'away': game_result['away_score']
                                     }
                                 }
+                                logging.info(f"Matched result for {home_team} vs {away_team}")
                                 break
-                    
-                    history.append(prediction)
+                        
+                        history.append(prediction)
+                else:
+                    logging.warning(f"No results found for date {game_date}")
+                    # Add predictions without results
+                    history.extend(predictions)
                     
             except Exception as e:
-                logging.error(f"Error loading prediction file {file}: {str(e)}")
+                logging.error(f"Error processing date {game_date}: {str(e)}")
+                history.extend(predictions)
+        else:
+            # Add future predictions without trying to fetch results
+            history.extend(predictions)
     
     return sorted(history, key=lambda x: x['timestamp'], reverse=True)
 
@@ -167,39 +187,80 @@ def display_history_dashboard():
     # Create and display history table
     df = create_history_dataframe(history)
     
-    # Add filters
+    # Add filters with better error handling
     st.subheader("Filters")
     col1, col2 = st.columns(2)
     
     with col1:
-        date_filter = st.date_input(
-            "Select Date Range",
-            value=(
-                pd.to_datetime(df['Date']).min().date(),
-                pd.to_datetime(df['Date']).max().date()
+        try:
+            min_date = pd.to_datetime(df['Date']).min().date()
+            max_date = pd.to_datetime(df['Date']).max().date()
+            
+            # Handle single and range date selections
+            date_range = st.date_input(
+                "Select Date Range",
+                value=(min_date, max_date),
+                min_value=min_date,
+                max_value=max_date
             )
-        )
+            
+            # Convert single date to tuple if needed
+            if isinstance(date_range, tuple):
+                start_date, end_date = date_range
+            else:
+                start_date = end_date = date_range
+                
+        except Exception as e:
+            logging.error(f"Error with date filter: {str(e)}")
+            start_date = end_date = datetime.now().date()
     
     with col2:
         result_filter = st.multiselect(
             "Filter by Result",
-            options=['Correct', 'Incorrect'],
-            default=['Correct', 'Incorrect']
+            options=['Correct', 'Incorrect', 'Pending'],
+            default=['Correct', 'Incorrect', 'Pending']
         )
     
-    # Apply filters
-    mask = (
-        (pd.to_datetime(df['Date']).dt.date >= date_filter[0]) &
-        (pd.to_datetime(df['Date']).dt.date <= date_filter[1]) &
-        (df['Result'].isin(result_filter))
-    )
-    filtered_df = df[mask]
+    # Apply filters safely
+    try:
+        mask = (
+            (pd.to_datetime(df['Date']).dt.date >= start_date) &
+            (pd.to_datetime(df['Date']).dt.date <= end_date) &
+            (df['Result'].isin(result_filter))
+        )
+        filtered_df = df[mask].copy()  # Create a copy to avoid SettingWithCopyWarning
+    except Exception as e:
+        logging.error(f"Error applying filters: {str(e)}")
+        filtered_df = df.copy()
     
-    # Display filtered data
+    # Configure column display
+    column_config = {
+        'Date': st.column_config.DatetimeColumn(
+            'Date',
+            format='MM/DD/YYYY HH:mm'
+        ),
+        'Predicted Score': st.column_config.TextColumn(
+            'Predicted Score',
+            help='Predicted score range (Home vs Away)'
+        ),
+        'Actual Score': st.column_config.TextColumn(
+            'Actual Score',
+            help='Final game score (Home-Away)'
+        ),
+        'Confidence': st.column_config.ProgressColumn(
+            'Confidence',
+            min_value=0,
+            max_value=100,
+            format='%.1f%%'
+        )
+    }
+    
+    # Display filtered data with column configuration
     st.dataframe(
         filtered_df,
         use_container_width=True,
-        hide_index=True
+        hide_index=True,
+        column_config=column_config
     )
     
     # Display charts
@@ -208,70 +269,137 @@ def display_history_dashboard():
 def create_history_dataframe(history: List[Dict]) -> pd.DataFrame:
     """Convert history to DataFrame with enhanced information"""
     records = []
-    for game in history:
-        # Extract prediction details
-        pred_info = game['prediction']
-        game_info = game['game_info']
-        
-        # Only include completed games with results
-        if 'nba_result' in game:
-            nba_result = game['nba_result']
-            is_correct = pred_info['predicted_winner'] == nba_result['winner']
-            actual_score = f"{nba_result['score']['home']}-{nba_result['score']['away']}"
-            result = 'Correct' if is_correct else 'Incorrect'
-        else:
-            is_correct = False
-            actual_score = "Pending"
-            result = 'Pending'
-        
-        # Handle confidence value
-        confidence = float(pred_info['win_probability'])
-        
-        record = {
-            'Date': datetime.fromisoformat(game['timestamp']).strftime('%Y-%m-%d %H:%M'),
-            'Home Team': game_info['home_team'],
-            'Away Team': game_info['away_team'],
-            'Predicted Winner': pred_info['predicted_winner'],
-            'Confidence': f"{confidence:.1%}",
-            'Actual Score': actual_score,
-            'Result': result,
-            'Coins': 1 if is_correct else 0,
-            'Boost Points': 1 if confidence > 0.75 and is_correct else 0
-        }
-        records.append(record)
+    current_date = datetime.now()  # Updated to keep timezone awareness
     
+    for game in history:
+        try:
+            # Extract prediction details
+            pred_info = game['prediction']
+            game_info = game['game_info']
+            
+            # Get predicted score ranges
+            score_pred = pred_info['score_prediction']
+            predicted_score = (
+                f"{score_pred['home_low']}-{score_pred['home_high']} vs "
+                f"{score_pred['away_low']}-{score_pred['away_high']}"
+            )
+            
+            # Get game date and ensure it's in the correct format
+            try:
+                # Parse the date and convert to naive datetime in local timezone
+                game_date = datetime.fromisoformat(
+                    game_info['scheduled_start'].replace('Z', '+00:00')
+                )
+                game_date = game_date.astimezone().replace(tzinfo=None)  # Ensure naive datetime
+            except Exception as e:
+                logging.error(f"Error parsing date: {str(e)}")
+                continue
+            
+            # Handle actual results
+            if 'nba_result' in game:
+                nba_result = game['nba_result']
+                is_correct = pred_info['predicted_winner'] == nba_result['winner']
+                actual_score = f"{nba_result['score']['home']}-{nba_result['score']['away']}"
+                result = 'Correct' if is_correct else 'Incorrect'
+            else:
+                # Check if game should be completed based on start time
+                hours_since_start = (current_date - game_date).total_seconds() / 3600
+                
+                if hours_since_start > 3:  # Most NBA games take less than 3 hours
+                    is_correct = None
+                    actual_score = "Not Available"
+                    result = 'Unknown'
+                else:
+                    is_correct = None
+                    actual_score = "Pending"
+                    result = 'Pending'
+            
+            # Handle confidence value
+            try:
+                confidence = float(pred_info['win_probability'])
+            except (ValueError, TypeError):
+                confidence = 0.0
+            
+            record = {
+                'Date': game_date,
+                'Home Team': game_info['home_team'],
+                'Away Team': game_info['away_team'],
+                'Predicted Winner': pred_info['predicted_winner'],
+                'Confidence': f"{confidence:.1%}",
+                'Predicted Score': predicted_score,
+                'Actual Score': actual_score,
+                'Result': result,
+                'Coins': 1 if is_correct else 0,
+                'Boost Points': 1 if confidence > 0.75 and is_correct else 0,
+                'Game Status': 'Upcoming' if game_date > current_date else 'Completed'
+            }
+            records.append(record)
+            
+        except Exception as e:
+            logging.error(f"Error processing game record: {str(e)}")
+            continue
+    
+    # Create DataFrame
     df = pd.DataFrame(records)
+    
+    # Ensure we have data before processing
+    if not df.empty:
+        # Date is already datetime, no need to convert
+        df = df.assign(
+            Confidence_Float=df['Confidence'].str.rstrip('%').astype(float) / 100,
+            Confidence_Level=pd.cut(
+                df['Confidence'].str.rstrip('%').astype(float) / 100,
+                bins=[0, 0.2, 0.4, 0.6, 0.8, 1.0],
+                labels=['Very Low', 'Low', 'Medium', 'High', 'Very High'],
+                include_lowest=True
+            )
+        )
+    
     return df
 
 def display_performance_charts(df: pd.DataFrame):
     """Display enhanced performance analysis charts"""
+    if df.empty:
+        st.warning("No data available for charts")
+        return
+        
     st.subheader("Performance Analysis")
+    
+    # Create a copy of the DataFrame
+    df = df.copy()
+    
+    # Ensure Date column exists
+    if 'Date' not in df.columns:
+        st.error("Date column not found in DataFrame")
+        return
     
     col1, col2 = st.columns(2)
     
     with col1:
         # Daily prediction accuracy
-        daily_stats = df.groupby(
-            pd.to_datetime(df['Date']).dt.date
-        )['Result'].agg(['count', lambda x: (x == 'Correct').mean()])
-        daily_stats.columns = ['Total Games', 'Accuracy']
-        
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(
-            x=daily_stats.index,
-            y=daily_stats['Accuracy'] * 100,
-            mode='lines+markers',
-            name='Accuracy',
-            line=dict(color='#3b82f6')
-        ))
-        
-        fig.update_layout(
-            title='Daily Prediction Accuracy',
-            yaxis_title='Accuracy (%)',
-            xaxis_title='Date',
-            hovermode='x unified'
-        )
-        st.plotly_chart(fig, use_container_width=True)
+        try:
+            daily_stats = (df.groupby(df['Date'].dt.date)
+                          ['Result'].agg(['count', lambda x: (x == 'Correct').mean()])
+                          .rename(columns={'count': 'Total Games', '<lambda_0>': 'Accuracy'}))
+            
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=daily_stats.index,
+                y=daily_stats['Accuracy'] * 100,
+                mode='lines+markers',
+                name='Accuracy',
+                line=dict(color='#3b82f6')
+            ))
+            
+            fig.update_layout(
+                title='Daily Prediction Accuracy',
+                yaxis_title='Accuracy (%)',
+                xaxis_title='Date',
+                hovermode='x unified'
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        except Exception as e:
+            st.error(f"Error creating accuracy chart: {str(e)}")
     
     with col2:
         # Rewards Distribution
@@ -295,16 +423,17 @@ def display_performance_charts(df: pd.DataFrame):
     
     with col1:
         # Team Performance Analysis
-        team_stats = pd.DataFrame()
-        
-        # Combine home and away predictions
-        home_stats = df.groupby('Home Team')['Result'].agg(['count', lambda x: (x == 'Correct').mean()])
-        away_stats = df.groupby('Away Team')['Result'].agg(['count', lambda x: (x == 'Correct').mean()])
+        home_stats = (df.groupby('Home Team', observed=True)['Result']
+                     .agg(['count', lambda x: (x == 'Correct').mean()]))
+        away_stats = (df.groupby('Away Team', observed=True)['Result']
+                     .agg(['count', lambda x: (x == 'Correct').mean()]))
         
         team_stats = pd.concat([home_stats, away_stats], axis=1)
         team_stats.columns = ['Home Games', 'Home Accuracy', 'Away Games', 'Away Accuracy']
-        team_stats['Total Games'] = team_stats['Home Games'] + team_stats['Away Games']
-        team_stats['Overall Accuracy'] = (
+        
+        # Calculate totals using loc to avoid warnings
+        team_stats.loc[:, 'Total Games'] = team_stats['Home Games'] + team_stats['Away Games']
+        team_stats.loc[:, 'Overall Accuracy'] = (
             (team_stats['Home Games'] * team_stats['Home Accuracy'] + 
              team_stats['Away Games'] * team_stats['Away Accuracy']) / 
             team_stats['Total Games']
@@ -328,22 +457,22 @@ def display_performance_charts(df: pd.DataFrame):
         # Confidence Analysis
         st.markdown("#### Prediction Confidence Analysis")
         
-        # Convert confidence strings to floats
-        df['Confidence_Float'] = df['Confidence'].str.rstrip('%').astype(float) / 100
-        
-        # Create manual bins for confidence
-        df['Confidence_Level'] = pd.cut(
+        # Process confidence data safely
+        df.loc[:, 'Confidence_Float'] = df['Confidence'].str.rstrip('%').astype(float) / 100
+        df.loc[:, 'Confidence_Level'] = pd.cut(
             df['Confidence_Float'],
             bins=[0, 0.2, 0.4, 0.6, 0.8, 1.0],
             labels=['Very Low', 'Low', 'Medium', 'High', 'Very High'],
             include_lowest=True
         )
         
-        confidence_analysis = df.groupby('Confidence_Level').agg({
-            'Result': lambda x: (x == 'Correct').mean(),
-            'Coins': 'sum',
-            'Boost Points': 'sum'
-        }).round(3)
+        confidence_analysis = (df.groupby('Confidence_Level', observed=True)
+                             .agg({
+                                 'Result': lambda x: (x == 'Correct').mean(),
+                                 'Coins': 'sum',
+                                 'Boost Points': 'sum'
+                             })
+                             .round(3))
         
         fig = go.Figure()
         fig.add_trace(go.Bar(
@@ -361,41 +490,6 @@ def display_performance_charts(df: pd.DataFrame):
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    # Summary Statistics
-    st.subheader("Summary Statistics")
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        # Overall Stats
-        st.markdown("#### Overall Statistics")
-        total_games = len(df)
-        correct_predictions = (df['Result'] == 'Correct').sum()
-        overall_accuracy = (correct_predictions / total_games) * 100
-        
-        st.metric("Total Games Predicted", total_games)
-        st.metric("Correct Predictions", correct_predictions)
-        st.metric("Overall Accuracy", f"{overall_accuracy:.1f}%")
-    
-    with col2:
-        # Rewards Stats
-        st.markdown("#### Rewards Statistics")
-        total_coins = df['Coins'].sum()
-        total_boost = df['Boost Points'].sum()
-        avg_coins_per_day = df.groupby(pd.to_datetime(df['Date']).dt.date)['Coins'].sum().mean()
-        
-        st.metric("Total Coins Earned", total_coins)
-        st.metric("Total Boost Points", total_boost)
-        st.metric("Average Daily Coins", f"{avg_coins_per_day:.1f}")
-    
-    with col3:
-        # Streak Analysis
-        st.markdown("#### Streak Analysis")
-        current_streak = calculate_current_streak(df)
-        best_streak = calculate_best_streak(df)
-        
-        st.metric("Current Streak", f"{current_streak} correct")
-        st.metric("Best Streak", f"{best_streak} correct")
-        st.metric("Success Rate", f"{(df['Result'] == 'Correct').mean()*100:.1f}%")
 
 def calculate_current_streak(df: pd.DataFrame) -> int:
     """Calculate current prediction streak"""

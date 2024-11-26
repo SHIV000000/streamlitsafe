@@ -36,58 +36,57 @@ class NBAGameResultsFetcher:
         )
         self.session.mount("https://", HTTPAdapter(max_retries=retries))
         
-    def get_game_results(self, start_date, end_date=None):
-        """Fetch game results for a date range"""
+    def get_game_results(self, date):
+        """Fetch game results for a specific date"""
+        logging.info(f"Fetching results for date: {date}")
+        
         try:
-            if end_date is None:
-                end_date = start_date
-                
-            cache_key = f"{start_date}_{end_date}"
+            # Add delay between requests
+            time.sleep(1)
+            
+            # Convert date to string format
+            date_str = date.strftime('%m/%d/%Y')
+            cache_key = date_str
+            
             if cache_key in self.cache:
                 return self.cache[cache_key]
-            
-            # Convert dates to NBA API format
-            start_str = start_date.strftime('%m/%d/%Y')
-            end_str = end_date.strftime('%m/%d/%Y')
             
             # Multiple attempts with increasing delays
             max_attempts = 3
             for attempt in range(max_attempts):
                 try:
-                    # Fetch games with custom session
                     game_finder = LeagueGameFinder(
-                        date_from_nullable=start_str,
-                        date_to_nullable=end_str,
+                        date_from_nullable=date_str,
+                        date_to_nullable=date_str,
                         league_id_nullable='00',
-                        season_type_nullable='Regular Season',
+                        season_type_nullable=SeasonType.regular,
                         player_or_team_abbreviation='T',
                         headers=self.headers,
-                        timeout=60,
-                        proxy=None
+                        timeout=60
                     )
                     
                     games_df = game_finder.get_data_frames()[0]
                     
-                    if games_df.empty:
-                        logging.warning(f"No games found for date range {start_str} to {end_str}")
-                        return {}
-                    
-                    # Process results
-                    results = self._process_games_data(games_df)
-                    self.cache[cache_key] = results
-                    return results
+                    if not games_df.empty:
+                        results = self._process_games_data(games_df)
+                        if results:
+                            self.cache[cache_key] = results
+                            return results
+                        
+                    logging.warning(f"No valid games found for date {date_str}")
+                    return {}
                     
                 except Exception as e:
                     if attempt < max_attempts - 1:
                         wait_time = (attempt + 1) * 2
-                        logging.warning(f"Attempt {attempt + 1} failed. Waiting {wait_time} seconds before retry...")
+                        logging.warning(f"Attempt {attempt + 1} failed. Waiting {wait_time} seconds...")
                         time.sleep(wait_time)
                     else:
                         raise e
-            
+                        
         except Exception as e:
-            logging.error(f"Error fetching NBA game results: {str(e)}")
-            return {}
+            logging.error(f"Error fetching results for {date}: {str(e)}")
+            return None
     
     def _process_games_data(self, games_df):
         """Process the games dataframe and extract relevant information"""
@@ -133,3 +132,6 @@ class NBAGameResultsFetcher:
         logging.debug("Available columns: " + str(games_df.columns.tolist()))
         logging.debug("Sample data:")
         logging.debug(games_df.head().to_string())
+
+
+
