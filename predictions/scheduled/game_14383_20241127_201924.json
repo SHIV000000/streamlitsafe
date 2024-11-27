@@ -1,0 +1,43 @@
+{
+    "timestamp": "2024-11-27T20:19:24.531289",
+    "game_info": {
+        "id": 14383,
+        "home_team": {
+            "id": "27",
+            "name": "Philadelphia 76ers",
+            "code": ""
+        },
+        "away_team": {
+            "id": "14",
+            "name": "Houston Rockets",
+            "code": ""
+        },
+        "scheduled_start": "2024-11-28T00:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5535979176301686,
+        "adjusted": 0.5535979176301686,
+        "predicted_winner": "Philadelphia 76ers",
+        "win_probability": 0.5535979176301686,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5132469000572127,
+            "xgboost": 0.52264004945755,
+            "svm": 0.5929227762306781,
+            "lstm": 0.6830388903617859,
+            "gru": 0.5080724954605103
+        },
+        "score_prediction": {
+            "home_low": 94,
+            "home_high": 115,
+            "away_low": 103,
+            "away_high": 126
+        }
+    }
+}

@@ -1,5 +1,5 @@
 {
-    "timestamp": "2024-11-27T08:19:34.344058",
+    "timestamp": "2024-11-27T19:47:00.747019",
     "game_info": {
         "id": "14377",
         "home_team": {
@@ -27,25 +27,25 @@
             }
         },
         "scheduled_start": null,
-        "period": 2,
-        "clock": "8:58",
+        "period": 4,
+        "clock": null,
         "score": {
-            "home": 41,
-            "away": 46
+            "home": 115,
+            "away": 128
         }
     },
     "prediction": {
-        "base": 0.5727035138601652,
-        "adjusted": 0.5535620957911196,
-        "predicted_winner": "Utah Jazz",
-        "win_probability": 0.5535620957911196,
+        "base": 0.5741484864547781,
+        "adjusted": 0.4643644865508058,
+        "predicted_winner": "San Antonio Spurs",
+        "win_probability": 0.5356355134491941,
         "confidence_level": "Low",
         "model_predictions": {
-            "random_forest": 0.5102193515586715,
-            "xgboost": 0.5230357646942139,
+            "random_forest": 0.5102687452126573,
+            "xgboost": 0.5252298712730408,
             "svm": 0.5929227762306781,
-            "lstm": 0.7598040103912354,
-            "gru": 0.5647047162055969
+            "lstm": 0.7642514705657959,
+            "gru": 0.5650997161865234
         },
         "score_prediction": {
             "home_low": 0,

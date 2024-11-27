@@ -267,15 +267,23 @@ def display_history_dashboard():
     display_performance_charts(filtered_df)
 
 def create_history_dataframe(history: List[Dict]) -> pd.DataFrame:
-    """Convert history to DataFrame with enhanced information"""
+    """Convert history to DataFrame with enhanced information and handle multiple formats"""
     records = []
-    current_date = datetime.now()  # Updated to keep timezone awareness
-    
+    current_date = datetime.now()
+
     for game in history:
         try:
             # Extract prediction details
             pred_info = game['prediction']
             game_info = game['game_info']
+            
+            # Handle different team info formats
+            home_team = (game_info['home_team']['name'] 
+                        if isinstance(game_info['home_team'], dict) 
+                        else game_info['home_team'])
+            away_team = (game_info['away_team']['name'] 
+                        if isinstance(game_info['away_team'], dict) 
+                        else game_info['away_team'])
             
             # Get predicted score ranges
             score_pred = pred_info['score_prediction']
@@ -286,11 +294,10 @@ def create_history_dataframe(history: List[Dict]) -> pd.DataFrame:
             
             # Get game date and ensure it's in the correct format
             try:
-                # Parse the date and convert to naive datetime in local timezone
                 game_date = datetime.fromisoformat(
                     game_info['scheduled_start'].replace('Z', '+00:00')
                 )
-                game_date = game_date.astimezone().replace(tzinfo=None)  # Ensure naive datetime
+                game_date = game_date.astimezone().replace(tzinfo=None)
             except Exception as e:
                 logging.error(f"Error parsing date: {str(e)}")
                 continue
@@ -302,10 +309,8 @@ def create_history_dataframe(history: List[Dict]) -> pd.DataFrame:
                 actual_score = f"{nba_result['score']['home']}-{nba_result['score']['away']}"
                 result = 'Correct' if is_correct else 'Incorrect'
             else:
-                # Check if game should be completed based on start time
                 hours_since_start = (current_date - game_date).total_seconds() / 3600
-                
-                if hours_since_start > 3:  # Most NBA games take less than 3 hours
+                if hours_since_start > 3:
                     is_correct = None
                     actual_score = "Not Available"
                     result = 'Unknown'
@@ -320,11 +325,12 @@ def create_history_dataframe(history: List[Dict]) -> pd.DataFrame:
             except (ValueError, TypeError):
                 confidence = 0.0
             
+            # Create record with string values for team names
             record = {
                 'Date': game_date,
-                'Home Team': game_info['home_team'],
-                'Away Team': game_info['away_team'],
-                'Predicted Winner': pred_info['predicted_winner'],
+                'Home Team': str(home_team),
+                'Away Team': str(away_team),
+                'Predicted Winner': str(pred_info['predicted_winner']),
                 'Confidence': f"{confidence:.1%}",
                 'Predicted Score': predicted_score,
                 'Actual Score': actual_score,
@@ -339,12 +345,15 @@ def create_history_dataframe(history: List[Dict]) -> pd.DataFrame:
             logging.error(f"Error processing game record: {str(e)}")
             continue
     
-    # Create DataFrame
-    df = pd.DataFrame(records)
+    # Create DataFrame with explicit string types for team columns
+    df = pd.DataFrame(records).astype({
+        'Home Team': str,
+        'Away Team': str,
+        'Predicted Winner': str
+    })
     
-    # Ensure we have data before processing
+    # Add confidence analysis columns
     if not df.empty:
-        # Date is already datetime, no need to convert
         df = df.assign(
             Confidence_Float=df['Confidence'].str.rstrip('%').astype(float) / 100,
             Confidence_Level=pd.cut(

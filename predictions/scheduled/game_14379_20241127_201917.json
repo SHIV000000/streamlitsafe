@@ -1,0 +1,43 @@
+{
+    "timestamp": "2024-11-27T20:19:17.702849",
+    "game_info": {
+        "id": 14379,
+        "home_team": {
+            "id": "5",
+            "name": "Charlotte Hornets",
+            "code": ""
+        },
+        "away_team": {
+            "id": "20",
+            "name": "Miami Heat",
+            "code": ""
+        },
+        "scheduled_start": "2024-11-28T00:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5772502374596883,
+        "adjusted": 0.5772502374596883,
+        "predicted_winner": "Charlotte Hornets",
+        "win_probability": 0.5772502374596883,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5137694956019462,
+            "xgboost": 0.5370921492576599,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7712767124176025,
+            "gru": 0.5446996688842773
+        },
+        "score_prediction": {
+            "home_low": 98,
+            "home_high": 120,
+            "away_low": 100,
+            "away_high": 122
+        }
+    }
+}

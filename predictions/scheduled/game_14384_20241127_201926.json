@@ -1,0 +1,43 @@
+{
+    "timestamp": "2024-11-27T20:19:26.382570",
+    "game_info": {
+        "id": 14384,
+        "home_team": {
+            "id": "41",
+            "name": "Washington Wizards",
+            "code": ""
+        },
+        "away_team": {
+            "id": "16",
+            "name": "LA Clippers",
+            "code": ""
+        },
+        "scheduled_start": "2024-11-28T00:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.559262694328257,
+        "adjusted": 0.559262694328257,
+        "predicted_winner": "Washington Wizards",
+        "win_probability": 0.559262694328257,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5123756153180444,
+            "xgboost": 0.5149286985397339,
+            "svm": 0.5929227762306781,
+            "lstm": 0.758708655834198,
+            "gru": 0.47252383828163147
+        },
+        "score_prediction": {
+            "home_low": 96,
+            "home_high": 117,
+            "away_low": 97,
+            "away_high": 118
+        }
+    }
+}

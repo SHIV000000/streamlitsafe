@@ -1,5 +1,5 @@
 {
-    "timestamp": "2024-11-27T08:19:25.218899",
+    "timestamp": "2024-11-27T19:46:49.365413",
     "game_info": {
         "id": "14374",
         "home_team": {
@@ -35,17 +35,17 @@
         }
     },
     "prediction": {
-        "base": 0.5821772217417863,
-        "adjusted": 0.4268287016114273,
+        "base": 0.5823693029745355,
+        "adjusted": 0.42715820933905746,
         "predicted_winner": "Chicago Bulls",
-        "win_probability": 0.5731712983885727,
+        "win_probability": 0.5728417906609425,
         "confidence_level": "Low",
         "model_predictions": {
-            "random_forest": 0.5176528225811807,
+            "random_forest": 0.5180023111797412,
             "xgboost": 0.5317606329917908,
             "svm": 0.5929227762306781,
-            "lstm": 0.7847193479537964,
-            "gru": 0.5695711374282837
+            "lstm": 0.7841774225234985,
+            "gru": 0.5710148811340332
         },
         "score_prediction": {
             "home_low": 0,

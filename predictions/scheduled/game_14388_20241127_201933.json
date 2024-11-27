@@ -1,0 +1,43 @@
+{
+    "timestamp": "2024-11-27T20:19:33.497512",
+    "game_info": {
+        "id": 14388,
+        "home_team": {
+            "id": "23",
+            "name": "New Orleans Pelicans",
+            "code": ""
+        },
+        "away_team": {
+            "id": "38",
+            "name": "Toronto Raptors",
+            "code": ""
+        },
+        "scheduled_start": "2024-11-28T01:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.569960697647337,
+        "adjusted": 0.569960697647337,
+        "predicted_winner": "New Orleans Pelicans",
+        "win_probability": 0.569960697647337,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5162170461087252,
+            "xgboost": 0.5060608983039856,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7497782707214355,
+            "gru": 0.5817432403564453
+        },
+        "score_prediction": {
+            "home_low": 93,
+            "home_high": 114,
+            "away_low": 101,
+            "away_high": 123
+        }
+    }
+}

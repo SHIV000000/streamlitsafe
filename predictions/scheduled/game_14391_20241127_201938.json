@@ -1,0 +1,43 @@
+{
+    "timestamp": "2024-11-27T20:19:38.622064",
+    "game_info": {
+        "id": 14391,
+        "home_team": {
+            "id": "40",
+            "name": "Utah Jazz",
+            "code": ""
+        },
+        "away_team": {
+            "id": "9",
+            "name": "Denver Nuggets",
+            "code": ""
+        },
+        "scheduled_start": "2024-11-28T02:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5787784921685908,
+        "adjusted": 0.5787784921685908,
+        "predicted_winner": "Utah Jazz",
+        "win_probability": 0.5787784921685908,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5124527491669729,
+            "xgboost": 0.5287427306175232,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7828287482261658,
+            "gru": 0.5640773773193359
+        },
+        "score_prediction": {
+            "home_low": 99,
+            "home_high": 121,
+            "away_low": 104,
+            "away_high": 127
+        }
+    }
+}

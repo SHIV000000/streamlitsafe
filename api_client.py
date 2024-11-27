@@ -143,31 +143,59 @@ class EnhancedNBAApiClient:
         """Helper method to determine if a game is live."""
         try:
             status_long = status.get('long', '').lower()
-            status_short = str(status.get('short', '')).lower()
+            status_short = str(status.get('short', ''))
             current_period = periods.get('current')
             
-            # Early return for scheduled games
-            if status_long == 'scheduled' or status_short == '1':
+            # Debug logging for status checking
+            logging.debug(f"Checking game status - Long: {status_long}, Short: {status_short}, Period: {current_period}")
+            
+            # First check: Explicitly handle finished games
+            if status_short == '3' or status_long == 'finished':
+                logging.debug("Game is finished")
                 return False
             
-            # Check various status indicators
-            status_indicators = [
-                # Status text checks
-                status_long in ['in play', 'live', 'playing', 'halftime', 'quarter'],
-                status_short in ['2', 'live', 'halftime', 'q1', 'q2', 'q3', 'q4', 'ot'],
-                status.get('halftime') is True,
-                
-                # Period checks (only if current_period is not None)
-                current_period is not None and current_period > 0 and current_period <= 4,
-                
-                # Clock and score checks
-                bool(status.get('clock')),
-                scores.get('home', {}).get('points', 0) > 0,
-                scores.get('visitors', {}).get('points', 0) > 0
-            ]
+            # Second check: Handle scheduled games
+            if status_short == '1' or status_long == 'scheduled':
+                logging.debug("Game is scheduled")
+                return False
             
-            logging.debug(f"Game status indicators: {status_indicators}")
-            return any(status_indicators)
+            # Third check: Handle quarter-specific status
+            quarter_status = {
+                'q1': current_period == 1,
+                'q2': current_period == 2,
+                'q3': current_period == 3,
+                'q4': current_period == 4,
+                'ot': current_period > 4
+            }
+            
+            # Fourth check: Game state indicators
+            game_state = {
+                'has_clock': status.get('clock') is not None,
+                'has_scores': all(scores.get(team, {}).get('points', 0) > 0 
+                                for team in ['home', 'visitors']),
+                'valid_period': current_period is not None and current_period > 0,
+                'is_playing': status_short == '2' or status_long in ['in play', 'live'],
+                'is_halftime': status.get('halftime', False) is True,
+                'in_quarter': any(quarter_status.values())
+            }
+            
+            logging.debug(f"Quarter status: {quarter_status}")
+            logging.debug(f"Game state: {game_state}")
+            
+            # Game is considered live if:
+            # 1. It's in a valid quarter/period
+            # 2. Has either a clock or valid scores
+            # 3. Is not finished
+            is_live = (
+                game_state['valid_period'] and
+                (game_state['has_clock'] or game_state['has_scores']) and
+                (game_state['is_playing'] or game_state['is_halftime'] or game_state['in_quarter'])
+            )
+            
+            if is_live:
+                logging.info(f"Game is live - Period: {current_period}, Status: {status_long}")
+            
+            return is_live
             
         except Exception as e:
             logging.error(f"Error in _is_game_live: {str(e)}")

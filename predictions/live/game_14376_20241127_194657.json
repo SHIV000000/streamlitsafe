@@ -1,5 +1,5 @@
 {
-    "timestamp": "2024-11-27T08:19:31.412072",
+    "timestamp": "2024-11-27T19:46:57.059806",
     "game_info": {
         "id": "14376",
         "home_team": {
@@ -28,24 +28,24 @@
         },
         "scheduled_start": null,
         "period": 4,
-        "clock": "11:15",
+        "clock": null,
         "score": {
-            "home": 83,
-            "away": 84
+            "home": 111,
+            "away": 117
         }
     },
     "prediction": {
-        "base": 0.5632030121471027,
-        "adjusted": 0.5542764602134945,
+        "base": 0.5644617587974643,
+        "adjusted": 0.512588360931368,
         "predicted_winner": "Minnesota Timberwolves",
-        "win_probability": 0.5542764602134945,
+        "win_probability": 0.512588360931368,
         "confidence_level": "Low",
         "model_predictions": {
-            "random_forest": 0.5150805125491644,
-            "xgboost": 0.5308322310447693,
+            "random_forest": 0.5097562028817941,
+            "xgboost": 0.5346692204475403,
             "svm": 0.5929227762306781,
-            "lstm": 0.7620334029197693,
-            "gru": 0.4561937153339386
+            "lstm": 0.7616677284240723,
+            "gru": 0.4702216684818268
         },
         "score_prediction": {
             "home_low": 0,

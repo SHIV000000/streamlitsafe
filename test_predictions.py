@@ -209,7 +209,7 @@ class LiveGamePredictor:
             return base_pred
 
 def run_continuous_predictions(timeout_minutes=3):
-    """Run predictions with single attempt and proper interval control"""
+    """Run predictions with proper handling of live and scheduled games"""
     try:
         # Get current time and check last update
         current_time = time.time()
@@ -217,7 +217,7 @@ def run_continuous_predictions(timeout_minutes=3):
         time_since_update = current_time - last_update
         
         # If less than 5 minutes since last update, skip
-        if time_since_update < 300:  # 5 minutes in seconds
+        if time_since_update < 300:
             logging.info(f"Not updating - only {time_since_update:.1f} seconds since last update")
             return False
             
@@ -229,8 +229,7 @@ def run_continuous_predictions(timeout_minutes=3):
         base_predictor = NBAPredictor('saved_models')
         live_predictor = LiveGamePredictor(base_predictor)
         
-        # Get live games with detailed logging
-        logging.info("Fetching live games...")
+        # First check for live games
         live_games = api_client.get_live_games()
         predictions_made = False
         
@@ -243,15 +242,19 @@ def run_continuous_predictions(timeout_minutes=3):
                     save_prediction(game_info, prediction, is_live=True)
                     predictions_made = True
                 except Exception as e:
-                    logging.error(f"Error processing game {game.get('id')}: {str(e)}")
+                    logging.error(f"Error processing live game {game.get('id')}: {str(e)}")
                     continue
-        else:
-            today_games = get_todays_schedule(api_client)
-            if today_games:
-                process_scheduled_games(today_games, api_client, live_predictor)
+        
+        # If no live games, process scheduled games
+        if not live_games:
+            logging.info("No live games found, checking scheduled games...")
+            scheduled_games = get_todays_schedule(api_client)
+            if scheduled_games:
+                logging.info(f"Found {len(scheduled_games)} scheduled games")
+                process_scheduled_games(scheduled_games, api_client, live_predictor)
                 predictions_made = True
             else:
-                logging.info("No games found")
+                logging.info("No scheduled games found")
         
         if predictions_made:
             run_continuous_predictions.last_run = time.time()
@@ -626,47 +629,69 @@ def process_scheduled_games(games: List[Dict], api_client: EnhancedNBAApiClient,
     """Process scheduled games and make predictions."""
     for game in games:
         try:
-            # Get team IDs
-            home_team = game.get('teams', {}).get('home', {})
-            away_team = game.get('teams', {}).get('away', {})
+            # Extract team information with proper path
+            teams = game.get('teams', {})
+            home_team = teams.get('home', {})
+            away_team = teams.get('away', {})  # Changed from 'visitors' to 'away'
             
-            home_id = str(home_team.get('id', ''))
-            away_id = str(away_team.get('id', ''))
+            # Get team IDs with proper validation
+            home_id = home_team.get('id')
+            away_id = away_team.get('id')
+            
+            # Debug logging for team data extraction
+            logging.debug(f"""
+            Processing game {game.get('id')}:
+            Raw game data: {json.dumps(game, indent=2)}
+            Home team data: {json.dumps(home_team, indent=2)}
+            Away team data: {json.dumps(away_team, indent=2)}
+            """)
             
             if not home_id or not away_id:
                 logging.warning(f"Missing team ID for game {game.get('id')}")
                 continue
             
-            # Get team stats
+            # Convert IDs to strings
+            home_id = str(home_id)
+            away_id = str(away_id)
+            
+            # Get team stats with retry logic
             home_stats = api_client.get_team_stats_with_retry(home_id)
             away_stats = api_client.get_team_stats_with_retry(away_id)
             
             # Prepare game info
             game_info = {
+                'id': game.get('id'),
                 'gameId': game.get('id'),
-                'home_team': home_team.get('name'),
-                'away_team': away_team.get('name'),
+                'home_team': {
+                    'id': home_id,
+                    'name': home_team.get('name', ''),
+                    'code': home_team.get('code', '')
+                },
+                'away_team': {
+                    'id': away_id,
+                    'name': away_team.get('name', ''),
+                    'code': away_team.get('code', '')
+                },
                 'home_stats': home_stats,
                 'away_stats': away_stats,
                 'scheduled_start': game.get('date', {}).get('start'),
                 'current_period': 0,
                 'clock': '12:00',
                 'home_score': 0,
-                'away_score': 0
+                'away_score': 0,
+                'status': game.get('status', {})
             }
             
             # Make prediction
             prediction = predictor.predict_live_game(game_info)
-            
-            # Save prediction
             save_scheduled_prediction(game_info, prediction)
-            
-            # Display prediction summary
             display_prediction_summary(game_info, prediction)
             
         except Exception as e:
             logging.error(f"Error processing game {game.get('id')}: {str(e)}")
             continue
+
+
 
 def generate_score_prediction(home_stats: Dict, away_stats: Dict) -> Dict:
     """Generate score prediction ranges based on team statistics."""
@@ -703,9 +728,9 @@ def save_scheduled_prediction(game_info: Dict, prediction: Dict):
         home_win_prob = prediction['adjusted_prediction']
         win_probability = home_win_prob if home_win_prob > 0.5 else (1 - home_win_prob)
         predicted_winner = (
-            game_info['home_team'] 
+            game_info['home_team']['name']
             if home_win_prob > 0.5 
-            else game_info['away_team']
+            else game_info['away_team']['name']
         )
         
         # Generate score prediction
