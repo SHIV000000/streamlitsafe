@@ -1,0 +1,35 @@
+{
+    "timestamp": "2024-11-26T18:56:01.141975",
+    "game_info": {
+        "id": 14375,
+        "home_team": "Miami Heat",
+        "away_team": "Milwaukee Bucks",
+        "scheduled_start": "2024-11-27T00:30:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5593419985882874,
+        "adjusted": 0.5593419985882874,
+        "predicted_winner": "Miami Heat",
+        "win_probability": 0.5593419985882874,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5260694045004857,
+            "xgboost": 0.5342308282852173,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7325781583786011,
+            "gru": 0.4310084581375122
+        },
+        "score_prediction": {
+            "home_low": 100,
+            "home_high": 123,
+            "away_low": 98,
+            "away_high": 120
+        }
+    }
+}

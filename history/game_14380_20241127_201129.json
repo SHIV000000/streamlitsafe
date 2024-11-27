@@ -1,0 +1,43 @@
+{
+    "timestamp": "2024-11-27T20:11:29.842779",
+    "game_info": {
+        "id": 14380,
+        "home_team": {
+            "id": "7",
+            "name": "Cleveland Cavaliers",
+            "code": ""
+        },
+        "away_team": {
+            "id": "1",
+            "name": "Atlanta Hawks",
+            "code": ""
+        },
+        "scheduled_start": "2024-11-28T00:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5588459026128905,
+        "adjusted": 0.5588459026128905,
+        "predicted_winner": "Cleveland Cavaliers",
+        "win_probability": 0.5588459026128905,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5222266494206788,
+            "xgboost": 0.5196705460548401,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7650141716003418,
+            "gru": 0.4267320930957794
+        },
+        "score_prediction": {
+            "home_low": 109,
+            "home_high": 134,
+            "away_low": 102,
+            "away_high": 125
+        }
+    }
+}

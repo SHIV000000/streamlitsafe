@@ -1,0 +1,43 @@
+{
+    "timestamp": "2024-11-27T20:11:40.221302",
+    "game_info": {
+        "id": 14386,
+        "home_team": {
+            "id": "19",
+            "name": "Memphis Grizzlies",
+            "code": ""
+        },
+        "away_team": {
+            "id": "10",
+            "name": "Detroit Pistons",
+            "code": ""
+        },
+        "scheduled_start": "2024-11-28T01:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5749064496584568,
+        "adjusted": 0.5749064496584568,
+        "predicted_winner": "Memphis Grizzlies",
+        "win_probability": 0.5749064496584568,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5336595177027846,
+            "xgboost": 0.5657840371131897,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7641486525535583,
+            "gru": 0.4220956563949585
+        },
+        "score_prediction": {
+            "home_low": 107,
+            "home_high": 130,
+            "away_low": 97,
+            "away_high": 119
+        }
+    }
+}

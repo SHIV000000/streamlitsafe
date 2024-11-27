@@ -1,0 +1,43 @@
+{
+    "timestamp": "2024-11-27T20:11:51.915185",
+    "game_info": {
+        "id": 14392,
+        "home_team": {
+            "id": "11",
+            "name": "Golden State Warriors",
+            "code": ""
+        },
+        "away_team": {
+            "id": "25",
+            "name": "Oklahoma City Thunder",
+            "code": ""
+        },
+        "scheduled_start": "2024-11-28T03:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5621514158610709,
+        "adjusted": 0.5621514158610709,
+        "predicted_winner": "Golden State Warriors",
+        "win_probability": 0.5621514158610709,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5200019821281349,
+            "xgboost": 0.5345642566680908,
+            "svm": 0.5929227762306781,
+            "lstm": 0.771324872970581,
+            "gru": 0.4152008295059204
+        },
+        "score_prediction": {
+            "home_low": 104,
+            "home_high": 127,
+            "away_low": 103,
+            "away_high": 126
+        }
+    }
+}

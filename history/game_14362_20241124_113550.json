@@ -1,0 +1,35 @@
+{
+    "timestamp": "2024-11-24T11:35:50.905662",
+    "game_info": {
+        "id": 14362,
+        "home_team": "Philadelphia 76ers",
+        "away_team": "LA Clippers",
+        "scheduled_start": "2024-11-24T23:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5446748237134668,
+        "adjusted": 0.5446748237134668,
+        "predicted_winner": "Philadelphia 76ers",
+        "win_probability": 0.5446748237134668,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5146756687201843,
+            "xgboost": 0.504386305809021,
+            "svm": 0.5929227762306781,
+            "lstm": 0.6651372313499451,
+            "gru": 0.49981489777565
+        },
+        "score_prediction": {
+            "home_low": 94,
+            "home_high": 115,
+            "away_low": 97,
+            "away_high": 118
+        }
+    }
+}

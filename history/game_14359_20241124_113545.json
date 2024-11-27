@@ -1,0 +1,36 @@
+{
+    "timestamp": "2024-11-24T11:35:45.259897",
+    "game_info": {
+        "id": 14359,
+        "home_team": "Boston Celtics",
+        "away_team": "Minnesota Timberwolves",
+        "scheduled_start": "2024-11-24T20:30:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5549496171128884,
+        "adjusted": 0.5549496171128884,
+        "predicted_winner": "Boston Celtics",
+        "win_probability": 0.5549496171128884,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5231943924568391,
+            "xgboost": 0.5172430872917175,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7549041509628296,
+            "gru": 0.41244783997535706
+        },
+        "score_prediction": {
+            "home_low": 108,
+            "home_high": 132,
+            "away_low": 103,
+            "away_high": 126
+        }
+    }
+}
+

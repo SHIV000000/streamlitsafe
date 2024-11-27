@@ -1,0 +1,35 @@
+{
+    "timestamp": "2024-11-25T23:37:24.721308",
+    "game_info": {
+        "id": 14367,
+        "home_team": "Indiana Pacers",
+        "away_team": "New Orleans Pelicans",
+        "scheduled_start": "2024-11-26T00:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5649839760010847,
+        "adjusted": 0.5649839760010847,
+        "predicted_winner": "Indiana Pacers",
+        "win_probability": 0.5649839760010847,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5273624733634598,
+            "xgboost": 0.5462809801101685,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7565814256668091,
+            "gru": 0.4130057394504547
+        },
+        "score_prediction": {
+            "home_low": 104,
+            "home_high": 127,
+            "away_low": 93,
+            "away_high": 113
+        }
+    }
+}
