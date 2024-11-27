@@ -1,0 +1,57 @@
+{
+    "timestamp": "2024-11-27T08:19:25.218899",
+    "game_info": {
+        "id": "14374",
+        "home_team": {
+            "id": "41",
+            "name": "Washington Wizards",
+            "info": {
+                "id": "41",
+                "name": "Washington Wizards",
+                "code": "WAS",
+                "city": "Washington",
+                "conference": "East",
+                "division": "Southeast"
+            }
+        },
+        "away_team": {
+            "id": "6",
+            "name": "Chicago Bulls",
+            "info": {
+                "id": "6",
+                "name": "Chicago Bulls",
+                "code": "CHI",
+                "city": "Chicago",
+                "conference": "East",
+                "division": "Central"
+            }
+        },
+        "scheduled_start": null,
+        "period": 4,
+        "clock": null,
+        "score": {
+            "home": 108,
+            "away": 127
+        }
+    },
+    "prediction": {
+        "base": 0.5821772217417863,
+        "adjusted": 0.4268287016114273,
+        "predicted_winner": "Chicago Bulls",
+        "win_probability": 0.5731712983885727,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5176528225811807,
+            "xgboost": 0.5317606329917908,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7847193479537964,
+            "gru": 0.5695711374282837
+        },
+        "score_prediction": {
+            "home_low": 0,
+            "home_high": 0,
+            "away_low": 0,
+            "away_high": 0
+        }
+    }
+}

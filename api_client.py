@@ -21,8 +21,12 @@ class EnhancedNBAApiClient:
         
         # Configure logging
         logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s'
+            level=logging.DEBUG,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler("nba_api.log"),
+                logging.StreamHandler()
+            ]
         )
 
     def _safe_convert_id(self, value: Any) -> str:
@@ -73,8 +77,9 @@ class EnhancedNBAApiClient:
         return {}
 
     def get_live_games(self) -> List[Dict]:
-        """Get current live games with validated team IDs."""
+        """Get current live games with enhanced status checking."""
         try:
+            # First attempt: Try getting games directly
             endpoint = f"{self.base_url}/games"
             params = {
                 'live': 'all',
@@ -82,21 +87,175 @@ class EnhancedNBAApiClient:
                 'season': self.current_season
             }
             
+            logging.info(f"Attempting to fetch live games with params: {params}")
             response = self._make_request('GET', endpoint, params)
             all_games = response.get('response', [])
             
-            live_games = [
-                game for game in all_games 
-                if (game.get('status', {}).get('long') == "In Play" or
-                    game.get('status', {}).get('short') == 2 or
-                    game.get('status', {}).get('clock', None) is not None)
-            ]
+            # If no games found, try getting today's games
+            if not all_games:
+                today = datetime.now().strftime("%Y-%m-%d")
+                params = {
+                    'date': today,
+                    'league': 'standard',
+                    'season': self.current_season
+                }
+                logging.info(f"Attempting to fetch today's games with params: {params}")
+                response = self._make_request('GET', endpoint, params)
+                all_games = response.get('response', [])
             
-            return self._process_live_games(live_games)
+            logging.debug(f"Found {len(all_games)} games in response")
+            
+            # Enhanced live game detection
+            live_games = []
+            for game in all_games:
+                try:
+                    status = game.get('status', {})
+                    periods = game.get('periods', {})
+                    scores = game.get('scores', {})
+                    
+                    # Log individual game status
+                    logging.debug(f"Processing game: {game.get('id')}")
+                    logging.debug(f"Game status: {json.dumps(status, indent=2)}")
+                    
+                    # Check if game is live
+                    if self._is_game_live(status, periods, scores):
+                        processed_game = self._process_game_data(game)
+                        if processed_game:
+                            live_games.append(processed_game)
+                            logging.info(f"Found live game: {self.debug_game_status(game)}")
+                
+                except Exception as e:
+                    logging.error(f"Error processing game {game.get('id')}: {str(e)}")
+                    continue
+            
+            if not live_games:
+                logging.info("No live games found")
+            else:
+                logging.info(f"Found {len(live_games)} live games")
+                
+            return live_games
             
         except Exception as e:
             logging.error(f"Error fetching live games: {str(e)}")
             return []
+
+    def _is_game_live(self, status: Dict, periods: Dict, scores: Dict) -> bool:
+        """Helper method to determine if a game is live."""
+        try:
+            status_long = status.get('long', '').lower()
+            status_short = str(status.get('short', '')).lower()
+            current_period = periods.get('current')
+            
+            # Early return for scheduled games
+            if status_long == 'scheduled' or status_short == '1':
+                return False
+            
+            # Check various status indicators
+            status_indicators = [
+                # Status text checks
+                status_long in ['in play', 'live', 'playing', 'halftime', 'quarter'],
+                status_short in ['2', 'live', 'halftime', 'q1', 'q2', 'q3', 'q4', 'ot'],
+                status.get('halftime') is True,
+                
+                # Period checks (only if current_period is not None)
+                current_period is not None and current_period > 0 and current_period <= 4,
+                
+                # Clock and score checks
+                bool(status.get('clock')),
+                scores.get('home', {}).get('points', 0) > 0,
+                scores.get('visitors', {}).get('points', 0) > 0
+            ]
+            
+            logging.debug(f"Game status indicators: {status_indicators}")
+            return any(status_indicators)
+            
+        except Exception as e:
+            logging.error(f"Error in _is_game_live: {str(e)}")
+            return False
+
+    def _process_game_data(self, game: Dict) -> Optional[Dict]:
+        """Process raw game data into standardized format."""
+        try:
+            # Extract and validate team data
+            teams = game.get('teams', {})
+            home_team = teams.get('home', {})
+            away_team = teams.get('visitors', {})  # API uses 'visitors' for away team
+            
+            # Debug logging for team data
+            logging.debug(f"Raw home team data: {json.dumps(home_team, indent=2)}")
+            logging.debug(f"Raw away team data: {json.dumps(away_team, indent=2)}")
+            
+            # Extract team IDs with proper validation
+            home_id = home_team.get('id')
+            away_id = away_team.get('id')
+            
+            if not home_id or not away_id:
+                logging.error(f"Missing team ID - Home: {home_id}, Away: {away_id}")
+                return None
+            
+            # Convert IDs to strings
+            home_id_str = str(home_id)
+            away_id_str = str(away_id)
+            
+            # Extract scores with proper path
+            scores = game.get('scores', {})
+            home_score = scores.get('home', {}).get('points', 0)
+            away_score = scores.get('visitors', {}).get('points', 0)
+            
+            return {
+                'id': str(game.get('id')),
+                'teams': {
+                    'home': {
+                        'id': home_id_str,
+                        'name': home_team.get('name', ''),
+                        'nickname': home_team.get('nickname', ''),
+                        'code': home_team.get('code', '')
+                    },
+                    'visitors': {  # Changed from 'away' to 'visitors'
+                        'id': away_id_str,
+                        'name': away_team.get('name', ''),
+                        'nickname': away_team.get('nickname', ''),
+                        'code': away_team.get('code', '')
+                    }
+                },
+                'scores': {
+                    'home': {
+                        'points': int(home_score) if home_score is not None else 0,
+                        'linescore': scores.get('home', {}).get('linescore', [])
+                    },
+                    'visitors': {  # Changed from 'away' to 'visitors'
+                        'points': int(away_score) if away_score is not None else 0,
+                        'linescore': scores.get('visitors', {}).get('linescore', [])
+                    }
+                },
+                'status': {
+                    'clock': game.get('status', {}).get('clock'),
+                    'period': game.get('periods', {}).get('current', 1),
+                    'halftime': game.get('status', {}).get('halftime', False),
+                    'short': game.get('status', {}).get('short'),
+                    'long': game.get('status', {}).get('long')
+                },
+                'periods': game.get('periods', {}),
+                'arena': game.get('arena', {}),
+                'date': {
+                    'start': game.get('date', {}).get('start'),
+                    'end': game.get('date', {}).get('end')
+                }
+            }
+        except Exception as e:
+            logging.error(f"Error processing game data: {str(e)}")
+            return None
+
+    def debug_game_status(self, game: Dict) -> str:
+        """Helper function to debug game status"""
+        return (f"Game ID: {game.get('id')} - "
+                f"Status: {game.get('status', {}).get('long')} - "
+                f"Clock: {game.get('status', {}).get('clock')} - "
+                f"Period: {game.get('periods', {}).get('current')} - "
+                f"Home: {game.get('teams', {}).get('home', {}).get('name')} "
+                f"({game.get('scores', {}).get('home', {}).get('points', 0)}) - "
+                f"Away: {game.get('teams', {}).get('visitors', {}).get('name')} "
+                f"({game.get('scores', {}).get('visitors', {}).get('points', 0)})")
 
     def _process_live_games(self, games: List[Dict]) -> List[Dict]:
         """Process raw live game data into required format."""
@@ -136,20 +295,44 @@ class EnhancedNBAApiClient:
         """Get team statistics with proper error handling and ID validation."""
         try:
             validated_id = self._validate_team_id(team_id)
+            endpoint = f"{self.base_url}/teams/statistics"
+            params = {
+                'id': validated_id,
+                'season': self.current_season
+            }
             
-            # Try current season first
-            stats = self._get_season_stats(validated_id, self.current_season)
+            response = self._make_request('GET', endpoint, params)
+            stats = response.get('response', [])
             
-            # Fall back to previous season if needed
             if not stats:
-                logging.info(f"No current season stats for team {validated_id}, trying previous season")
-                stats = self._get_season_stats(validated_id, self.previous_season)
+                # Try previous season if current season stats not available
+                params['season'] = self.previous_season
+                response = self._make_request('GET', endpoint, params)
+                stats = response.get('response', [])
             
-            return stats or {}
+            if stats and len(stats) > 0:
+                return self.process_team_stats(stats[0])
+            
+            # Return default stats structure if no data found
+            return {
+                'statistics': [{
+                    'points': 0.0,
+                    'fieldGoalsPercentage': 0.0,
+                    'threePointsPercentage': 0.0,
+                    'freeThrowsPercentage': 0.0,
+                    'reboundsTotal': 0.0,
+                    'assists': 0.0,
+                    'steals': 0.0,
+                    'blocks': 0.0,
+                    'turnovers': 0.0,
+                    'games': 0,
+                    'wins': 0
+                }]
+            }
             
         except Exception as e:
             logging.error(f"Error fetching team stats for ID {team_id}: {str(e)}")
-            return {}
+            return {'statistics': [{}]}
 
     def _get_season_stats(self, team_id: str, season: str) -> Dict:
         """Helper method to get stats for a specific season."""
@@ -168,6 +351,9 @@ class EnhancedNBAApiClient:
         """Process raw team statistics into required format."""
         try:
             games = float(stats.get('games', 1))
+            if games == 0:
+                games = 1
+            
             return {
                 'statistics': [{
                     'points': float(stats.get('points', 0)) / games,
@@ -185,7 +371,21 @@ class EnhancedNBAApiClient:
             }
         except Exception as e:
             logging.error(f"Error processing team stats: {str(e)}")
-            return {'statistics': [{}]}
+            return {
+                'statistics': [{
+                    'points': 0.0,
+                    'fieldGoalsPercentage': 0.0,
+                    'threePointsPercentage': 0.0,
+                    'freeThrowsPercentage': 0.0,
+                    'reboundsTotal': 0.0,
+                    'assists': 0.0,
+                    'steals': 0.0,
+                    'blocks': 0.0,
+                    'turnovers': 0.0,
+                    'games': 0,
+                    'wins': 0
+                }]
+            }
 
     def get_game_statistics(self, game_id: str) -> Dict:
         """Get detailed game statistics."""
@@ -238,28 +438,7 @@ class EnhancedNBAApiClient:
             logging.error(f"Error fetching alternative team stats for ID {team_id}: {str(e)}")
             return {}
 
-    def get_team_injuries(self, team_id: str) -> List[Dict]:
-        """Get current team injuries."""
-        try:
-            validated_id = self._validate_team_id(team_id)
-            endpoint = f"{self.base_url}/injuries"
-            params = {
-                'team': validated_id,
-                'league': 'standard'
-            }
-            
-            response = self._make_request('GET', endpoint, params)
-            injuries = response.get('response', [])
-            
-            return [{
-                'player': injury.get('player', {}).get('name'),
-                'status': injury.get('status'),
-                'reason': injury.get('reason'),
-                'date': injury.get('date')
-            } for injury in injuries]
-        except Exception as e:
-            logging.error(f"Error fetching injuries for team {team_id}: {str(e)}")
-            return []
+
 
     def get_team_info(self, team_id: str) -> Dict:
         """Get detailed team information with validated ID."""
@@ -329,35 +508,5 @@ class EnhancedNBAApiClient:
                 
         return {'statistics': [{}]}  # Return empty stats if all attempts fail
 
-    def get_team_injuries_with_fallback(self, team_id: str) -> List[Dict]:
-        """Get team injuries with fallback options."""
-        try:
-            # Try primary injuries endpoint
-            injuries = self.get_team_injuries(team_id)
-            if injuries:
-                return injuries
-                
-            # Try alternative source
-            roster = self.get_team_players(team_id)
-            if roster:
-                return self.extract_injuries_from_roster(roster)
-                
-            return []
-            
-        except Exception as e:
-            logging.error(f"Error getting injuries for team {team_id}: {str(e)}")
-            return []
-
-    def extract_injuries_from_roster(self, roster: List[Dict]) -> List[Dict]:
-        """Extract injury information from roster data."""
-        injuries = []
-        for player in roster:
-            if player.get('status') in ['Out', 'Questionable', 'Doubtful']:
-                injuries.append({
-                    'player': player.get('name'),
-                    'status': player.get('status'),
-                    'reason': player.get('injury', {}).get('description', 'Unknown')
-                })
-        return injuries
 
 

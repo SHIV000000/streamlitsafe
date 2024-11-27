@@ -33,13 +33,22 @@ class LiveGamePredictor:
     def __init__(self, base_predictor: NBAPredictor):
         self.base_predictor = base_predictor
         self.game_cache = {}
-        self.update_interval = 30  # seconds
+        self.update_interval = 300  # 5 minutes in seconds
 
     def predict_live_game(self, game_info: Dict) -> Dict[str, Any]:
         """Make and update predictions for a live game."""
-        game_id = game_info['gameId']
+        game_id = game_info['id']
         current_time = datetime.now()
 
+        # Force update for live games
+        if game_info.get('status', {}).get('long') == "In Play":
+            prediction = self._make_live_prediction(game_info)
+            self.game_cache[game_id] = {
+                'last_update': current_time,
+                'prediction': prediction
+            }
+            return prediction
+        
         if self._should_update_prediction(game_id, current_time):
             prediction = self._make_live_prediction(game_info)
             self.game_cache[game_id] = {
@@ -99,16 +108,27 @@ class LiveGamePredictor:
             if not game_info.get('scores'):
                 return 0.0
 
-            # For live games, calculate momentum from scores
-            home_scores = [int(score) for score in game_info['scores']['home']['linescore']]
-            away_scores = [int(score) for score in game_info['scores']['away']['linescore']]
+            # Get current scores
+            home_score = game_info['home_score']
+            away_score = game_info['away_score']
+            current_period = game_info['current_period']
             
-            recent_home = sum(home_scores[-2:])
-            recent_away = sum(away_scores[-2:])
+            # If we're in the first period, use simple score difference
+            if current_period <= 1:
+                score_diff = home_score - away_score
+                return max(min(score_diff / 10.0, 1.0), -1.0)
             
-            momentum = (recent_home - recent_away) / max(recent_home + recent_away, 1)
+            # For later periods, calculate momentum based on current score
+            # and period averages
+            home_avg = home_score / current_period
+            away_avg = away_score / current_period
+            
+            # Calculate momentum as the difference between current period scoring
+            momentum = (home_avg - away_avg) / max(home_avg + away_avg, 1)
+            
+            # Normalize momentum to [-1, 1] range
             return max(min(momentum, 1.0), -1.0)
-            
+                
         except Exception as e:
             logging.warning(f"Error calculating momentum: {str(e)}")
             return 0.0
@@ -262,55 +282,89 @@ def should_update_predictions():
 
 
 def prepare_game_info(game: Dict, api_client: EnhancedNBAApiClient) -> Dict:
-    """Prepare comprehensive game information."""
+    """Prepare comprehensive game information with detailed logging."""
     try:
+        logging.info(f"""
+        ========== Processing Game Info ==========
+        Game ID: {game.get('id')}
+        Status: {game.get('status', {}).get('long')}
+        Clock: {game.get('status', {}).get('clock')}
+        Period: {game.get('periods', {}).get('current')}
+        
+        Teams:
+        Home: {game.get('teams', {}).get('home', {}).get('name')} (ID: {game.get('teams', {}).get('home', {}).get('id')})
+        Away: {game.get('teams', {}).get('visitors', {}).get('name')} (ID: {game.get('teams', {}).get('visitors', {}).get('id')})
+        
+        Scores:
+        Home: {game.get('scores', {}).get('home', {}).get('points')}
+        Away: {game.get('scores', {}).get('visitors', {}).get('points')}
+        ======================================
+        """)
+        
+        # Extract teams data with proper path
         teams = game.get('teams', {})
         home_team = teams.get('home', {})
-        away_team = teams.get('away', {})
+        away_team = teams.get('visitors', {})  # API uses 'visitors' for away team
         
-        # Get team information
-        home_team_info = api_client.get_team_info(home_team.get('id'))
-        away_team_info = api_client.get_team_info(away_team.get('id'))
+        # Get team IDs with proper validation
+        home_team_id = home_team.get('id')
+        away_team_id = away_team.get('id')
         
-        # Get injury information
-        home_injuries = api_client.get_team_injuries(home_team.get('id'))
-        away_injuries = api_client.get_team_injuries(away_team.get('id'))
+        if not home_team_id or not away_team_id:
+            raise ValueError(f"Missing team ID - Home: {home_team_id}, Away: {away_team_id}")
+            
+        # Convert IDs to strings
+        home_team_id = str(home_team_id)
+        away_team_id = str(away_team_id)
+        
+        logging.debug(f"Processing teams - Home ID: {home_team_id}, Away ID: {away_team_id}")
+        
+        # Get team information and stats
+        home_team_info = api_client.get_team_info(home_team_id)
+        away_team_info = api_client.get_team_info(away_team_id)
+        
+        home_stats = api_client.get_team_stats(home_team_id)
+        away_stats = api_client.get_team_stats(away_team_id)
+        
+        # Extract scores with proper path
+        scores = game.get('scores', {})
+        home_score = scores.get('home', {}).get('points', 0)
+        away_score = scores.get('visitors', {}).get('points', 0)  # Note: using 'visitors' here too
         
         game_info = {
-            'gameId': game.get('id'),
+            'id': str(game.get('id')),
+            'gameId': str(game.get('id')),
             'home_team': {
-                'name': home_team.get('name'),
-                'info': home_team_info,
-                'injuries': home_injuries
+                'id': home_team_id,
+                'name': home_team.get('name', ''),
+                'info': home_team_info
             },
             'away_team': {
-                'name': away_team.get('name'),
-                'info': away_team_info,
-                'injuries': away_injuries
+                'id': away_team_id,
+                'name': away_team.get('name', ''),
+                'info': away_team_info
             },
             'current_period': game.get('periods', {}).get('current', 1),
             'clock': game.get('status', {}).get('clock', '12:00'),
-            'home_score': int(game.get('scores', {}).get('home', {}).get('points', 0)),
-            'away_score': int(game.get('scores', {}).get('away', {}).get('points', 0)),
-            'scores': game.get('scores')  # Add the entire scores object
+            'home_score': int(home_score) if home_score is not None else 0,
+            'away_score': int(away_score) if away_score is not None else 0,
+            'scores': {
+                'home': {'points': int(home_score) if home_score is not None else 0},
+                'away': {'points': int(away_score) if away_score is not None else 0}
+            },
+            'home_stats': home_stats,
+            'away_stats': away_stats,
+            'status': game.get('status', {})
         }
         
-        # Get and process team stats
-        home_stats = api_client.get_team_stats(home_team.get('id'))
-        away_stats = api_client.get_team_stats(away_team.get('id'))
-        
-        # Adjust stats based on injuries
-        home_stats = adjust_stats_for_injuries(home_stats, home_injuries)
-        away_stats = adjust_stats_for_injuries(away_stats, away_injuries)
-        
-        game_info['home_stats'] = home_stats
-        game_info['away_stats'] = away_stats
-        
+        logging.debug(f"Prepared game info for game {game_info['id']}")
         return game_info
         
     except Exception as e:
         logging.error(f"Error preparing game info: {str(e)}")
         raise
+
+
 
 def adjust_stats_for_injuries(stats: Dict, injuries: List[Dict]) -> Dict:
     """Adjust team statistics based on injured players."""
@@ -365,14 +419,51 @@ def log_prediction(game_info: Dict, prediction: Dict):
     """)
 
 def save_prediction(game_info: Dict, prediction: Dict, is_live: bool = True):
-    """Save prediction with complete structure."""
+    """Save prediction with complete structure and detailed logging."""
     try:
         timestamp = datetime.now()
         
         # Calculate win probabilities
         home_win_prob = prediction['adjusted_prediction']
-        predicted_winner = game_info['home_team'] if home_win_prob > 0.5 else game_info['away_team']
+        predicted_winner = game_info['home_team']['name'] if home_win_prob > 0.5 else game_info['away_team']['name']
         win_probability = home_win_prob if home_win_prob > 0.5 else (1 - home_win_prob)
+        
+        # Log detailed game information
+        logging.info(f"""
+        ============ Live Game Update ============
+        Game ID: {game_info['id']}
+        Matchup: {game_info['home_team']['name']} vs {game_info['away_team']['name']}
+        Current Period: {game_info['current_period']}
+        Clock: {game_info['clock']}
+        Score: {game_info['home_score']} - {game_info['away_score']}
+        
+        Team Stats:
+        Home ({game_info['home_team']['name']}):
+        - Points Per Game: {game_info['home_stats']['statistics'][0].get('points', 'N/A')}
+        - Field Goal %: {game_info['home_stats']['statistics'][0].get('fgp', 'N/A')}
+        
+        Away ({game_info['away_team']['name']}):
+        - Points Per Game: {game_info['away_stats']['statistics'][0].get('points', 'N/A')}
+        - Field Goal %: {game_info['away_stats']['statistics'][0].get('fgp', 'N/A')}
+        
+        Prediction Details:
+        - Base Prediction: {prediction['base_prediction']:.2%}
+        - Adjusted Prediction: {prediction['adjusted_prediction']:.2%}
+        - Predicted Winner: {predicted_winner}
+        - Win Probability: {win_probability:.2%}
+        - Confidence Level: {get_confidence_level(win_probability)}
+        
+        Adjustment Factors:
+        - Momentum: {prediction['factors']['momentum']:.3f}
+        - Performance: {prediction['factors']['performance']:.3f}
+        - Time Pressure: {prediction['factors']['time_pressure']:.3f}
+        
+        Game State:
+        - Period: {prediction['game_state']['period']}
+        - Time Remaining: {prediction['game_state']['time_remaining']:.1f} minutes
+        - Score Difference: {prediction['game_state']['score_difference']} points
+        =======================================
+        """)
         
         # Create complete prediction structure
         result = {
@@ -604,7 +695,7 @@ def generate_score_prediction(home_stats: Dict, away_stats: Dict) -> Dict:
         }
 
 def save_scheduled_prediction(game_info: Dict, prediction: Dict):
-    """Save prediction for scheduled games with complete structure."""
+    """Save prediction for scheduled games in both scheduled and history directories."""
     try:
         timestamp = datetime.now()
         
@@ -648,19 +739,79 @@ def save_scheduled_prediction(game_info: Dict, prediction: Dict):
             }
         }
         
-        directory = 'predictions/scheduled'
-        os.makedirs(directory, exist_ok=True)
-        
-        filename = f'{directory}/game_{game_info["gameId"]}_{timestamp.strftime("%Y%m%d_%H%M%S")}.json'
-        with open(filename, 'w') as f:
+        # Save to scheduled directory (keeping only latest)
+        scheduled_dir = 'predictions/scheduled'
+        os.makedirs(scheduled_dir, exist_ok=True)
+        clean_scheduled_predictions(game_info["gameId"], scheduled_dir)
+        scheduled_filename = f'{scheduled_dir}/game_{game_info["gameId"]}_{timestamp.strftime("%Y%m%d_%H%M%S")}.json'
+        with open(scheduled_filename, 'w') as f:
             json.dump(result, f, indent=4)
+        
+        # Save to history directory (if not duplicate)
+        history_dir = 'history'
+        os.makedirs(history_dir, exist_ok=True)
+        if not is_duplicate_prediction(result, history_dir, game_info["gameId"]):
+            history_filename = f'{history_dir}/game_{game_info["gameId"]}_{timestamp.strftime("%Y%m%d_%H%M%S")}.json'
+            with open(history_filename, 'w') as f:
+                json.dump(result, f, indent=4)
+            logging.debug(f"Saved new prediction to history: {history_filename}")
             
-        logging.debug(f"Saved scheduled prediction to {filename}")
+        logging.debug(f"Saved scheduled prediction to {scheduled_filename}")
         return result
         
     except Exception as e:
         logging.error(f"Error saving scheduled prediction: {str(e)}")
         return None
+
+# New helper function to clean scheduled predictions
+def clean_scheduled_predictions(game_id: str, directory: str):
+    """Remove old scheduled predictions, keeping only the latest."""
+    try:
+        game_files = []
+        for file in os.listdir(directory):
+            if file.startswith(f'game_{game_id}_') and file.endswith('.json'):
+                file_path = os.path.join(directory, file)
+                game_files.append((file_path, os.path.getmtime(file_path)))
+        
+        # Sort by modification time and remove all but the latest
+        if len(game_files) > 0:
+            sorted_files = sorted(game_files, key=lambda x: x[1], reverse=True)
+            for file_path, _ in sorted_files[1:]:
+                try:
+                    os.remove(file_path)
+                    logging.debug(f"Removed old scheduled prediction: {file_path}")
+                except Exception as e:
+                    logging.error(f"Error removing file {file_path}: {str(e)}")
+                    
+    except Exception as e:
+        logging.error(f"Error cleaning scheduled predictions for game {game_id}: {str(e)}")
+
+# New helper function to check for duplicate predictions
+def is_duplicate_prediction(new_prediction: Dict, history_dir: str, game_id: str) -> bool:
+    """Check if this prediction is already in history."""
+    try:
+        for file in os.listdir(history_dir):
+            if file.startswith(f'game_{game_id}_') and file.endswith('.json'):
+                file_path = os.path.join(history_dir, file)
+                try:
+                    with open(file_path, 'r') as f:
+                        existing_pred = json.load(f)
+                        
+                    # Compare key prediction values
+                    if (abs(existing_pred['prediction']['adjusted'] - 
+                           new_prediction['prediction']['adjusted']) < 0.001 and
+                        existing_pred['prediction']['predicted_winner'] == 
+                        new_prediction['prediction']['predicted_winner']):
+                        return True
+                except Exception as e:
+                    logging.error(f"Error reading history file {file_path}: {str(e)}")
+                    continue
+        
+        return False
+        
+    except Exception as e:
+        logging.error(f"Error checking for duplicate prediction: {str(e)}")
+        return False
 
 def display_prediction_summary(game_info: Dict, prediction: Dict):
     """Display a summary of the prediction."""

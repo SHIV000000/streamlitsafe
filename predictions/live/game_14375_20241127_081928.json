@@ -1,0 +1,57 @@
+{
+    "timestamp": "2024-11-27T08:19:28.323399",
+    "game_info": {
+        "id": "14375",
+        "home_team": {
+            "id": "20",
+            "name": "Miami Heat",
+            "info": {
+                "id": "20",
+                "name": "Miami Heat",
+                "code": "MIA",
+                "city": "Miami",
+                "conference": "East",
+                "division": "Southeast"
+            }
+        },
+        "away_team": {
+            "id": "21",
+            "name": "Milwaukee Bucks",
+            "info": {
+                "id": "21",
+                "name": "Milwaukee Bucks",
+                "code": "MIL",
+                "city": "Milwaukee",
+                "conference": "East",
+                "division": "Central"
+            }
+        },
+        "scheduled_start": null,
+        "period": 4,
+        "clock": "1:53",
+        "score": {
+            "home": 100,
+            "away": 104
+        }
+    },
+    "prediction": {
+        "base": 0.5593419985882874,
+        "adjusted": 0.5136201133613698,
+        "predicted_winner": "Miami Heat",
+        "win_probability": 0.5136201133613698,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5260694045004857,
+            "xgboost": 0.5342308282852173,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7325781583786011,
+            "gru": 0.4310084581375122
+        },
+        "score_prediction": {
+            "home_low": 0,
+            "home_high": 0,
+            "away_low": 0,
+            "away_high": 0
+        }
+    }
+}

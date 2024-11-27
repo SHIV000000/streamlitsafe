@@ -20,6 +20,7 @@ from yaml.loader import SafeLoader
 from reward_system import RewardSystemManager
 
 
+
 # 2. Page config and CSS
 st.set_page_config(
     page_title="NBA Game Predictions",
@@ -231,33 +232,38 @@ def create_metric(label, value):
     """
 
 def auto_update():
-    """Function to handle automatic updates"""
+    """Enhanced auto-update function with live game detection"""
     current_time = time.time()
     
-    # Initialize last update time if not exists
     if 'last_update_time' not in st.session_state:
         st.session_state.last_update_time = current_time
         return False
     
-    # Check if 5 minutes have passed
+    # Update more frequently if there are live games
+    update_interval = 300  # 5 minutes in seconds
+    
     time_elapsed = current_time - st.session_state.last_update_time
-    if time_elapsed >= 300:  # 5 minutes in seconds
+    if time_elapsed >= update_interval:
         try:
             logging.info("Starting auto-update...")
             st.session_state.is_predicting = True
             clean_old_predictions()
-            run_continuous_predictions(timeout_minutes=3)
-            st.session_state.last_update_time = current_time
-            st.session_state.last_prediction_time = current_time
-            st.session_state.update_counter += 1
-            st.session_state.is_predicting = False
-            logging.info("Auto-update completed successfully")
-            return True
+            success = run_continuous_predictions(timeout_minutes=3)
+            
+            if success:
+                st.session_state.last_update_time = current_time
+                st.session_state.last_prediction_time = current_time
+                st.session_state.update_counter += 1
+                logging.info("Auto-update completed successfully")
+                return True
+                
         except Exception as e:
             logging.error(f"Error in auto-update: {str(e)}")
+        finally:
             st.session_state.is_predicting = False
-            return False
+            
     return False
+
 
 def show_update_status():
     """Show update status in sidebar with countdown timer"""
@@ -317,49 +323,61 @@ def validate_prediction_data(prediction):
         logging.error(f"Validation error: {str(e)}")
         return False
 
-# 4. Modify Load Predictions Function
 def load_predictions(include_live=True):
     """Load only valid and recent predictions"""
-    predictions = []
-    current_time = time.time()
-    
-    def get_latest_prediction_files(directory):
-        game_files = {}
-        if os.path.exists(directory):
-            for file in os.listdir(directory):
-                if file.endswith('.json'):
-                    game_id = file.split('_')[1]
-                    file_path = os.path.join(directory, file)
-                    mod_time = os.path.getmtime(file_path)
-                    
-                    # Only include files less than 6 hours old
-                    if current_time - mod_time <= 21600:  # 6 hours in seconds
-                        if game_id not in game_files or mod_time > game_files[game_id][1]:
-                            game_files[game_id] = (file_path, mod_time)
+    try:
+        predictions = []
+        current_time = time.time()
         
-        return [path for path, _ in game_files.values()]
+        def get_latest_prediction_files(directory):
+            game_files = {}
+            if os.path.exists(directory):
+                for file in os.listdir(directory):
+                    if file.endswith('.json'):
+                        try:
+                            game_id = file.split('_')[1]
+                            file_path = os.path.join(directory, file)
+                            mod_time = os.path.getmtime(file_path)
+                            
+                            # Only include files less than 6 hours old
+                            if current_time - mod_time <= 21600:  # 6 hours in seconds
+                                if game_id not in game_files or mod_time > game_files[game_id][1]:
+                                    game_files[game_id] = (file_path, mod_time)
+                        except Exception as e:
+                            logging.error(f"Error processing file {file}: {str(e)}")
+                            continue
+            
+            return [path for path, _ in game_files.values()]
 
-    # Load and validate predictions
-    for directory in ["predictions/scheduled", "predictions/live"]:
-        for file_path in get_latest_prediction_files(directory):
-            try:
-                with open(file_path, 'r') as f:
-                    pred = json.load(f)
-                    
-                    if validate_prediction_data(pred):
-                        pred['is_live'] = 'live' in directory
-                        predictions.append(pred)
-                    else:
-                        logging.warning(f"Invalid prediction data in {file_path}")
-                        # Optionally remove invalid files
-                        os.remove(file_path)
-                        
-            except Exception as e:
-                logging.error(f"Error loading prediction file {file_path}: {str(e)}")
+        # Load predictions from both directories
+        for directory in ["predictions/scheduled", "predictions/live"]:
+            for file_path in get_latest_prediction_files(directory):
+                try:
+                    with open(file_path, 'r') as f:
+                        pred = json.load(f)
+                        if pred and validate_prediction_structure(pred):
+                            # Ensure scheduled_start exists and is valid
+                            if 'game_info' in pred and 'scheduled_start' in pred['game_info']:
+                                pred['is_live'] = 'live' in directory
+                                predictions.append(pred)
+                except Exception as e:
+                    logging.error(f"Error loading prediction file {file_path}: {str(e)}")
+                    continue
 
-    # Sort predictions by scheduled start time
-    predictions.sort(key=lambda x: x['game_info']['scheduled_start'])
-    return predictions
+        # Sort predictions by scheduled start time if available
+        if predictions:
+            # Use a default value for sorting to handle None cases
+            predictions.sort(
+                key=lambda x: x.get('game_info', {}).get('scheduled_start', '9999-12-31T23:59:59'),
+                reverse=False
+            )
+            
+        return predictions
+        
+    except Exception as e:
+        logging.error(f"Error loading predictions: {str(e)}")
+        return []
+
 
 # 5. Add Update Control Function
 def should_update_predictions():
@@ -378,6 +396,7 @@ def should_update_predictions():
     update_interval = 180 if has_live_games else 300  # 3 or 5 minutes
     
     return time_since_update >= update_interval
+
 
 # 6. Modify Main Update Logic
 def update_predictions():
@@ -409,59 +428,57 @@ def update_predictions():
 
 # 4. Core functionality
 def display_live_game_card(prediction, key_prefix=None):
-    """Enhanced live game card display with unique keys"""
-    game_info = prediction['game_info']
-    pred_info = prediction['prediction']
-    
-    # Generate unique key for this game card
-    unique_key = f"{key_prefix}_{game_info['id']}" if key_prefix else game_info['id']
-    
-    with st.container():
-        st.markdown('<div class="prediction-card">', unsafe_allow_html=True)
+    """Enhanced live game card with real-time updates"""
+    try:
+        game_info = prediction['game_info']
+        pred_info = prediction['prediction']
         
-        # Header with live indicator
-        col1, col2 = st.columns([6,1])
-        with col1:
-            st.markdown(f"### 🏀 {game_info['home_team']} vs {game_info['away_team']}")
-        with col2:
-            st.markdown('<span class="live-game">LIVE</span>', unsafe_allow_html=True)
+        # Extract team names safely
+        home_team_name = extract_team_name(game_info['home_team'])
+        away_team_name = extract_team_name(game_info['away_team'])
         
-        # Score and period
-        col1, col2, col3 = st.columns([2,3,2])
-        with col1:
-            st.container().markdown(f"""
-                <div class="team-name">{game_info['home_team']}</div>
-                <div class="score">{game_info['score']['home']}</div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.container().markdown(f"""
-                <div style="text-align: center">
-                    <div class="period">Period {game_info['period']}</div>
-                    <div class="vs">VS</div>
-                </div>
-            """, unsafe_allow_html=True)
-        with col3:
-            st.container().markdown(f"""
-                <div class="team-name">{game_info['away_team']}</div>
-                <div class="score">{game_info['score']['away']}</div>
-            """, unsafe_allow_html=True)
-        
-        # Prediction visualization
-        home_prob = pred_info['win_probability'] if pred_info['predicted_winner'] == game_info['home_team'] else (1 - pred_info['win_probability'])
-        away_prob = pred_info['win_probability'] if pred_info['predicted_winner'] == game_info['away_team'] else (1 - pred_info['win_probability'])
-        
-        # Create chart with unique key
-        chart = create_team_comparison_chart(
-            game_info['home_team'],
-            game_info['away_team'],
-            home_prob,
-            away_prob
-        )
-        
-        st.plotly_chart(chart, use_container_width=True, key=f"chart_{unique_key}")
-        
-        # Additional prediction details
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container():
+            st.markdown('<div class="prediction-card live-game">', unsafe_allow_html=True)
+            
+            # Live indicator with period and clock
+            col1, col2 = st.columns([6,1])
+            with col1:
+                st.markdown(f"### 🔴 LIVE: Period {game_info.get('period', 'N/A')}")
+            with col2:
+                st.markdown(f"⏰ {game_info.get('clock', 'N/A')}")
+            
+            # Current score
+            col1, col2, col3 = st.columns([2,1,2])
+            with col1:
+                st.metric(
+                    label=home_team_name,
+                    value=game_info.get('score', {}).get('home', 0)
+                )
+            with col2:
+                st.markdown("VS")
+            with col3:
+                st.metric(
+                    label=away_team_name,
+                    value=game_info.get('score', {}).get('away', 0)
+                )
+            
+            # Updated prediction
+            st.markdown("### Live Win Probability")
+            prob_chart = create_team_comparison_chart(
+                home_team_name,
+                away_team_name,
+                pred_info['win_probability'] if pred_info['predicted_winner'] == home_team_name 
+                else 1 - pred_info['win_probability'],
+                pred_info['win_probability'] if pred_info['predicted_winner'] == away_team_name 
+                else 1 - pred_info['win_probability']
+            )
+            st.plotly_chart(prob_chart, use_container_width=True)
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+            
+    except Exception as e:
+        logging.error(f"Error displaying live game card: {str(e)}")
+        st.error("Error displaying live game information")
 
 def display_scheduled_game_card(prediction, key_prefix=None):
     """Display comprehensive scheduled game prediction card."""
@@ -469,16 +486,16 @@ def display_scheduled_game_card(prediction, key_prefix=None):
         game_info = prediction.get('game_info', {})
         pred_info = prediction.get('prediction', {})
         
-        if not game_info or not pred_info:
-            logging.warning("Invalid prediction structure")
-            return
+        # Extract team names safely
+        home_team_name = extract_team_name(game_info['home_team'])
+        away_team_name = extract_team_name(game_info['away_team'])
         
-        # Extract win probability and predicted winner directly
+        # Extract win probability and predicted winner
         win_prob = float(pred_info.get('win_probability', 0.5))
         predicted_winner = pred_info.get('predicted_winner', '')
         
-        # Calculate home and away probabilities
-        home_prob = win_prob if predicted_winner == game_info.get('home_team') else 1 - win_prob
+        # Calculate probabilities
+        home_prob = win_prob if predicted_winner == home_team_name else 1 - win_prob
         away_prob = 1 - home_prob
         
         with st.container():
@@ -486,19 +503,19 @@ def display_scheduled_game_card(prediction, key_prefix=None):
             
             # Matchup Section
             st.markdown("<div class='section-header'>🏀 MATCHUP:</div>", unsafe_allow_html=True)
-            st.markdown(f"{game_info['home_team']} (Home) vs {game_info['away_team']} (Away)")
+            st.markdown(f"{home_team_name} (Home) vs {away_team_name} (Away)")
             
             # Win Probability Section
             st.markdown("<div class='section-header'>📊 WIN PROBABILITY:</div>", unsafe_allow_html=True)
-            st.markdown(f"{game_info['home_team']}: {home_prob:.1%}")
-            st.markdown(f"{game_info['away_team']}: {away_prob:.1%}")
+            st.markdown(f"{home_team_name}: {home_prob:.1%}")
+            st.markdown(f"{away_team_name}: {away_prob:.1%}")
             
             # Score prediction section
             score_pred = pred_info.get('score_prediction', {})
             if score_pred:
                 st.markdown("<div class='section-header'>🎯 PREDICTED SCORE RANGE:</div>", unsafe_allow_html=True)
-                st.markdown(f"{game_info.get('home_team')}: {score_pred.get('home_low', 0)}-{score_pred.get('home_high', 0)} points")
-                st.markdown(f"{game_info.get('away_team')}: {score_pred.get('away_low', 0)}-{score_pred.get('away_high', 0)} points")
+                st.markdown(f"{home_team_name}: {score_pred.get('home_low', 0)}-{score_pred.get('home_high', 0)} points")
+                st.markdown(f"{away_team_name}: {score_pred.get('away_low', 0)}-{score_pred.get('away_high', 0)} points")
             
             # Summary section
             st.markdown("<div class='section-header'>🏆 PREDICTION SUMMARY:</div>", unsafe_allow_html=True)
@@ -534,8 +551,8 @@ def display_scheduled_game_card(prediction, key_prefix=None):
             st.markdown("</div>", unsafe_allow_html=True)
             
     except Exception as e:
-        logging.error(f"Error displaying prediction card: {str(e)}")
-        st.error("Error displaying prediction details")
+        logging.error(f"Error displaying scheduled game card: {str(e)}")
+        st.error("Error displaying game prediction details")
 
 def clean_old_predictions():
     """Delete old prediction files and keep only the latest for each game"""
@@ -564,44 +581,106 @@ def clean_old_predictions():
                     except Exception as e:
                         logging.error(f"Error deleting file {file_path}: {str(e)}")
 
+# 3. Fix Prediction Structure Validation
+def validate_prediction_structure(prediction):
+    """Validate the prediction structure including score prediction"""
+    try:
+        # Check if prediction is None
+        if prediction is None:
+            logging.error("Prediction is None")
+            return False
+            
+        # Check basic structure
+        if not isinstance(prediction, dict):
+            logging.error("Prediction is not a dictionary")
+            return False
+            
+        # Validate game_info
+        game_info = prediction.get('game_info')
+        if not isinstance(game_info, dict):
+            logging.error("game_info is not a dictionary")
+            return False
+            
+        # Ensure scheduled_start exists and is valid
+        scheduled_start = game_info.get('scheduled_start')
+        if not scheduled_start:
+            game_info['scheduled_start'] = '9999-12-31T23:59:59'  # Default value
+            
+        return True
+        
+    except Exception as e:
+        logging.error(f"Validation error: {str(e)}")
+        return False
+
+
+# 3. Add Safe Access Helper Function
+def safe_get(dictionary, *keys, default=None):
+    """Safely get nested dictionary values"""
+    try:
+        result = dictionary
+        for key in keys:
+            if not isinstance(result, dict):
+                return default
+            result = result.get(key, default)
+            if result is None:
+                return default
+        return result
+    except Exception:
+        return default
+
+# 4. Update Display Predictions Function
 def display_predictions(predictions, key=None):
-    """Display predictions with custom metrics"""
-    # Filter out invalid predictions
-    valid_predictions = []
-    for p in predictions:
-        if validate_prediction_structure(p):
-            valid_predictions.append(p)
-        else:
-            logging.warning(f"Invalid prediction structure for game {p.get('game_info', {}).get('id', 'unknown')}")
-    
-    live_games = [p for p in valid_predictions if p.get('is_live', False)]
-    scheduled_games = [p for p in valid_predictions if not p.get('is_live', False)]
-    
-    # Display metrics using custom containers
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.markdown(create_metric("Live Games", len(live_games)), unsafe_allow_html=True)
-    with col2:
-        st.markdown(create_metric("Scheduled Games", len(scheduled_games)), unsafe_allow_html=True)
-    with col3:
-        high_confidence = sum(1 for p in scheduled_games 
-                            if p['prediction'].get('confidence_level') == 'High')
-        st.markdown(create_metric("High Confidence", high_confidence), unsafe_allow_html=True)
-    with col4:
-        last_update = datetime.fromtimestamp(st.session_state.last_prediction_time).strftime("%H:%M:%S")
-        st.markdown(create_metric("Last Update", last_update), unsafe_allow_html=True)
-    
-    # Display games
-    if live_games:
-        st.markdown("## 🔴 Live Games")
-        for i, game in enumerate(live_games):
-            display_live_game_card(game, key_prefix=f"live_{key}_{i}")
-    
-    if scheduled_games:
-        st.markdown("## 📅 Scheduled Games")
-        for i, game in enumerate(scheduled_games):
-            display_scheduled_game_card(game, key_prefix=f"scheduled_{key}_{i}")
+    """Display predictions with enhanced statistics."""
+    try:
+        # Ensure predictions is not None
+        if not predictions:
+            st.warning("No predictions available. Please update predictions.")
+            return
+            
+        # Sort predictions safely
+        sorted_predictions = sort_predictions(predictions)
+        
+        # Filter valid predictions
+        valid_predictions = [p for p in sorted_predictions if validate_prediction_structure(p)]
+        
+        if not valid_predictions:
+            st.warning("No valid predictions available. Please update predictions.")
+            return
+        
+        live_games = [p for p in valid_predictions if p.get('is_live', False)]
+        scheduled_games = [p for p in valid_predictions if not p.get('is_live', False)]
+        
+        # Display metrics
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.markdown(create_metric("Live Games", len(live_games)), unsafe_allow_html=True)
+        with col2:
+            st.markdown(create_metric("Scheduled Games", len(scheduled_games)), unsafe_allow_html=True)
+        with col3:
+            high_confidence = sum(1 for p in scheduled_games 
+                                if safe_get(p, 'prediction', 'confidence_level') == 'High')
+            st.markdown(create_metric("High Confidence", high_confidence), unsafe_allow_html=True)
+        with col4:
+            last_update = datetime.fromtimestamp(
+                getattr(st.session_state, 'last_prediction_time', time.time())
+            ).strftime("%H:%M:%S")
+            st.markdown(create_metric("Last Update", last_update), unsafe_allow_html=True)
+        
+        # Display games
+        if live_games:
+            st.markdown("## 🔴 Live Games")
+            for i, game in enumerate(live_games):
+                display_live_game_card(game, key_prefix=f"live_{key}_{i}")
+        
+        if scheduled_games:
+            st.markdown("## 📅 Scheduled Games")
+            for i, game in enumerate(scheduled_games):
+                display_scheduled_game_card(game, key_prefix=f"scheduled_{key}_{i}")
+                
+    except Exception as e:
+        logging.error(f"Error displaying predictions: {str(e)}")
+        st.error("An error occurred while displaying predictions.")
 
 def show_prediction_status():
     """Show prediction service status"""
@@ -882,43 +961,6 @@ def run_predictions_with_retry():
         st.error("Failed to generate predictions. Please try again later.")
         return False
 
-def validate_prediction_structure(prediction):
-    """Validate the prediction structure including score prediction"""
-    try:
-        # Check basic structure
-        if not all(key in prediction for key in ['game_info', 'prediction']):
-            logging.error(f"Missing top-level keys. Found: {list(prediction.keys())}")
-            return False
-            
-        # Validate game_info
-        game_info = prediction['game_info']
-        required_game_fields = ['id', 'home_team', 'away_team']
-        if not all(field in game_info for field in required_game_fields):
-            logging.error(f"Missing game_info fields. Found: {list(game_info.keys())}")
-            return False
-            
-        # Validate prediction structure
-        pred_info = prediction['prediction']
-        required_pred_fields = ['predicted_winner', 'win_probability', 'confidence_level']
-        if not all(field in pred_info for field in required_pred_fields):
-            logging.error(f"Missing prediction fields. Found: {list(pred_info.keys())}")
-            return False
-            
-        # Validate score prediction
-        pred_info = prediction['prediction']
-        if 'score_prediction' in pred_info:
-            score_pred = pred_info['score_prediction']
-            required_score_fields = ['home_low', 'home_high', 'away_low', 'away_high']
-            if not all(field in score_pred for field in required_score_fields):
-                logging.error(f"Invalid score prediction structure")
-                return False
-                
-        return True
-        
-    except Exception as e:
-        logging.error(f"Validation error: {str(e)}")
-        return False
-
 # 9. Continue Statistics Display
 def display_team_stats(team_info: Dict):
     """Display team statistics with charts."""
@@ -1050,7 +1092,7 @@ def display_model_analysis(prediction: Dict):
 
 def display_context_factors(prediction: Dict):
     """Display context factors affecting the prediction."""
-    st.markdown("### 📊 Context Factors")
+    st.markdown("### ���� Context Factors")
     
     factors = prediction['context_factors']
     
@@ -1114,6 +1156,42 @@ def calculate_model_agreement(model_predictions: Dict) -> float:
     max_deviation = max(abs(p - mean_pred) for p in predictions)
     return 1 - max_deviation
 
+# 3. Add Safe Comparison Function
+def safe_compare_scheduled_start(pred1, pred2):
+    """Safely compare two predictions by scheduled start time"""
+    try:
+        start1 = pred1.get('game_info', {}).get('scheduled_start', '9999-12-31T23:59:59')
+        start2 = pred2.get('game_info', {}).get('scheduled_start', '9999-12-31T23:59:59')
+        
+        # If either value is None, use the default maximum date
+        if start1 is None:
+            start1 = '9999-12-31T23:59:59'
+        if start2 is None:
+            start2 = '9999-12-31T23:59:59'
+            
+        return start1 < start2
+        
+    except Exception as e:
+        logging.error(f"Comparison error: {str(e)}")
+        return False
+
+# 4. Update Sort Logic
+def sort_predictions(predictions):
+    """Sort predictions safely by scheduled start time"""
+    try:
+        if not predictions:
+            return []
+            
+        # Use custom comparison function
+        return sorted(
+            predictions,
+            key=lambda x: x.get('game_info', {}).get('scheduled_start', '9999-12-31T23:59:59')
+        )
+        
+    except Exception as e:
+        logging.error(f"Sort error: {str(e)}")
+        return predictions  # Return unsorted on error
+
 # 10. Update Main App
 def display_predictions(predictions, key=None):
     """Display predictions with enhanced statistics."""
@@ -1153,6 +1231,16 @@ def display_predictions(predictions, key=None):
         st.markdown("## 📅 Scheduled Games")
         for i, game in enumerate(scheduled_games):
             display_scheduled_game_card(game, key_prefix=f"scheduled_{key}_{i}")
+
+# 3. Add Safe Team Name Extraction Function
+def extract_team_name(team_info):
+    """Safely extract team name from team information"""
+    try:
+        if isinstance(team_info, dict):
+            return str(team_info.get('name', 'Unknown Team'))
+        return str(team_info)
+    except Exception:
+        return 'Unknown Team'
 
 # 6. Entry point
 if __name__ == "__main__":
