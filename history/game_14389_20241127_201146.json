@@ -23,7 +23,7 @@
     "prediction": {
         "base": 0.5645724135010379,
         "adjusted": 0.5645724135010379,
-        "predicted_winner": "San Antonio Spurs",
+        "predicted_winner": "Los Angeles Lakers",
         "win_probability": 0.5645724135010379,
         "confidence_level": "Low",
         "model_predictions": {
