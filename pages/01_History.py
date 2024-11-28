@@ -10,6 +10,14 @@ import plotly.graph_objects as go
 from typing import Dict, List
 import logging
 from nba_api_client import NBAGameResultsFetcher
+import time
+from datetime import timezone
+from zoneinfo import ZoneInfo
+
+def convert_to_et(utc_time: datetime) -> datetime:
+    """Convert UTC time to Eastern Time"""
+    et_zone = ZoneInfo("America/New_York")
+    return utc_time.replace(tzinfo=timezone.utc).astimezone(et_zone)
 
 # Page config
 st.set_page_config(
@@ -78,6 +86,7 @@ def load_prediction_history() -> List[Dict]:
     history = []
     history_dir = "history"
     nba_fetcher = NBAGameResultsFetcher()
+    current_time = datetime.now()
     
     if not os.path.exists(history_dir):
         return []
@@ -89,9 +98,13 @@ def load_prediction_history() -> List[Dict]:
             try:
                 with open(os.path.join(history_dir, file), 'r') as f:
                     prediction = json.load(f)
-                    # Extract date from filename (assuming format game_XXXXX_YYYYMMDD_HHMMSS.json)
-                    date_str = file.split('_')[2][:8]  # Extract YYYYMMDD
-                    game_date = datetime.strptime(date_str, '%Y%m%d').date()
+                    # Extract date and convert to Eastern Time (NBA's timezone)
+                    game_date = datetime.fromisoformat(
+                        prediction['game_info']['scheduled_start'].replace('Z', '+00:00')
+                    )
+                    # Convert to Eastern Time
+                    et_date = game_date - timedelta(hours=5)  # EST offset
+                    game_date = et_date.date()
                     
                     if game_date not in date_predictions:
                         date_predictions[game_date] = []
@@ -103,41 +116,76 @@ def load_prediction_history() -> List[Dict]:
     
     # Process each date's predictions
     for game_date, predictions in date_predictions.items():
-        if game_date < datetime.now().date():
-            try:
-                logging.info(f"Processing predictions for date: {game_date}")
-                results = nba_fetcher.get_game_results(game_date)
-                
-                if results:
-                    for prediction in predictions:
-                        home_team = prediction['game_info']['home_team']
-                        away_team = prediction['game_info']['away_team']
-                        
-                        # Match with results
-                        for game_result in results.values():
-                            if (game_result['home_team'] == home_team and 
-                                game_result['away_team'] == away_team):
-                                prediction['nba_result'] = {
-                                    'winner': game_result['winner'],
-                                    'score': {
-                                        'home': game_result['home_score'],
-                                        'away': game_result['away_score']
-                                    }
-                                }
-                                logging.info(f"Matched result for {home_team} vs {away_team}")
-                                break
-                        
-                        history.append(prediction)
-                else:
-                    logging.warning(f"No results found for date {game_date}")
-                    # Add predictions without results
-                    history.extend(predictions)
+        try:
+            logging.info(f"Processing predictions for date: {game_date}")
+            # Convert date to string in correct format for API
+            date_str = game_date.strftime('%Y-%m-%d')
+            results = nba_fetcher.get_game_results(game_date)
+            
+            if results:
+                for prediction in predictions:
+                    # Handle both dictionary and string formats for team names
+                    home_team = (prediction['game_info']['home_team']['name'] 
+                               if isinstance(prediction['game_info']['home_team'], dict) 
+                               else prediction['game_info']['home_team'])
+                    away_team = (prediction['game_info']['away_team']['name'] 
+                               if isinstance(prediction['game_info']['away_team'], dict) 
+                               else prediction['game_info']['away_team'])
                     
-            except Exception as e:
-                logging.error(f"Error processing date {game_date}: {str(e)}")
-                history.extend(predictions)
-        else:
-            # Add future predictions without trying to fetch results
+                    # Match with results
+                    for game_result in results.values():
+                        if (game_result['home_team'] == home_team and 
+                            game_result['away_team'] == away_team):
+                            prediction['nba_result'] = {
+                                'winner': game_result['winner'],
+                                'score': {
+                                    'home': game_result['home_score'],
+                                    'away': game_result['away_score']
+                                }
+                            }
+                            logging.info(f"Matched result for {home_team} vs {away_team}")
+                            break
+                    
+                    history.append(prediction)
+            else:
+                # If no results found but the game should be completed, try again
+                if game_date <= current_time.date():
+                    logging.warning(f"No results found for completed date {game_date}, retrying...")
+                    time.sleep(2)  # Add delay before retry
+                    results = nba_fetcher.get_game_results(game_date)
+                    if results:
+                        # Process results as above
+                        for prediction in predictions:
+                            home_team = (prediction['game_info']['home_team']['name'] 
+                                       if isinstance(prediction['game_info']['home_team'], dict) 
+                                       else prediction['game_info']['home_team'])
+                            away_team = (prediction['game_info']['away_team']['name'] 
+                                       if isinstance(prediction['game_info']['away_team'], dict) 
+                                       else prediction['game_info']['away_team'])
+                            
+                            for game_result in results.values():
+                                if (game_result['home_team'] == home_team and 
+                                    game_result['away_team'] == away_team):
+                                    prediction['nba_result'] = {
+                                        'winner': game_result['winner'],
+                                        'score': {
+                                            'home': game_result['home_score'],
+                                            'away': game_result['away_score']
+                                        }
+                                    }
+                                    logging.info(f"Matched result for {home_team} vs {away_team}")
+                                    break
+                            
+                            history.append(prediction)
+                    else:
+                        logging.warning(f"Still no results found for date {game_date}")
+                        history.extend(predictions)
+                else:
+                    # Future games
+                    history.extend(predictions)
+                
+        except Exception as e:
+            logging.error(f"Error processing date {game_date}: {str(e)}")
             history.extend(predictions)
     
     return sorted(history, key=lambda x: x['timestamp'], reverse=True)
@@ -305,19 +353,28 @@ def create_history_dataframe(history: List[Dict]) -> pd.DataFrame:
             # Handle actual results
             if 'nba_result' in game:
                 nba_result = game['nba_result']
-                is_correct = pred_info['predicted_winner'] == nba_result['winner']
+                score_pred = pred_info['score_prediction']
                 actual_score = f"{nba_result['score']['home']}-{nba_result['score']['away']}"
+                
+                # Check winner prediction
+                is_correct = pred_info['predicted_winner'] == nba_result['winner']
                 result = 'Correct' if is_correct else 'Incorrect'
+                
+                # Check if actual scores are within predicted ranges
+                home_in_range = (
+                    score_pred['home_low'] <= nba_result['score']['home'] <= score_pred['home_high']
+                )
+                away_in_range = (
+                    score_pred['away_low'] <= nba_result['score']['away'] <= score_pred['away_high']
+                )
+                
+                # Award boost point if both scores are within range
+                gets_boost = home_in_range and away_in_range
             else:
-                hours_since_start = (current_date - game_date).total_seconds() / 3600
-                if hours_since_start > 3:
-                    is_correct = None
-                    actual_score = "Not Available"
-                    result = 'Unknown'
-                else:
-                    is_correct = None
-                    actual_score = "Pending"
-                    result = 'Pending'
+                is_correct = None
+                actual_score = "Pending"
+                result = 'Pending'
+                gets_boost = False
             
             # Handle confidence value
             try:
@@ -325,7 +382,7 @@ def create_history_dataframe(history: List[Dict]) -> pd.DataFrame:
             except (ValueError, TypeError):
                 confidence = 0.0
             
-            # Create record with string values for team names
+            # Create record with updated boost points logic
             record = {
                 'Date': game_date,
                 'Home Team': str(home_team),
@@ -336,7 +393,7 @@ def create_history_dataframe(history: List[Dict]) -> pd.DataFrame:
                 'Actual Score': actual_score,
                 'Result': result,
                 'Coins': 1 if is_correct else 0,
-                'Boost Points': 1 if confidence > 0.75 and is_correct else 0,
+                'Boost Points': 1 if gets_boost else 0,
                 'Game Status': 'Upcoming' if game_date > current_date else 'Completed'
             }
             records.append(record)

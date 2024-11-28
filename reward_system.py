@@ -67,10 +67,23 @@ class RewardSystemManager:
         if prediction['prediction']['predicted_winner'] == actual_result['winner']:
             rewards['coins'] = 1
         
-        # Calculate score accuracy
+        # Calculate if scores are within predicted ranges
         pred_score = prediction['prediction']['score_prediction']
         actual_score = actual_result['score']
         
+        # Check if actual scores fall within predicted ranges
+        home_in_range = (
+            pred_score['home_low'] <= actual_score['home'] <= pred_score['home_high']
+        )
+        away_in_range = (
+            pred_score['away_low'] <= actual_score['away'] <= pred_score['away_high']
+        )
+        
+        # Award boost point if both scores are within range
+        if home_in_range and away_in_range:
+            rewards['boost_points'] = 1
+        
+        # Calculate accuracy for display purposes only
         home_accuracy = 1 - abs(
             ((pred_score['home_high'] + pred_score['home_low']) / 2) - 
             actual_score['home']
@@ -81,12 +94,7 @@ class RewardSystemManager:
             actual_score['away']
         ) / actual_score['away']
         
-        score_accuracy = (home_accuracy + away_accuracy) / 2
-        rewards['accuracy'] = max(0, score_accuracy)
-        
-        # Award boost points for high accuracy
-        if score_accuracy >= 0.90:
-            rewards['boost_points'] = 1
+        rewards['accuracy'] = max(0, (home_accuracy + away_accuracy) / 2)
         
         return rewards
         

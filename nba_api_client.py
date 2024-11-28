@@ -41,52 +41,76 @@ class NBAGameResultsFetcher:
         logging.info(f"Fetching results for date: {date}")
         
         try:
-            # Add delay between requests
             time.sleep(1)
             
-            # Convert date to string format
-            date_str = date.strftime('%m/%d/%Y')
-            cache_key = date_str
+            # Standardize date handling
+            if isinstance(date, datetime):
+                date = date.date()
             
+            # Format date for API request (MM/DD/YYYY)
+            date_str = date.strftime('%m/%d/%Y')
+            current_date = datetime.now().date()
+            
+            cache_key = date_str
             if cache_key in self.cache:
                 return self.cache[cache_key]
             
-            # Multiple attempts with increasing delays
-            max_attempts = 3
-            for attempt in range(max_attempts):
+            results = {}
+            
+            # For today's games
+            if date == current_date:
                 try:
-                    game_finder = LeagueGameFinder(
-                        date_from_nullable=date_str,
-                        date_to_nullable=date_str,
-                        league_id_nullable='00',
-                        season_type_nullable=SeasonType.regular,
-                        player_or_team_abbreviation='T',
-                        headers=self.headers,
-                        timeout=60
-                    )
+                    from nba_api.live.nba.endpoints import scoreboard
+                    games = scoreboard.ScoreBoard()
+                    games_dict = games.get_dict()
                     
-                    games_df = game_finder.get_data_frames()[0]
-                    
-                    if not games_df.empty:
-                        results = self._process_games_data(games_df)
-                        if results:
-                            self.cache[cache_key] = results
-                            return results
-                        
-                    logging.warning(f"No valid games found for date {date_str}")
-                    return {}
-                    
+                    if 'games' in games_dict:
+                        for game in games_dict['games']:
+                            if game['gameStatus'] >= 3:  # Game is finished
+                                game_id = str(game['gameId'])
+                                home_team = self._normalize_team_name(game['homeTeam']['teamName'])
+                                away_team = self._normalize_team_name(game['awayTeam']['teamName'])
+                                home_score = int(game['homeTeam']['score'])
+                                away_score = int(game['awayTeam']['score'])
+                                
+                                results[game_id] = {
+                                    'home_team': home_team,
+                                    'away_team': away_team,
+                                    'home_score': home_score,
+                                    'away_score': away_score,
+                                    'winner': home_team if home_score > away_score else away_team,
+                                    'game_date': date_str
+                                }
                 except Exception as e:
-                    if attempt < max_attempts - 1:
-                        wait_time = (attempt + 1) * 2
-                        logging.warning(f"Attempt {attempt + 1} failed. Waiting {wait_time} seconds...")
-                        time.sleep(wait_time)
-                    else:
-                        raise e
-                        
+                    logging.error(f"Error fetching today's games: {str(e)}")
+            
+            # If no results from live API or not today's games, use LeagueGameFinder
+            if not results:
+                game_finder = LeagueGameFinder(
+                    date_from_nullable=date_str,
+                    date_to_nullable=date_str,
+                    league_id_nullable='00',
+                    season_type_nullable=SeasonType.regular,
+                    player_or_team_abbreviation='T',
+                    headers=self.headers,
+                    timeout=60
+                )
+                
+                games_df = game_finder.get_data_frames()[0]
+                
+                if not games_df.empty:
+                    results = self._process_games_data(games_df)
+            
+            if results:
+                self.cache[cache_key] = results
+                return results
+            
+            logging.warning(f"No valid games found for date {date_str}")
+            return {}
+            
         except Exception as e:
             logging.error(f"Error fetching results for {date}: {str(e)}")
-            return None
+            return {}
     
     def _process_games_data(self, games_df):
         """Process the games dataframe and extract relevant information"""
@@ -132,6 +156,19 @@ class NBAGameResultsFetcher:
         logging.debug("Available columns: " + str(games_df.columns.tolist()))
         logging.debug("Sample data:")
         logging.debug(games_df.head().to_string())
+    
+    def _normalize_team_name(self, team_name: str) -> str:
+        """Normalize team names to match between different API responses"""
+        replacements = {
+            'LA ': 'Los Angeles ',
+            'Blazers': 'Trail Blazers',
+            'Sixers': '76ers'
+        }
+        
+        normalized = team_name
+        for old, new in replacements.items():
+            normalized = normalized.replace(old, new)
+        return normalized
 
 
 
