@@ -1,0 +1,36 @@
+{
+    "timestamp": "2024-11-25T23:37:33.000363",
+    "game_info": {
+        "id": 14373,
+        "home_team": "Sacramento Kings",
+        "away_team": "Oklahoma City Thunder",
+        "scheduled_start": "2024-11-26T03:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5642751804384574,
+        "adjusted": 0.5642751804384574,
+        "predicted_winner": "Oklahoma City Thunder",
+        "win_probability": 0.5642751804384574,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5083268292571316,
+            "xgboost": 0.5270732045173645,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7636722922325134,
+            "gru": 0.4871155321598053
+        },
+        "score_prediction": {
+            "home_low": 100,
+            "home_high": 122,
+            "away_low": 102,
+            "away_high": 125
+        }
+    }
+}
+
