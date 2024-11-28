@@ -1,0 +1,35 @@
+{
+    "timestamp": "2024-11-25T23:37:22.079647",
+    "game_info": {
+        "id": 14365,
+        "home_team": "Charlotte Hornets",
+        "away_team": "Orlando Magic",
+        "scheduled_start": "2024-11-26T00:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5654374300531186,
+        "adjusted": 0.5654374300531186,
+        "predicted_winner": "Charlotte Hornets",
+        "win_probability": 0.5654374300531186,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5181333984582785,
+            "xgboost": 0.5253267288208008,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7647629380226135,
+            "gru": 0.4761524498462677
+        },
+        "score_prediction": {
+            "home_low": 99,
+            "home_high": 122,
+            "away_low": 96,
+            "away_high": 117
+        }
+    }
+}

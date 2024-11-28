@@ -1,0 +1,43 @@
+{
+    "timestamp": "2024-11-27T20:11:42.022989",
+    "game_info": {
+        "id": 14387,
+        "home_team": {
+            "id": "22",
+            "name": "Minnesota Timberwolves",
+            "code": ""
+        },
+        "away_team": {
+            "id": "30",
+            "name": "Sacramento Kings",
+            "code": ""
+        },
+        "scheduled_start": "2024-11-28T01:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5674574262166839,
+        "adjusted": 0.5674574262166839,
+        "predicted_winner": "Minnesota Timberwolves",
+        "win_probability": 0.5674574262166839,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5230094533832378,
+            "xgboost": 0.534122109413147,
+            "svm": 0.5929227762306781,
+            "lstm": 0.7650641202926636,
+            "gru": 0.460010826587677
+        },
+        "score_prediction": {
+            "home_low": 103,
+            "home_high": 125,
+            "away_low": 100,
+            "away_high": 122
+        }
+    }
+}
