@@ -213,21 +213,35 @@ def run_continuous_predictions(timeout_minutes=3):
     try:
         # Get current time and check last update
         current_time = time.time()
-        last_update = getattr(run_continuous_predictions, 'last_run', 0)
-        time_since_update = current_time - last_update
         
-        # If less than 5 minutes since last update, skip
-        if time_since_update < 300:
+        # Initialize last_run if not set
+        if not hasattr(run_continuous_predictions, 'last_run'):
+            run_continuous_predictions.last_run = 0
+            
+        time_since_update = current_time - run_continuous_predictions.last_run
+        
+        # Force update if manual update requested
+        force_update = getattr(run_continuous_predictions, 'force_update', False)
+        
+        # If less than 5 minutes since last update and not forced, skip
+        if time_since_update < 300 and not force_update:
             logging.info(f"Not updating - only {time_since_update:.1f} seconds since last update")
             return False
             
         logging.info("Starting prediction update...")
+        
+        # Reset force update flag
+        run_continuous_predictions.force_update = False
         
         # Initialize clients and predictors
         api_key = '89ce3afd40msh6fe1b4a34da6f2ep1f2bcdjsn4a84afd6514c'
         api_client = EnhancedNBAApiClient(api_key)
         base_predictor = NBAPredictor('saved_models')
         live_predictor = LiveGamePredictor(base_predictor)
+        
+        # First check for live games
+        live_games = api_client.get_live_games()
+        predictions_made = False
         
         # First check for live games
         live_games = api_client.get_live_games()
@@ -245,17 +259,12 @@ def run_continuous_predictions(timeout_minutes=3):
                     logging.error(f"Error processing live game {game.get('id')}: {str(e)}")
                     continue
         
-        # If no live games, process scheduled games
-        if not live_games:
-            logging.info("No live games found, checking scheduled games...")
-            scheduled_games = get_todays_schedule(api_client)
-            if scheduled_games:
-                logging.info(f"Found {len(scheduled_games)} scheduled games")
-                process_scheduled_games(scheduled_games, api_client, live_predictor)
-                predictions_made = True
-            else:
-                logging.info("No scheduled games found")
-        
+        # Process scheduled games
+        scheduled_games = get_todays_schedule(api_client)
+        if scheduled_games:
+            process_scheduled_games(scheduled_games, api_client, live_predictor)
+            predictions_made = True
+            
         if predictions_made:
             run_continuous_predictions.last_run = time.time()
             logging.info("Predictions completed successfully")
@@ -266,6 +275,7 @@ def run_continuous_predictions(timeout_minutes=3):
     except Exception as e:
         logging.error(f"Error in prediction service: {str(e)}")
         return False
+
 
 # Initialize the last run time
 run_continuous_predictions.last_run = 0
