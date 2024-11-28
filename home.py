@@ -1,22 +1,30 @@
-# 1. Imports
-import streamlit as st
-import json
+# 1. Standard Library Imports
 import os
+import json
 import time
 import threading
+import logging
+import atexit
 from datetime import datetime, timedelta
+from typing import Dict
+
+# 2. Third-Party Imports
+import streamlit as st
+import yaml
+from yaml.loader import SafeLoader
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import pandas as pd
-from test_predictions import run_continuous_predictions, LiveGamePredictor, NBAPredictor
-from api_client import EnhancedNBAApiClient
-import atexit
-import logging
-from typing import Dict
 import streamlit_authenticator as stauth
-import yaml
-from yaml.loader import SafeLoader
+
+# 3. Local/Custom Imports
+from test_predictions import (
+    run_continuous_predictions,
+    LiveGamePredictor,
+    NBAPredictor
+)
+from api_client import EnhancedNBAApiClient
 from reward_system import RewardSystemManager
 
 
@@ -398,14 +406,14 @@ def should_update_predictions():
     return time_since_update >= update_interval
 
 
-# 6. Modify Main Update Logic
 def update_predictions():
     """Handle prediction updates with proper control"""
     try:
-        if not should_update_predictions():
-            return False
-            
-        logging.info("Starting prediction update...")
+        # Force update when manually triggered
+        from test_predictions import force_prediction_update
+        force_prediction_update()
+        
+        logging.info("Starting manual prediction update...")
         
         # Clean old predictions first
         clean_old_predictions()
@@ -425,6 +433,7 @@ def update_predictions():
     except Exception as e:
         logging.error(f"Error in update_predictions: {str(e)}")
         return False
+
 
 # 4. Core functionality
 def display_live_game_card(prediction, key_prefix=None):
@@ -556,30 +565,42 @@ def display_scheduled_game_card(prediction, key_prefix=None):
 
 def clean_old_predictions():
     """Delete old prediction files and keep only the latest for each game"""
-    directories = ["predictions/scheduled", "predictions/live"]
-    for directory in directories:
-        if os.path.exists(directory):
-            # Group files by game ID
+    try:
+        # First, completely clean the live predictions directory
+        live_dir = "predictions/live"
+        if os.path.exists(live_dir):
+            for file in os.listdir(live_dir):
+                try:
+                    os.remove(os.path.join(live_dir, file))
+                    logging.debug(f"Removed live prediction file: {file}")
+                except Exception as e:
+                    logging.error(f"Error deleting live file {file}: {str(e)}")
+
+        # Handle scheduled games directory (keep latest for each game)
+        scheduled_dir = "predictions/scheduled"
+        if os.path.exists(scheduled_dir):
             game_files = {}
-            for file in os.listdir(directory):
+            for file in os.listdir(scheduled_dir):
                 if file.endswith(".json"):
                     game_id = file.split('_')[1]  # Extract game ID from filename
-                    file_path = os.path.join(directory, file)
+                    file_path = os.path.join(scheduled_dir, file)
                     if game_id not in game_files:
                         game_files[game_id] = []
                     game_files[game_id].append((file_path, os.path.getmtime(file_path)))
             
-            # Keep only the latest file for each game
+            # Keep only the latest file for each scheduled game
             for game_id, files in game_files.items():
-                # Sort files by modification time
                 sorted_files = sorted(files, key=lambda x: x[1])
-                # Remove all but the latest file
                 for file_path, _ in sorted_files[:-1]:
                     try:
                         os.remove(file_path)
-                        logging.debug(f"Removed old prediction file: {file_path}")
+                        logging.debug(f"Removed old scheduled prediction file: {file_path}")
                     except Exception as e:
-                        logging.error(f"Error deleting file {file_path}: {str(e)}")
+                        logging.error(f"Error deleting scheduled file {file_path}: {str(e)}")
+
+    except Exception as e:
+        logging.error(f"Error in clean_old_predictions: {str(e)}")
+
 
 # 3. Fix Prediction Structure Validation
 def validate_prediction_structure(prediction):
@@ -1246,6 +1267,11 @@ def extract_team_name(team_info):
 if __name__ == "__main__":
     initialize_session_state()
     main()
+
+
+
+
+
 
 
 
