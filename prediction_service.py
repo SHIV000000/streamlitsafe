@@ -1,7 +1,6 @@
 # prediction_service.py
 
 import joblib
-import tensorflow as tf
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, Tuple, List
@@ -10,6 +9,7 @@ from datetime import datetime
 import json
 import os
 import pickle
+from sklearn.ensemble import GradientBoostingClassifier
 
 
 class NBAPredictor:
@@ -21,11 +21,9 @@ class NBAPredictor:
         self.models = {}
         self._load_models()
         self.model_weights = {
-            'random_forest': 0.35,
-            'xgboost': 0.35,
-            'svm': 0.15,
-            'lstm': 0.20,
-            'gru': 0.15
+            'random_forest': 0.4,
+            'xgboost': 0.4,
+            'svm': 0.2
         }
 
     def load_scaler(self):
@@ -129,10 +127,11 @@ class NBAPredictor:
                 'svm': 'svm_20241111_040330.joblib'
             }
 
-            # Add neural network models
-            nn_models = {
-                'lstm': 'lstm_20241111_040330.h5',
-                'gru': 'gru_20241111_040330.h5'
+            # Initialize models with default parameters
+            default_models = {
+                'random_forest': joblib.load(os.path.join(self.models_path, 'random_forest_20241111_040330.joblib')),
+                'xgboost': joblib.load(os.path.join(self.models_path, 'xgboost_20241111_040330.joblib')),
+                'svm': joblib.load(os.path.join(self.models_path, 'svm_20241111_040330.joblib'))
             }
 
             # Load traditional models
@@ -142,15 +141,17 @@ class NBAPredictor:
                     logging.info(f"Loaded {model_name} model successfully")
                 except Exception as e:
                     logging.error(f"Error loading {model_name} model: {str(e)}")
+                    # Use the default model if loading fails
+                    if model_name in default_models:
+                        self.models[model_name] = default_models[model_name]
+                        logging.info(f"Using default {model_name} model")
 
-            # Load neural network models
-            for model_name, file_name in nn_models.items():
-                try:
-                    model_path = os.path.join(self.models_path, file_name)
-                    self.models[model_name] = tf.keras.models.load_model(model_path)
-                    logging.info(f"Loaded {model_name} model successfully")
-                except Exception as e:
-                    logging.error(f"Error loading {model_name} model: {str(e)}")
+            # Update model weights to remove gradient boosting
+            self.model_weights = {
+                'random_forest': 0.4,
+                'xgboost': 0.4,
+                'svm': 0.2
+            }
 
         except Exception as e:
             logging.error(f"Error in model loading: {str(e)}")
@@ -160,6 +161,8 @@ class NBAPredictor:
         """Prepare features with validation."""
         try:
             features_dict = {}
+            
+            # Get base statistics
             home_stats_obj = home_stats.get('statistics', [{}])[0]
             away_stats_obj = away_stats.get('statistics', [{}])[0]
             
@@ -174,13 +177,32 @@ class NBAPredictor:
             home_stats_obj = {**default_stats, **home_stats_obj}
             away_stats_obj = {**default_stats, **away_stats_obj}
             
-            # Process features
+            # Calculate offensive and defensive ratings
+            home_off_rating = self._calculate_offensive_rating(home_stats_obj)
+            away_off_rating = self._calculate_offensive_rating(away_stats_obj)
+            home_def_rating = self._calculate_defensive_rating(home_stats_obj)
+            away_def_rating = self._calculate_defensive_rating(away_stats_obj)
+            
+            # Add ratings to stats
+            home_stats_obj['off_rating'] = home_off_rating
+            away_stats_obj['off_rating'] = away_off_rating
+            home_stats_obj['def_rating'] = home_def_rating
+            away_stats_obj['def_rating'] = away_def_rating
+            
+            # Process features with balanced home/away consideration
             for feature_name in self.feature_names:
-                features_dict[feature_name] = self._calculate_feature_value(
+                value = self._calculate_feature_value(
                     feature_name, home_stats_obj, away_stats_obj
                 )
+                # Normalize differential features
+                if '_diff_' in feature_name:
+                    value = value / 2  # Reduce the impact of differentials
+                features_dict[feature_name] = value
             
+            # Create feature array
             features = np.array([[features_dict[name] for name in self.feature_names]])
+            
+            # Apply feature scaling
             return self.scaler.transform(features)
             
         except Exception as e:
@@ -198,13 +220,8 @@ class NBAPredictor:
             predictions = {}
             for name, model in self.models.items():
                 try:
-                    if isinstance(model, tf.keras.Model):
-                        # Reshape features for neural network models
-                        reshaped_features = features.reshape((1, 1, features.shape[1]))
-                        pred = model.predict(reshaped_features, verbose=0)[0][0]
-                    else:
-                        # For traditional ML models
-                        pred = model.predict_proba(features)[0][1]
+                    # All models now use predict_proba
+                    pred = model.predict_proba(features)[0][1]
                     predictions[name] = float(pred)
                 except Exception as e:
                     logging.error(f"Error getting prediction from {name} model: {str(e)}")
@@ -245,13 +262,8 @@ class NBAPredictor:
         predictions = {}
         for name, model in self.models.items():
             try:
-                if isinstance(model, tf.keras.Model):
-                    # Reshape features for neural network models
-                    reshaped_features = features.reshape((1, 1, features.shape[1]))
-                    pred = model.predict(reshaped_features, verbose=0)[0][0]
-                else:
-                    # For traditional ML models
-                    pred = model.predict_proba(features)[0][1]
+                # All models now use predict_proba
+                pred = model.predict_proba(features)[0][1]
                 predictions[name] = float(pred)
             except Exception as e:
                 logging.error(f"Error getting prediction from {name} model: {str(e)}")
@@ -275,38 +287,40 @@ class NBAPredictor:
         return weighted_sum / weight_sum if weight_sum > 0 else 0.5
 
     def _calculate_offensive_rating(self, stats: Dict) -> float:
-        """Calculate offensive rating."""
+        """Calculate offensive rating based on team statistics."""
         try:
             points = float(stats.get('points', 0))
-            fga = float(stats.get('fieldGoalsAttempted', 0))
-            turnovers = float(stats.get('turnovers', 0))
-            offReb = float(stats.get('reboundsOffensive', 0))
+            fgp = float(stats.get('fgp', 0))
+            tpp = float(stats.get('tpp', 0))
+            assists = float(stats.get('assists', 0))
             
-            possessions = fga - offReb + turnovers
-            if possessions <= 0:
-                return 0
+            # Weighted formula for offensive rating
+            off_rating = (points * 0.4 + 
+                         fgp * 0.3 + 
+                         tpp * 0.2 + 
+                         assists * 0.1)
             
-            return (points * 100) / possessions
-        except Exception as e:
-            logging.error(f"Error calculating offensive rating: {str(e)}")
-            return 0
+            return off_rating
+        except:
+            return 0.0
 
     def _calculate_defensive_rating(self, stats: Dict) -> float:
-        """Calculate defensive rating."""
+        """Calculate defensive rating based on team statistics."""
         try:
-            points_allowed = float(stats.get('pointsAllowed', 0))
-            opp_fga = float(stats.get('opponentFieldGoalsAttempted', 0))
-            opp_turnovers = float(stats.get('opponentTurnovers', 0))
-            opp_offReb = float(stats.get('opponentReboundsOffensive', 0))
+            blocks = float(stats.get('blocks', 0))
+            steals = float(stats.get('steals', 0))
+            rebounds = float(stats.get('totReb', 0))
+            turnovers = float(stats.get('turnovers', 0))
             
-            possessions = opp_fga - opp_offReb + opp_turnovers
-            if possessions <= 0:
-                return 0
+            # Weighted formula for defensive rating
+            def_rating = (blocks * 0.3 + 
+                         steals * 0.3 + 
+                         rebounds * 0.3 - 
+                         turnovers * 0.1)
             
-            return (points_allowed * 100) / possessions
-        except Exception as e:
-            logging.error(f"Error calculating defensive rating: {str(e)}")
-            return 0
+            return def_rating
+        except:
+            return 0.0
 
     def _calculate_pace_factor(self, stats: Dict) -> float:
         """Calculate pace factor."""
@@ -514,23 +528,34 @@ class NBAPredictor:
                     return home_pct - away_pct
                     
             elif 'form' in feature_name:
-                # Placeholder for form calculation
-                return 0.0
+                window = int(parts[-1]) if parts[-1].isdigit() else 5
+                home_form = float(home_stats.get('recent_form', {}).get(str(window), 0.5))
+                away_form = float(away_stats.get('recent_form', {}).get(str(window), 0.5))
+                
+                if 'home_' in feature_name:
+                    return home_form
+                elif 'away_' in feature_name:
+                    return away_form
+                else:
+                    return home_form - away_form
                 
             elif 'streak' in feature_name:
-                # Placeholder for streak calculation
-                return 0.0
+                if 'home_' in feature_name:
+                    return float(home_stats.get('current_streak', 0))
+                else:
+                    return float(away_stats.get('current_streak', 0))
                 
             elif 'rest_days' in feature_name:
-                # Placeholder for rest days calculation
-                return 0.0
+                home_rest = float(home_stats.get('days_rest', 2))
+                away_rest = float(away_stats.get('days_rest', 2))
                 
-            elif 'games_played' in feature_name:
                 if 'home_' in feature_name:
-                    return float(home_stats.get('games', 0))
+                    return home_rest
+                elif 'away_' in feature_name:
+                    return away_rest
                 else:
-                    return float(away_stats.get('games', 0))
-                    
+                    return home_rest - away_rest
+                
             else:
                 return float(home_stats.get(feature_name, 0)) - float(away_stats.get(feature_name, 0))
                 
@@ -689,7 +714,269 @@ class NBAPredictor:
             logging.error(f"Error adjusting prediction with context: {str(e)}")
             return base_pred
 
+    def adjust_predictions(self, home_stats, away_stats, raw_home_prob):
+        """Adjust predictions based on various factors to reduce home team bias."""
+        try:
+            # Calculate team strength indicators
+            home_strength = self._calculate_team_strength(home_stats)
+            away_strength = self._calculate_team_strength(away_stats)
+            
+            # Calculate form-based adjustment
+            home_form = self._calculate_team_form(home_stats)
+            away_form = self._calculate_team_form(away_stats)
+            
+            # Calculate head-to-head adjustment
+            h2h_factor = self._calculate_h2h_factor(home_stats, away_stats)
+            
+            # Base adjustment factors
+            strength_diff = (away_strength - home_strength) * 0.15  # Reduce impact of strength difference
+            form_diff = (away_form - home_form) * 0.1  # Reduce impact of form
+            
+            # Calculate final adjustment
+            total_adjustment = strength_diff + form_diff + h2h_factor
+            
+            # Apply adjustment to raw probability
+            adjusted_prob = raw_home_prob + total_adjustment
+            
+            # Ensure probability stays within bounds
+            adjusted_prob = max(0.3, min(0.7, adjusted_prob))  # Cap at 30-70% range
+            
+            return adjusted_prob
+        except Exception as e:
+            logging.error(f"Error in prediction adjustment: {str(e)}")
+            return raw_home_prob
 
+    def _calculate_team_strength(self, stats):
+        """Calculate overall team strength based on season statistics."""
+        try:
+            stats_obj = stats.get('statistics', [{}])[0]
+            
+            # Get key statistics
+            wins = float(stats_obj.get('wins', 0))
+            losses = float(stats_obj.get('losses', 0))
+            points = float(stats_obj.get('points', 0))
+            points_allowed = float(stats_obj.get('pointsAllowed', 0))
+            
+            # Calculate win percentage
+            total_games = wins + losses
+            win_pct = wins / total_games if total_games > 0 else 0.5
+            
+            # Calculate point differential
+            point_diff = points - points_allowed
+            
+            # Combine factors (weighted)
+            strength = (win_pct * 0.6) + (point_diff * 0.002)  # Small weight for point diff
+            
+            return strength
+        except Exception as e:
+            logging.error(f"Error calculating team strength: {str(e)}")
+            return 0.5
 
+    def _calculate_team_form(self, stats):
+        """Calculate team's recent form."""
+        try:
+            stats_obj = stats.get('statistics', [{}])[0]
+            
+            # Get streak information
+            streak = float(stats_obj.get('streak', 0))
+            
+            # Normalize streak impact
+            form_factor = min(max(streak * 0.02, -0.1), 0.1)  # Cap at ±10%
+            
+            return form_factor
+        except Exception as e:
+            logging.error(f"Error calculating team form: {str(e)}")
+            return 0.0
 
+    def _calculate_h2h_factor(self, home_stats, away_stats):
+        """Calculate head-to-head adjustment factor."""
+        try:
+            # Get win percentages
+            home_stats_obj = home_stats.get('statistics', [{}])[0]
+            away_stats_obj = away_stats.get('statistics', [{}])[0]
+            
+            home_wins = float(home_stats_obj.get('wins', 0))
+            home_losses = float(home_stats_obj.get('losses', 0))
+            away_wins = float(away_stats_obj.get('wins', 0))
+            away_losses = float(away_stats_obj.get('losses', 0))
+            
+            # Calculate win percentages
+            home_win_pct = home_wins / (home_wins + home_losses) if (home_wins + home_losses) > 0 else 0.5
+            away_win_pct = away_wins / (away_wins + away_losses) if (away_wins + away_losses) > 0 else 0.5
+            
+            # Calculate h2h factor based on win percentage difference
+            h2h_factor = (away_win_pct - home_win_pct) * 0.1  # Small adjustment based on win percentage difference
+            
+            return h2h_factor
+        except Exception as e:
+            logging.error(f"Error calculating h2h factor: {str(e)}")
+            return 0.0
 
+    def predict(self, home_stats: Dict, away_stats: Dict) -> Dict:
+        """Make prediction with adjusted probabilities."""
+        try:
+            # Get base team strengths first
+            home_strength = self._calculate_base_strength(home_stats)
+            away_strength = self._calculate_base_strength(away_stats)
+            
+            # Calculate probability based on relative strengths
+            total_strength = home_strength + away_strength
+            if total_strength == 0:
+                base_prob = 0.5
+            else:
+                # Base probability from team strengths - away team perspective
+                away_base_prob = away_strength / total_strength
+                
+                # Only apply home court advantage if home team is within 90% of away team's strength
+                home_court_advantage = 0.02 if home_strength >= (away_strength * 0.9) else 0
+                away_base_prob = max(0.2, min(0.8, away_base_prob - home_court_advantage))
+                base_prob = 1 - away_base_prob  # Convert to home team perspective
+            
+            # Get team records
+            home_record = self._get_team_record(home_stats)
+            away_record = self._get_team_record(away_stats)
+            
+            # Calculate win percentage difference from away team perspective
+            away_winpct = away_record['win_pct']
+            home_winpct = home_record['win_pct']
+            winpct_diff = (away_winpct - home_winpct) * 0.2  # 20% impact from win percentage
+            
+            # Calculate streak impact from away team perspective
+            home_streak = float(home_stats.get('statistics', [{}])[0].get('streak', 0))
+            away_streak = float(away_stats.get('statistics', [{}])[0].get('streak', 0))
+            streak_diff = (away_streak - home_streak) * 0.02
+            
+            # Calculate final probability from away team perspective
+            away_final_prob = 1 - base_prob  # Convert to away perspective
+            away_final_prob += winpct_diff
+            away_final_prob += streak_diff
+            
+            # Ensure probability is within reasonable bounds
+            away_final_prob = max(0.2, min(0.8, away_final_prob))
+            
+            # Convert back to home team perspective
+            final_prob = 1 - away_final_prob
+            
+            # Calculate score predictions
+            home_score_range = self._predict_score_range(home_stats)
+            away_score_range = self._predict_score_range(away_stats)
+            
+            return {
+                'home_probability': final_prob,
+                'away_probability': 1 - final_prob,
+                'home_score_range': home_score_range,
+                'away_score_range': away_score_range,
+                'prediction_details': {
+                    'home_strength': home_strength,
+                    'away_strength': away_strength,
+                    'home_record': home_record,
+                    'away_record': away_record,
+                    'base_probability': base_prob,
+                    'home_court_advantage': home_court_advantage,
+                    'win_pct_adjustment': winpct_diff,
+                    'streak_adjustment': streak_diff
+                }
+            }
+        except Exception as e:
+            logging.error(f"Prediction error: {str(e)}")
+            return {
+                'home_probability': 0.5,
+                'away_probability': 0.5,
+                'home_score_range': (100, 100),
+                'away_score_range': (100, 100),
+                'prediction_details': {}
+            }
+
+    def _calculate_base_strength(self, stats):
+        """Calculate team's base strength."""
+        try:
+            stats_obj = stats.get('statistics', [{}])[0]
+            
+            # Get key statistics
+            wins = float(stats_obj.get('wins', 0))
+            losses = float(stats_obj.get('losses', 0))
+            points = float(stats_obj.get('points', 0))
+            points_allowed = float(stats_obj.get('pointsAllowed', 0))
+            
+            # Calculate win percentage
+            total_games = wins + losses
+            win_pct = wins / total_games if total_games > 0 else 0.5
+            
+            # Calculate point differential per game
+            point_diff = (points - points_allowed) / max(total_games, 1)
+            
+            # Normalize point differential to 0-1 scale
+            norm_point_diff = (point_diff + 20) / 40  # Assuming max point diff is ±20
+            norm_point_diff = max(0, min(1, norm_point_diff))
+            
+            # Combine factors with higher weight on win percentage
+            strength = (win_pct * 0.7) + (norm_point_diff * 0.3)
+            
+            return strength
+            
+        except Exception as e:
+            logging.error(f"Error calculating base strength: {str(e)}")
+            return 0.5
+
+    def _get_team_record(self, stats):
+        """Get team's win-loss record and win percentage."""
+        try:
+            stats_obj = stats.get('statistics', [{}])[0]
+            wins = float(stats_obj.get('wins', 0))
+            losses = float(stats_obj.get('losses', 0))
+            
+            total_games = wins + losses
+            win_pct = wins / total_games if total_games > 0 else 0.5
+            
+            return {
+                'wins': wins,
+                'losses': losses,
+                'win_pct': win_pct
+            }
+        except Exception as e:
+            logging.error(f"Error getting team record: {str(e)}")
+            return {'wins': 0, 'losses': 0, 'win_pct': 0.5}
+
+    def _predict_score_range(self, stats):
+        """Predict score range based on team statistics."""
+        try:
+            stats_obj = stats.get('statistics', [{}])[0]
+            
+            # Get scoring statistics
+            avg_points = float(stats_obj.get('points', 100))
+            avg_points_allowed = float(stats_obj.get('pointsAllowed', 100))
+            
+            # Use both scored and allowed points for range
+            base_score = (avg_points + avg_points_allowed) / 2
+            
+            # Calculate range with smaller variation
+            lower_bound = int(max(base_score * 0.9, 85))
+            upper_bound = int(min(base_score * 1.1, 140))
+            
+            return (lower_bound, upper_bound)
+        except Exception as e:
+            logging.error(f"Error predicting score range: {str(e)}")
+            return (95, 115)
+
+    def _weighted_average(self, predictions: Dict[str, float]) -> float:
+        """Calculate weighted average of predictions."""
+        try:
+            weighted_sum = 0
+            weight_sum = 0
+            
+            for model_name, prob in predictions.items():
+                if model_name in self.model_weights:
+                    weight = self.model_weights[model_name]
+                    weighted_sum += prob * weight
+                    weight_sum += weight
+            
+            # Normalize the prediction
+            if weight_sum > 0:
+                avg_pred = weighted_sum / weight_sum
+                # Apply slight regression to the mean to reduce extreme predictions
+                return 0.7 * avg_pred + 0.3 * 0.5
+            return 0.5
+            
+        except Exception as e:
+            logging.error(f"Error in weighted average calculation: {str(e)}")
+            return 0.5

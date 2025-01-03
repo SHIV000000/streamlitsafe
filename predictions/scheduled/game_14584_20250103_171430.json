@@ -1,0 +1,45 @@
+{
+    "timestamp": "2025-01-03T17:14:30.967406",
+    "game_info": {
+        "id": 14584,
+        "home_team": {
+            "id": "38",
+            "name": "Toronto Raptors",
+            "code": ""
+        },
+        "away_team": {
+            "id": "26",
+            "name": "Orlando Magic",
+            "code": ""
+        },
+        "scheduled_start": "2025-01-04T00:30:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5550236692782768,
+        "adjusted": 0.5550236692782768,
+        "predicted_winner": {
+            "id": "38",
+            "name": "Toronto Raptors",
+            "code": ""
+        },
+        "win_probability": 0.5550236692782768,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5420183072933351,
+            "xgboost": 0.5490794777870178,
+            "svm": 0.5929227762306781
+        },
+        "score_prediction": {
+            "home_low": 100,
+            "home_high": 123,
+            "away_low": 95,
+            "away_high": 116
+        }
+    }
+}

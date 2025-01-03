@@ -1,0 +1,45 @@
+{
+    "timestamp": "2025-01-03T17:14:43.025227",
+    "game_info": {
+        "id": 14592,
+        "home_team": {
+            "id": "4",
+            "name": "Brooklyn Nets",
+            "code": ""
+        },
+        "away_team": {
+            "id": "27",
+            "name": "Philadelphia 76ers",
+            "code": ""
+        },
+        "scheduled_start": "2025-01-04T23:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5551040128272259,
+        "adjusted": 0.5551040128272259,
+        "predicted_winner": {
+            "id": "4",
+            "name": "Brooklyn Nets",
+            "code": ""
+        },
+        "win_probability": 0.5551040128272259,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5426590484441502,
+            "xgboost": 0.5486395955085754,
+            "svm": 0.5929227762306781
+        },
+        "score_prediction": {
+            "home_low": 97,
+            "home_high": 119,
+            "away_low": 96,
+            "away_high": 117
+        }
+    }
+}

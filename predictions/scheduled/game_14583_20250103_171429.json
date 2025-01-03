@@ -1,0 +1,45 @@
+{
+    "timestamp": "2025-01-03T17:14:29.444952",
+    "game_info": {
+        "id": 14583,
+        "home_team": {
+            "id": "10",
+            "name": "Detroit Pistons",
+            "code": ""
+        },
+        "away_team": {
+            "id": "5",
+            "name": "Charlotte Hornets",
+            "code": ""
+        },
+        "scheduled_start": "2025-01-04T00:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.5507545634550605,
+        "adjusted": 0.5507545634550605,
+        "predicted_winner": {
+            "id": "10",
+            "name": "Detroit Pistons",
+            "code": ""
+        },
+        "win_probability": 0.5507545634550605,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5459786022369422,
+            "xgboost": 0.5344464182853699,
+            "svm": 0.5929227762306781
+        },
+        "score_prediction": {
+            "home_low": 100,
+            "home_high": 122,
+            "away_low": 96,
+            "away_high": 117
+        }
+    }
+}

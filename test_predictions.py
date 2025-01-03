@@ -187,6 +187,11 @@ class LiveGamePredictor:
         game_info: Dict
     ) -> float:
         try:
+            # For scheduled games, don't apply any adjustments
+            if game_info.get('status', {}).get('long') == "Scheduled":
+                return base_pred
+                
+            # Only apply adjustments for live games
             momentum_weight = 0.2
             performance_weight = 0.3
             score_weight = 0.5
@@ -738,9 +743,8 @@ def save_scheduled_prediction(game_info: Dict, prediction: Dict):
         home_win_prob = prediction['adjusted_prediction']
         win_probability = home_win_prob if home_win_prob > 0.5 else (1 - home_win_prob)
         predicted_winner = (
-            game_info['home_team']['name']
-            if home_win_prob > 0.5 
-            else game_info['away_team']['name']
+            game_info['home_team'] if home_win_prob > 0.5 
+            else game_info['away_team']
         )
         
         # Generate score prediction
@@ -764,8 +768,8 @@ def save_scheduled_prediction(game_info: Dict, prediction: Dict):
                 }
             },
             'prediction': {
-                'base': float(prediction['base_prediction']),
-                'adjusted': float(prediction['adjusted_prediction']),
+                'base': float(prediction.get('base_prediction', 0.5)),
+                'adjusted': float(prediction.get('adjusted_prediction', 0.5)),
                 'predicted_winner': predicted_winner,
                 'win_probability': float(win_probability),
                 'confidence_level': get_confidence_level(win_probability),
@@ -860,6 +864,42 @@ def display_prediction_summary(game_info: Dict, prediction: Dict):
             game_info['away_stats']
         )
         
+        # Calculate average predicted scores
+        home_avg_score = (score_pred['home_low'] + score_pred['home_high']) / 2
+        away_avg_score = (score_pred['away_low'] + score_pred['away_high']) / 2
+        
+        # Get team records
+        home_stats = game_info['home_stats'].get('statistics', [{}])[0]
+        away_stats = game_info['away_stats'].get('statistics', [{}])[0]
+        
+        # Calculate win percentages
+        home_wins = float(home_stats.get('wins', 0))
+        home_losses = float(home_stats.get('losses', 0))
+        away_wins = float(away_stats.get('wins', 0))
+        away_losses = float(away_stats.get('losses', 0))
+        
+        home_win_pct = home_wins / (home_wins + home_losses) if (home_wins + home_losses) > 0 else 0.5
+        away_win_pct = away_wins / (away_wins + away_losses) if (away_wins + away_losses) > 0 else 0.5
+        
+        # Determine winner using multiple factors
+        away_advantage = 0
+        
+        # Factor 1: Better season record
+        if away_win_pct > home_win_pct:
+            away_advantage += 1
+            
+        # Factor 2: Higher predicted score
+        if away_avg_score > home_avg_score:
+            away_advantage += 1
+            
+        # Factor 3: Strong win probability for away team
+        if away_win_prob > 0.48:  # Reduced threshold for away team
+            away_advantage += 1
+        
+        # Predict away team win if they have at least 2 advantages
+        predicted_winner = game_info['away_team'] if away_advantage >= 2 else game_info['home_team']
+        winner_confidence = away_win_prob if predicted_winner == game_info['away_team'] else home_win_prob
+        
         logging.info(f"""
         Prediction Summary:
         {game_info['home_team']} vs {game_info['away_team']}
@@ -873,11 +913,13 @@ def display_prediction_summary(game_info: Dict, prediction: Dict):
         - {game_info['home_team']}: {score_pred['home_low']}-{score_pred['home_high']}
         - {game_info['away_team']}: {score_pred['away_low']}-{score_pred['away_high']}
         
-        Predicted Winner: {game_info['home_team'] if home_win_prob > 0.5 else game_info['away_team']}
-        Confidence: {max(home_win_prob, away_win_prob):.1%}
+        Season Records:
+        - {game_info['home_team']}: {home_wins}-{home_losses} ({home_win_pct:.1%})
+        - {game_info['away_team']}: {away_wins}-{away_losses} ({away_win_pct:.1%})
+        
+        Predicted Winner: {predicted_winner}
+        Confidence: {winner_confidence:.1%}
         """)
         
     except Exception as e:
         logging.error(f"Error displaying prediction summary: {str(e)}")
-
-

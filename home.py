@@ -526,27 +526,6 @@ def display_scheduled_game_card(prediction, key_prefix=None):
                 st.markdown(f"{home_team_name}: {score_pred.get('home_low', 0)}-{score_pred.get('home_high', 0)} points")
                 st.markdown(f"{away_team_name}: {score_pred.get('away_low', 0)}-{score_pred.get('away_high', 0)} points")
             
-            # Summary section
-            st.markdown("<div class='section-header'>🏆 PREDICTION SUMMARY:</div>", unsafe_allow_html=True)
-            st.markdown(f"Predicted Winner: {predicted_winner}")
-            st.markdown(f"Win Confidence: {win_prob:.1%}")
-            st.markdown(f"Confidence Level: {pred_info.get('confidence_level', 'Medium')}")
-            
-            # Model predictions section
-            model_preds = pred_info.get('model_predictions', {})
-            if isinstance(model_preds, dict):  # Check if it's a dictionary
-                st.markdown("<div class='section-header'>🤖 MODEL PREDICTIONS:</div>", unsafe_allow_html=True)
-                for model, pred in model_preds.items():
-                    if isinstance(pred, dict):
-                        model_prob = float(pred.get('win_probability', 0.5))
-                        model_winner = pred.get('predicted_winner', '')
-                    else:
-                        model_prob = float(pred) if isinstance(pred, (int, float)) else 0.5
-                        model_winner = predicted_winner
-                    
-                    confidence = 'High' if model_prob > 0.65 else 'Medium' if model_prob > 0.55 else 'Low'
-                    st.markdown(f"- {model}: {model_winner} ({model_prob:.1%}) - {confidence} Confidence")
-            
             # Add rewards section if game is completed
             if 'actual_result' in prediction:
                 st.markdown("### 🏆 Rewards")
@@ -803,13 +782,9 @@ def main():
 
         # Simple hardcoded credentials (for demonstration)
         CREDENTIALS = {
-            "support@pickengine.ai": {
-                "password": "PickEngineAI$IPO$1",
-                "name": "PickEngineAI"
-            },
-            "analyst": {
-                "password": "analyst123",
-                "name": "Analyst User"
+            "matchday": {
+                "password": "matchday123",
+                "name": "matchday"
             }
         }
 
@@ -1267,13 +1242,3 @@ def extract_team_name(team_info):
 if __name__ == "__main__":
     initialize_session_state()
     main()
-
-
-
-
-
-
-
-
-
-

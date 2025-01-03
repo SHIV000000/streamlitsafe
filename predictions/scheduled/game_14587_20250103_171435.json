@@ -1,0 +1,45 @@
+{
+    "timestamp": "2025-01-03T17:14:35.380996",
+    "game_info": {
+        "id": 14587,
+        "home_team": {
+            "id": "25",
+            "name": "Oklahoma City Thunder",
+            "code": ""
+        },
+        "away_team": {
+            "id": "24",
+            "name": "New York Knicks",
+            "code": ""
+        },
+        "scheduled_start": "2025-01-04T01:00:00.000Z",
+        "period": 0,
+        "clock": "12:00",
+        "score": {
+            "home": 0,
+            "away": 0
+        }
+    },
+    "prediction": {
+        "base": 0.556083363819149,
+        "adjusted": 0.556083363819149,
+        "predicted_winner": {
+            "id": "25",
+            "name": "Oklahoma City Thunder",
+            "code": ""
+        },
+        "win_probability": 0.556083363819149,
+        "confidence_level": "Low",
+        "model_predictions": {
+            "random_forest": 0.5502036826568988,
+            "xgboost": 0.5435433387756348,
+            "svm": 0.5929227762306781
+        },
+        "score_prediction": {
+            "home_low": 102,
+            "home_high": 125,
+            "away_low": 105,
+            "away_high": 129
+        }
+    }
+}
