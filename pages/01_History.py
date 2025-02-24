@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from datetime import datetime, timezone
 import pytz
 from supabase import create_client, Client
@@ -7,6 +8,9 @@ from session_state import SessionState
 import json
 import os
 from zoneinfo import ZoneInfo
+from nba_api.stats.static import teams
+from nba_api.stats.endpoints import boxscoretraditionalv2
+from nba_api.stats.library.parameters import SeasonAll
 
 # Initialize session state
 SessionState.init_state()
@@ -31,56 +35,60 @@ def load_predictions():
         # Query all predictions from Supabase
         result = supabase.from_('predictions').select("*").order('scheduled_start', desc=True).execute()
         
-        predictions = []
-        seen_games = set()  # Track unique game combinations
+        # Convert to pandas DataFrame
+        df = pd.DataFrame(result.data)
         
-        for row in result.data:
-            # Create game_info structure
-            game_info = {
-                'home_team': {'name': row['home_team']},
-                'away_team': {'name': row['away_team']},
-                'scheduled_start': row['scheduled_start']
-            }
+        if not df.empty:
+            # Convert scheduled_start to datetime
+            df['scheduled_start'] = pd.to_datetime(df['scheduled_start'])
             
-            # Create prediction structure
-            prediction = {
-                'predicted_winner': {'name': row['predicted_winner']},
-                'win_probability': row['win_probability'],
-                'score_prediction': {
-                    'home_low': row['home_score_min'],
-                    'home_high': row['home_score_max'],
-                    'away_low': row['away_score_min'],
-                    'away_high': row['away_score_max']
-                }
-            }
+            # Convert to Eastern Time
+            df['game_time_et'] = df['scheduled_start'].apply(convert_to_et)
             
-            # Create the full prediction object
-            prediction_obj = {
-                'game_info': game_info,
-                'prediction': prediction
-            }
+            # Get game results using API
+            nba_teams = teams.get_teams()
+            nba_teams_dict = {team['full_name']: team['id'] for team in nba_teams}
+            df['home_team_id'] = df['home_team'].apply(lambda x: nba_teams_dict[x])
+            df['away_team_id'] = df['away_team'].apply(lambda x: nba_teams_dict[x])
+            df['game_id'] = df.apply(lambda x: boxscoretraditionalv2.BoxScoreTraditionalV2(
+                game_id=f"{x['season']}{x['game_id']}",
+                season=SeasonAll.current_season,
+                season_type_all_star="Regular Season").get_data_frames()[0].iloc[0]['GAME_ID'], axis=1)
+            df['game_status'] = df.apply(lambda x: boxscoretraditionalv2.BoxScoreTraditionalV2(
+                game_id=x['game_id'],
+                season=SeasonAll.current_season,
+                season_type_all_star="Regular Season").get_data_frames()[0].iloc[0]['GAME_STATUS_TEXT'], axis=1)
+            df['actual_home_score'] = df.apply(lambda x: boxscoretraditionalv2.BoxScoreTraditionalV2(
+                game_id=x['game_id'],
+                season=SeasonAll.current_season,
+                season_type_all_star="Regular Season").get_data_frames()[0].iloc[0]['PTS'], axis=1)
+            df['actual_away_score'] = df.apply(lambda x: boxscoretraditionalv2.BoxScoreTraditionalV2(
+                game_id=x['game_id'],
+                season=SeasonAll.current_season,
+                season_type_all_star="Regular Season").get_data_frames()[0].iloc[1]['PTS'], axis=1)
+            df['prediction_correct'] = df.apply(lambda x: x['predicted_winner'] == x['home_team'] and x['actual_home_score'] > x['actual_away_score'] or 
+                x['predicted_winner'] == x['away_team'] and x['actual_away_score'] > x['actual_home_score'], axis=1)
             
-            # Create a unique key for the game
-            game_key = f"{row['home_team']}_{row['away_team']}_{row['scheduled_start']}"
+            # Format prediction details
+            df['prediction'] = df.apply(lambda x: f"{x['predicted_winner']} ({x['win_probability']:.1%})", axis=1)
+            df['predicted_score'] = df.apply(lambda x: f"{x['home_team']} {x['home_score_min']}-{x['home_score_max']} vs {x['away_team']} {x['away_score_min']}-{x['away_score_max']}", axis=1)
             
-            # Only add if we haven't seen this game before
-            if game_key not in seen_games:
-                predictions.append(prediction_obj)
-                seen_games.add(game_key)
+            # Format actual results if available
+            df['actual_result'] = df.apply(lambda x: 
+                f"{x.get('actual_home_score', '-')} - {x.get('actual_away_score', '-')}" 
+                if x.get('game_status') == 'Final' 
+                else x.get('game_status', 'Scheduled'), axis=1)
+            
+            # Format game time
+            df['game_time'] = df['game_time_et'].dt.strftime('%Y-%m-%d %I:%M %p ET')
+            
+            return df
         
-        return predictions
+        return pd.DataFrame()
+        
     except Exception as e:
         st.error(f"Error loading predictions: {str(e)}")
-        return []
-
-def convert_to_et(dt):
-    """Convert UTC datetime to ET."""
-    if isinstance(dt, str):
-        dt = datetime.fromisoformat(dt.replace('Z', '+00:00'))
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    et = pytz.timezone('US/Eastern')
-    return dt.astimezone(et)
+        return pd.DataFrame()
 
 def create_navigation():
     """Create navigation bar with buttons"""
@@ -144,36 +152,100 @@ def display_history_dashboard():
     """Display the history dashboard with predictions and analytics."""
     
     # Load predictions from Supabase
-    predictions = load_predictions()
+    df = load_predictions()
     
-    if not predictions:
+    if df.empty:
         st.warning("No prediction history found.")
         return
     
-    # Create a simple table view instead of DataFrame
-    st.subheader("Prediction History")
-    
-    for prediction in predictions:
-        game_info = prediction['game_info']
-        pred_info = prediction['prediction']
-        score_pred = pred_info['score_prediction']
+    # Display summary statistics if we have completed games
+    completed_games = df[df['game_status'] == 'Final']
+    if not completed_games.empty:
+        st.subheader("Prediction Accuracy")
+        correct_predictions = completed_games['prediction_correct'].sum()
+        total_predictions = len(completed_games)
+        accuracy = correct_predictions / total_predictions
         
-        with st.expander(f"{game_info['home_team']['name']} vs {game_info['away_team']['name']}"):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total Predictions", total_predictions)
+        with col2:
+            st.metric("Correct Predictions", correct_predictions)
+        with col3:
+            st.metric("Accuracy", f"{accuracy:.1%}")
+    
+    # Create a table view
+    st.subheader("Prediction History")
+    table_df = df[[
+        'game_time',
+        'home_team',
+        'away_team',
+        'prediction',
+        'predicted_score',
+        'actual_result'
+    ]].copy()
+    
+    # Rename columns for display
+    table_df.columns = [
+        'Game Time',
+        'Home Team',
+        'Away Team',
+        'Predicted Winner',
+        'Predicted Score Range',
+        'Actual Result'
+    ]
+    
+    # Display the table with custom styling
+    st.dataframe(
+        table_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Game Time": st.column_config.TextColumn(
+                "Game Time",
+                width="medium",
+            ),
+            "Predicted Winner": st.column_config.TextColumn(
+                "Predicted Winner",
+                width="medium",
+            ),
+            "Predicted Score Range": st.column_config.TextColumn(
+                "Predicted Score Range",
+                width="large",
+            ),
+            "Actual Result": st.column_config.TextColumn(
+                "Actual Result",
+                width="medium",
+            ),
+        }
+    )
+    
+    # Add detailed view in expandable sections
+    st.subheader("Detailed Predictions")
+    for _, row in df.iterrows():
+        with st.expander(f"{row['home_team']} vs {row['away_team']} - {row['game_time']}"):
             col1, col2 = st.columns(2)
             
             with col1:
-                st.write("**Home Team:**", game_info['home_team']['name'])
-                st.write("**Score Range:**", f"{score_pred['home_low']}-{score_pred['home_high']}")
+                st.write("**Home Team:**", row['home_team'])
+                st.write("**Predicted Score Range:**", f"{row['home_score_min']}-{row['home_score_max']}")
+                if row.get('game_status') == 'Final':
+                    st.write("**Actual Score:**", row.get('actual_home_score', '-'))
             
             with col2:
-                st.write("**Away Team:**", game_info['away_team']['name'])
-                st.write("**Score Range:**", f"{score_pred['away_low']}-{score_pred['away_high']}")
+                st.write("**Away Team:**", row['away_team'])
+                st.write("**Predicted Score Range:**", f"{row['away_score_min']}-{row['away_score_max']}")
+                if row.get('game_status') == 'Final':
+                    st.write("**Actual Score:**", row.get('actual_away_score', '-'))
             
-            st.write("**Predicted Winner:**", pred_info['predicted_winner']['name'])
-            st.write("**Win Probability:**", f"{pred_info['win_probability']:.1%}")
+            st.write("**Predicted Winner:**", row['predicted_winner'])
+            st.write("**Win Probability:**", f"{row['win_probability']:.1%}")
             
-            game_time = datetime.fromisoformat(game_info['scheduled_start'].replace('Z', '+00:00'))
-            st.write("**Game Time:**", game_time.strftime('%Y-%m-%d %H:%M UTC'))
+            if row.get('game_status') == 'Final':
+                st.write("**Prediction Outcome:**", 
+                        "✅ Correct" if row.get('prediction_correct', False) else "❌ Incorrect")
+            else:
+                st.write("**Game Status:**", row.get('game_status', 'Scheduled'))
             
             st.divider()
 

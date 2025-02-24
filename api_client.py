@@ -12,11 +12,17 @@ import os
 class EnhancedNBAApiClient:
     def __init__(self, api_key: str):
         """Initialize the NBA API client with API key and configuration."""
+        self.api_key = api_key
+        self.base_url = "https://v2.nba.api-sports.io"
+        self.football_base_url = "https://api-football-v1.p.rapidapi.com/v3"
         self.headers = {
-            'x-rapidapi-host': 'api-nba-v1.p.rapidapi.com',
-            'x-rapidapi-key': api_key
+            "x-rapidapi-key": api_key,
+            "x-rapidapi-host": "api-football-v1.p.rapidapi.com"
         }
-        self.base_url = 'https://api-nba-v1.p.rapidapi.com'
+        self.nba_headers = {
+            "x-rapidapi-key": api_key,
+            "x-rapidapi-host": "v2.nba.api-sports.io"
+        }
         self.current_season = '2024'
         self.previous_season = '2023'
         
@@ -535,7 +541,83 @@ class EnhancedNBAApiClient:
             logging.error(f"Error fetching alternative team stats for ID {team_id}: {str(e)}")
             return {}
 
+    def get_game_results(self, date: str) -> List[Dict]:
+        """
+        Get game results for a specific date.
+        Args:
+            date (str): Date in format YYYY-MM-DD
+        Returns:
+            List[Dict]: List of game results
+        """
+        endpoint = f"{self.football_base_url}/fixtures"
+        params = {
+            "date": date,
+            "league": "115",  # NBA league ID in API-FOOTBALL
+            "season": self.current_season
+        }
+        
+        try:
+            response = requests.get(endpoint, headers=self.headers, params=params)
+            response.raise_for_status()
+            
+            data = response.json()
+            if not data.get('response'):
+                logging.warning(f"No game results found for date: {date}")
+                return []
+            
+            results = []
+            for game in data['response']:
+                result = {
+                    'home_team': game['teams']['home']['name'],
+                    'away_team': game['teams']['away']['name'],
+                    'home_score': game['score']['fulltime']['home'],
+                    'away_score': game['score']['fulltime']['away'],
+                    'status': game['fixture']['status']['long'],
+                    'date': game['fixture']['date'],
+                    'id': game['fixture']['id']
+                }
+                results.append(result)
+            
+            return results
+            
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error fetching game results: {str(e)}")
+            return []
 
+    def update_game_results(self, predictions: List[Dict]) -> List[Dict]:
+        """
+        Update predictions with actual game results.
+        Args:
+            predictions (List[Dict]): List of predictions
+        Returns:
+            List[Dict]: Updated predictions with results
+        """
+        for pred in predictions:
+            game_date = datetime.fromisoformat(pred['scheduled_start'].replace('Z', '+00:00')).strftime('%Y-%m-%d')
+            results = self.get_game_results(game_date)
+            
+            # Find matching game result
+            for result in results:
+                if (result['home_team'] == pred['home_team'] and 
+                    result['away_team'] == pred['away_team']):
+                    pred['actual_home_score'] = result['home_score']
+                    pred['actual_away_score'] = result['away_score']
+                    pred['game_status'] = result['status']
+                    
+                    # Determine if prediction was correct
+                    if result['status'] == 'Match Finished':
+                        actual_winner = (result['home_team'] if result['home_score'] > result['away_score']
+                                      else result['away_team'] if result['away_score'] > result['home_score']
+                                      else 'Tie')
+                        pred['prediction_correct'] = (actual_winner == pred['predicted_winner'])
+                    
+                    break
+            
+            # If no result found, mark as pending
+            if 'game_status' not in pred:
+                pred['game_status'] = 'Scheduled'
+        
+        return predictions
 
     def get_team_info(self, team_id: str) -> Dict:
         """Get detailed team information with validated ID."""
