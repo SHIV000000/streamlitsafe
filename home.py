@@ -1,4 +1,8 @@
 import streamlit as st
+
+# Must be the first Streamlit command
+st.set_page_config(page_title="NBA Game Predictions", page_icon="🏀", layout="wide")
+
 from datetime import datetime, timezone, timedelta
 import pytz
 from supabase import create_client, Client
@@ -17,15 +21,7 @@ try:
     if not supabase:
         SUPABASE_URL = "https://jdvxisvtktunywgdtxvz.supabase.co"
         SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impkdnhpc3Z0a3R1bnl3Z2R0eHZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzOTE2MDAsImV4cCI6MjA1NTk2NzYwMH0.-Hdbq82ctFUCGjXkmzRDOUzlXkHjVZfp5ws4vpIFmi4"
-        options = {
-            'headers': {
-                'Authorization': f'Bearer {SUPABASE_KEY}',
-                'apikey': SUPABASE_KEY
-            },
-            'auto_refresh_token': True,
-            'persist_session': True
-        }
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY, options)
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         SessionState.set('supabase_client', supabase)
 except Exception as e:
     st.error(f"Error initializing Supabase client: {str(e)}")
@@ -530,7 +526,6 @@ def delete_all_predictions():
         logging.error(f"Delete error: {str(e)}")
 
 def main():
-    st.set_page_config(page_title="NBA Game Predictions", page_icon="🏀", layout="wide")
     apply_custom_styles()
     
     if not SessionState.get('authenticated'):
