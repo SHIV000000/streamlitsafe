@@ -189,18 +189,49 @@ def apply_custom_styles():
 
 def get_team_strength(team_name):
     """Get team strength based on 2024 season performance (0.0 to 1.0 scale)"""
-    return {
-        'Boston Celtics': 0.95, 'Denver Nuggets': 0.90, 'Minnesota Timberwolves': 0.89,
-        'LA Clippers': 0.88, 'Oklahoma City Thunder': 0.87, 'Milwaukee Bucks': 0.86,
-        'Cleveland Cavaliers': 0.85, 'Phoenix Suns': 0.84, 'New York Knicks': 0.83,
-        'Sacramento Kings': 0.82, 'New Orleans Pelicans': 0.81, 'Dallas Mavericks': 0.80,
-        'Philadelphia 76ers': 0.79, 'Miami Heat': 0.78, 'Indiana Pacers': 0.77,
-        'Los Angeles Lakers': 0.76, 'Orlando Magic': 0.75, 'Golden State Warriors': 0.74,
-        'Houston Rockets': 0.73, 'Chicago Bulls': 0.72, 'Atlanta Hawks': 0.71,
-        'Utah Jazz': 0.70, 'Brooklyn Nets': 0.69, 'Toronto Raptors': 0.68,
-        'Memphis Grizzlies': 0.67, 'Portland Trail Blazers': 0.66, 'Washington Wizards': 0.64,
-        'Charlotte Hornets': 0.62, 'San Antonio Spurs': 0.61, 'Detroit Pistons': 0.55
-    }.get(team_name, 0.70)
+    # Get standardized team name from API client
+    standardized_name = nba_client.standardize_team_name(team_name)
+    
+    # Team strength ratings (0.0 to 1.0 scale)
+    strength_ratings = {
+        'Boston Celtics': 0.95,
+        'Denver Nuggets': 0.90,
+        'Minnesota Timberwolves': 0.89,
+        'LA Clippers': 0.88,
+        'Oklahoma City Thunder': 0.87,
+        'Milwaukee Bucks': 0.86,
+        'Cleveland Cavaliers': 0.85,
+        'Phoenix Suns': 0.84,
+        'New York Knicks': 0.83,
+        'Sacramento Kings': 0.82,
+        'New Orleans Pelicans': 0.81,
+        'Dallas Mavericks': 0.80,
+        'Philadelphia 76ers': 0.79,
+        'Miami Heat': 0.78,
+        'Indiana Pacers': 0.77,
+        'Los Angeles Lakers': 0.76,
+        'Orlando Magic': 0.75,
+        'Golden State Warriors': 0.74,
+        'Houston Rockets': 0.73,
+        'Chicago Bulls': 0.72,
+        'Atlanta Hawks': 0.71,
+        'Utah Jazz': 0.70,
+        'Brooklyn Nets': 0.69,
+        'Toronto Raptors': 0.68,
+        'Memphis Grizzlies': 0.67,
+        'Portland Trail Blazers': 0.66,
+        'Washington Wizards': 0.64,
+        'Charlotte Hornets': 0.62,
+        'San Antonio Spurs': 0.61,
+        'Detroit Pistons': 0.55
+    }
+    
+    # Return team strength or default value
+    strength = strength_ratings.get(standardized_name)
+    if strength is None:
+        logging.warning(f"Unknown team name: {team_name} (standardized: {standardized_name})")
+        return 0.70  # Default strength for unknown teams
+    return strength
 
 def generate_prediction(game):
     try:

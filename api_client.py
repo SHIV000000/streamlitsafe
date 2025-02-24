@@ -26,6 +26,40 @@ class EnhancedNBAApiClient:
         self.current_season = '2024'
         self.previous_season = '2023'
         
+        # Team name standardization mapping
+        self.team_name_mapping = {
+            'LA Clippers': ['Los Angeles Clippers', 'LAC', 'LA Clippers'],
+            'Los Angeles Lakers': ['LA Lakers', 'LAL', 'Lakers'],
+            'Brooklyn Nets': ['BKN', 'Nets'],
+            'New York Knicks': ['NY Knicks', 'NYK'],
+            'Philadelphia 76ers': ['PHI', 'Sixers', '76ers'],
+            'Toronto Raptors': ['TOR'],
+            'Chicago Bulls': ['CHI'],
+            'Cleveland Cavaliers': ['CLE', 'Cavs'],
+            'Detroit Pistons': ['DET'],
+            'Indiana Pacers': ['IND'],
+            'Milwaukee Bucks': ['MIL'],
+            'Atlanta Hawks': ['ATL'],
+            'Charlotte Hornets': ['CHA'],
+            'Miami Heat': ['MIA'],
+            'Orlando Magic': ['ORL'],
+            'Washington Wizards': ['WAS'],
+            'Denver Nuggets': ['DEN'],
+            'Minnesota Timberwolves': ['MIN', 'Wolves'],
+            'Oklahoma City Thunder': ['OKC'],
+            'Portland Trail Blazers': ['POR', 'Blazers'],
+            'Utah Jazz': ['UTA'],
+            'Golden State Warriors': ['GSW', 'Warriors'],
+            'Phoenix Suns': ['PHX'],
+            'Sacramento Kings': ['SAC'],
+            'Dallas Mavericks': ['DAL', 'Mavs'],
+            'Houston Rockets': ['HOU'],
+            'Memphis Grizzlies': ['MEM'],
+            'New Orleans Pelicans': ['NOP', 'Pels'],
+            'San Antonio Spurs': ['SAS'],
+            'Boston Celtics': ['BOS']
+        }
+        
         # Configure logging
         log_dir = "logs"
         os.makedirs(log_dir, exist_ok=True)
@@ -48,6 +82,24 @@ class EnhancedNBAApiClient:
                 handlers=[logging.StreamHandler()]
             )
             logging.warning(f"Failed to set up file logging: {str(e)}. Falling back to console logging only.")
+
+    def standardize_team_name(self, team_name: str) -> str:
+        """Standardize team name to a consistent format."""
+        if not team_name:
+            return team_name
+            
+        # Check if it's already a standard name
+        if team_name in self.team_name_mapping:
+            return team_name
+            
+        # Look for variations
+        for standard_name, variations in self.team_name_mapping.items():
+            if team_name in variations:
+                return standard_name
+                
+        # If no match found, log warning and return original
+        logging.warning(f"Unknown team name format: {team_name}")
+        return team_name
 
     def _safe_convert_id(self, value: Any) -> str:
         """Safely convert any value to a string ID."""
@@ -129,11 +181,11 @@ class EnhancedNBAApiClient:
                                 'teams': {
                                     'home': {
                                         'id': game.get('teams', {}).get('home', {}).get('id'),
-                                        'name': game.get('teams', {}).get('home', {}).get('name')
+                                        'name': self.standardize_team_name(game.get('teams', {}).get('home', {}).get('name'))
                                     },
                                     'away': {
                                         'id': game.get('teams', {}).get('visitors', {}).get('id'),
-                                        'name': game.get('teams', {}).get('visitors', {}).get('name')
+                                        'name': self.standardize_team_name(game.get('teams', {}).get('visitors', {}).get('name'))
                                     }
                                 },
                                 'status': status
@@ -310,13 +362,13 @@ class EnhancedNBAApiClient:
                 'teams': {
                     'home': {
                         'id': home_id_str,
-                        'name': home_team.get('name', ''),
+                        'name': self.standardize_team_name(home_team.get('name', '')),
                         'nickname': home_team.get('nickname', ''),
                         'code': home_team.get('code', '')
                     },
                     'visitors': {  # Changed from 'away' to 'visitors'
                         'id': away_id_str,
-                        'name': away_team.get('name', ''),
+                        'name': self.standardize_team_name(away_team.get('name', '')),
                         'nickname': away_team.get('nickname', ''),
                         'code': away_team.get('code', '')
                     }
@@ -355,9 +407,9 @@ class EnhancedNBAApiClient:
                 f"Status: {game.get('status', {}).get('long')} - "
                 f"Clock: {game.get('status', {}).get('clock')} - "
                 f"Period: {game.get('periods', {}).get('current')} - "
-                f"Home: {game.get('teams', {}).get('home', {}).get('name')} "
+                f"Home: {self.standardize_team_name(game.get('teams', {}).get('home', {}).get('name'))} "
                 f"({game.get('scores', {}).get('home', {}).get('points', 0)}) - "
-                f"Away: {game.get('teams', {}).get('visitors', {}).get('name')} "
+                f"Away: {self.standardize_team_name(game.get('teams', {}).get('visitors', {}).get('name'))} "
                 f"({game.get('scores', {}).get('visitors', {}).get('points', 0)})")
 
     def _process_live_games(self, games: List[Dict]) -> List[Dict]:
@@ -370,11 +422,11 @@ class EnhancedNBAApiClient:
                     'teams': {
                         'home': {
                             'id': str(game.get('teams', {}).get('home', {}).get('id')),
-                            'name': game.get('teams', {}).get('home', {}).get('name')
+                            'name': self.standardize_team_name(game.get('teams', {}).get('home', {}).get('name'))
                         },
                         'away': {
                             'id': str(game.get('teams', {}).get('visitors', {}).get('id')),
-                            'name': game.get('teams', {}).get('visitors', {}).get('name')
+                            'name': self.standardize_team_name(game.get('teams', {}).get('visitors', {}).get('name'))
                         }
                     },
                     'scores': {
@@ -568,8 +620,8 @@ class EnhancedNBAApiClient:
             results = []
             for game in data['response']:
                 result = {
-                    'home_team': game['teams']['home']['name'],
-                    'away_team': game['teams']['away']['name'],
+                    'home_team': self.standardize_team_name(game['teams']['home']['name']),
+                    'away_team': self.standardize_team_name(game['teams']['away']['name']),
                     'home_score': game['score']['fulltime']['home'],
                     'away_score': game['score']['fulltime']['away'],
                     'status': game['fixture']['status']['long'],
@@ -598,8 +650,8 @@ class EnhancedNBAApiClient:
             
             # Find matching game result
             for result in results:
-                if (result['home_team'] == pred['home_team'] and 
-                    result['away_team'] == pred['away_team']):
+                if (result['home_team'] == self.standardize_team_name(pred['home_team']) and 
+                    result['away_team'] == self.standardize_team_name(pred['away_team'])):
                     pred['actual_home_score'] = result['home_score']
                     pred['actual_away_score'] = result['away_score']
                     pred['game_status'] = result['status']
@@ -631,7 +683,7 @@ class EnhancedNBAApiClient:
             
             return {
                 'id': validated_id,  # Include the validated ID
-                'name': team_data.get('name', ''),
+                'name': self.standardize_team_name(team_data.get('name', '')),
                 'code': team_data.get('code', ''),
                 'city': team_data.get('city', ''),
                 'conference': team_data.get('leagues', {}).get('standard', {}).get('conference', ''),
