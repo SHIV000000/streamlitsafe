@@ -9,5 +9,7 @@ requests==2.32.3
 nba_api==1.6.1
 joblib==1.4.2
 PyYAML==6.0.2
-supabase==2.3.4
+supabase==1.2.0
 httpx==0.24.1
+python-dotenv==1.0.1
+postgrest==0.10.6
