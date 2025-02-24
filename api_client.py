@@ -5,7 +5,7 @@ import requests
 import logging
 from typing import Dict, List, Optional, Any
 from time import sleep
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 
 class EnhancedNBAApiClient:
@@ -64,7 +64,7 @@ class EnhancedNBAApiClient:
                     endpoint,
                     headers=self.headers,
                     params=params,
-                    timeout=30  # Add timeout
+                    timeout=30
                 )
                 response.raise_for_status()
                 return response.json()
@@ -75,6 +75,61 @@ class EnhancedNBAApiClient:
                 else:
                     raise
         return {}
+
+    def get_upcoming_games(self) -> List[Dict]:
+        """Get upcoming games for today and tomorrow."""
+        try:
+            endpoint = f"{self.base_url}/games"
+            games = []
+            
+            # Get today's and tomorrow's games
+            for day_offset in [0, 1]:
+                date = (datetime.now() + timedelta(days=day_offset)).strftime("%Y-%m-%d")
+                params = {
+                    'date': date,
+                    'league': 'standard',
+                    'season': self.current_season
+                }
+                
+                logging.info(f"Fetching games for date: {date}")
+                response = self._make_request('GET', endpoint, params)
+                day_games = response.get('response', [])
+                
+                # Process each game
+                for game in day_games:
+                    try:
+                        # Only include scheduled or not started games
+                        status = game.get('status', {})
+                        if status.get('long') in ['Scheduled', 'Not Started'] or status.get('short') in ['1', 'NS']:
+                            processed_game = {
+                                'id': game.get('id'),
+                                'date': {
+                                    'start': game.get('date', {}).get('start')
+                                },
+                                'teams': {
+                                    'home': {
+                                        'id': game.get('teams', {}).get('home', {}).get('id'),
+                                        'name': game.get('teams', {}).get('home', {}).get('name')
+                                    },
+                                    'away': {
+                                        'id': game.get('teams', {}).get('visitors', {}).get('id'),
+                                        'name': game.get('teams', {}).get('visitors', {}).get('name')
+                                    }
+                                },
+                                'status': status
+                            }
+                            games.append(processed_game)
+                            logging.info(f"Added game: {processed_game['teams']['home']['name']} vs {processed_game['teams']['away']['name']}")
+                    except Exception as e:
+                        logging.error(f"Error processing game {game.get('id')}: {str(e)}")
+                        continue
+            
+            logging.info(f"Found {len(games)} upcoming games")
+            return games
+            
+        except Exception as e:
+            logging.error(f"Error fetching upcoming games: {str(e)}")
+            return []
 
     def get_live_games(self) -> List[Dict]:
         """Get current live games with enhanced status checking."""
@@ -535,6 +590,3 @@ class EnhancedNBAApiClient:
                 logging.warning(f"Attempt {attempt + 1} failed for team ID {team_id}: {str(e)}")
                 
         return {'statistics': [{}]}  # Return empty stats if all attempts fail
-
-
-

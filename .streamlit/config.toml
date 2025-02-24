@@ -1,0 +1,44 @@
+[theme]
+# Primary accent color for interactive elements
+primaryColor = "#FF4B4B"  # A vibrant red color for NBA theme
+
+# Background color for the main content area
+backgroundColor = "#FFFFFF"  # Pure white background
+
+# Background color for sidebar and most interactive widgets
+secondaryBackgroundColor = "#FFFFFF"  # Pure white for all backgrounds
+
+# Color used for almost all text
+textColor = "#000000"  # Pure black text
+
+# Font family for all text in the app
+font = "sans serif"
+
+[server]
+# Enable watchdog for better file handling
+enableXsrfProtection = true
+enableCORS = false
+
+[browser]
+# Make the app more responsive
+gatherUsageStats = false
+
+[logger]
+# Logging level for app
+level = "info"
+
+[runner]
+# Handle long-running computations better
+magicEnabled = true
+fastReruns = true
+
+[client]
+# Improve caching behavior
+caching = true
+displayEnabled = true
+
+[deprecation]
+showfileUploaderEncoding = false
+
+[mapbox]
+token = ""
