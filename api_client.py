@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Any
 from time import sleep
 from datetime import datetime, timedelta
 import json
+import os
 
 class EnhancedNBAApiClient:
     def __init__(self, api_key: str):
@@ -20,14 +21,27 @@ class EnhancedNBAApiClient:
         self.previous_season = '2023'
         
         # Configure logging
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler("logs/nba_api.log", mode='a'),
-                logging.StreamHandler()
-            ]
-        )
+        log_dir = "logs"
+        os.makedirs(log_dir, exist_ok=True)
+        
+        # Configure logging with error handling
+        try:
+            logging.basicConfig(
+                level=logging.INFO,
+                format='%(asctime)s - %(levelname)s - %(message)s',
+                handlers=[
+                    logging.FileHandler(os.path.join(log_dir, "nba_api.log"), mode='a'),
+                    logging.StreamHandler()
+                ]
+            )
+        except Exception as e:
+            # Fallback to console-only logging if file logging fails
+            logging.basicConfig(
+                level=logging.INFO,
+                format='%(asctime)s - %(levelname)s - %(message)s',
+                handlers=[logging.StreamHandler()]
+            )
+            logging.warning(f"Failed to set up file logging: {str(e)}. Falling back to console logging only.")
 
     def _safe_convert_id(self, value: Any) -> str:
         """Safely convert any value to a string ID."""
