@@ -12,12 +12,24 @@ import uuid
 SessionState.init_state()
 
 # Get Supabase client from session state
-supabase = SessionState.get('supabase_client')
-if not supabase:
-    SUPABASE_URL = "https://jdvxisvtktunywgdtxvz.supabase.co"
-    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impkdnhpc3Z0a3R1bnl3Z2R0eHZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzOTE2MDAsImV4cCI6MjA1NTk2NzYwMH0.-Hdbq82ctFUCGjXkmzRDOUzlXkHjVZfp5ws4vpIFmi4"
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    SessionState.set('supabase_client', supabase)
+try:
+    supabase = SessionState.get('supabase_client')
+    if not supabase:
+        SUPABASE_URL = "https://jdvxisvtktunywgdtxvz.supabase.co"
+        SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impkdnhpc3Z0a3R1bnl3Z2R0eHZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzOTE2MDAsImV4cCI6MjA1NTk2NzYwMH0.-Hdbq82ctFUCGjXkmzRDOUzlXkHjVZfp5ws4vpIFmi4"
+        options = {
+            'headers': {
+                'Authorization': f'Bearer {SUPABASE_KEY}',
+                'apikey': SUPABASE_KEY
+            },
+            'auto_refresh_token': True,
+            'persist_session': True
+        }
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY, options)
+        SessionState.set('supabase_client', supabase)
+except Exception as e:
+    st.error(f"Error initializing Supabase client: {str(e)}")
+    supabase = None
 
 # Initialize NBA API client
 NBA_API_KEY = "918ef216c6msh607da23f482096fp198faajsnc648d53dadc5"
