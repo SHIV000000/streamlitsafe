@@ -5,7 +5,7 @@ st.set_page_config(page_title="NBA Game Predictions", page_icon="🏀", layout="
 
 from datetime import datetime, timezone, timedelta
 import pytz
-from supabase import create_client, Client
+from supabase import Client
 from session_state import SessionState
 from api_client import EnhancedNBAApiClient
 import logging
@@ -21,7 +21,7 @@ try:
     if not supabase:
         SUPABASE_URL = "https://jdvxisvtktunywgdtxvz.supabase.co"
         SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impkdnhpc3Z0a3R1bnl3Z2R0eHZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzOTE2MDAsImV4cCI6MjA1NTk2NzYwMH0.-Hdbq82ctFUCGjXkmzRDOUzlXkHjVZfp5ws4vpIFmi4"
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        supabase = Client(SUPABASE_URL, SUPABASE_KEY)
         SessionState.set('supabase_client', supabase)
 except Exception as e:
     st.error(f"Error initializing Supabase client: {str(e)}")

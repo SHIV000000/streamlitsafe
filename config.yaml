@@ -1,7 +1,7 @@
 # config.yaml
 
 credentials:
-  username: match_wizard
+  username: matchday_wizard
   password: GoalMaster
 cookie:
   expiry_days: 30
