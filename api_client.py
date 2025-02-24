@@ -24,7 +24,7 @@ class EnhancedNBAApiClient:
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler("nba_api.log", mode='a'),
+                logging.FileHandler("logs/nba_api.log", mode='a'),
                 logging.StreamHandler()
             ]
         )

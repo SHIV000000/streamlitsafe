@@ -34,5 +34,8 @@ env/
 # Project specific
 data/
 history/
-*.log
 .env
+
+# Logs
+logs/
+*.log

@@ -18,6 +18,11 @@ font = "sans serif"
 # Enable watchdog for better file handling
 enableXsrfProtection = true
 enableCORS = false
+fileWatcherType = "poll"
+runOnSave = true
+
+# Ignore the logs directory
+folderWatchBlacklist = ["logs"]
 
 [browser]
 # Make the app more responsive
