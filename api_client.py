@@ -148,15 +148,29 @@ class EnhancedNBAApiClient:
                     raise
         return {}
 
-    def get_upcoming_games(self) -> List[Dict]:
-        """Get upcoming games for today and tomorrow."""
+    def get_upcoming_games(self, start_date=None, end_date=None) -> List[Dict]:
+        """
+        Get upcoming games within a date range.
+        Args:
+            start_date (datetime, optional): Start date for fetching games. Defaults to today.
+            end_date (datetime, optional): End date for fetching games. Defaults to tomorrow.
+        """
         try:
             endpoint = f"{self.base_url}/games"
             games = []
             
-            # Get today's and tomorrow's games
-            for day_offset in [0, 1]:
-                date = (datetime.now() + timedelta(days=day_offset)).strftime("%Y-%m-%d")
+            # Set default date range if not provided
+            if start_date is None:
+                start_date = datetime.now()
+            if end_date is None:
+                end_date = start_date + timedelta(days=1)
+            
+            # Calculate number of days to fetch
+            days_to_fetch = (end_date - start_date).days + 1
+            
+            # Fetch games for each day in the range
+            for day_offset in range(days_to_fetch):
+                date = (start_date + timedelta(days=day_offset)).strftime("%Y-%m-%d")
                 params = {
                     'date': date,
                     'league': 'standard',

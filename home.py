@@ -189,8 +189,46 @@ def apply_custom_styles():
 
 def get_team_strength(team_name):
     """Get team strength based on 2024 season performance (0.0 to 1.0 scale)"""
-    # Get standardized team name from API client
-    standardized_name = nba_client.standardize_team_name(team_name)
+    # Standardize team names
+    team_mapping = {
+        'LA Clippers': ['Los Angeles Clippers', 'LAC', 'LA Clippers'],
+        'Los Angeles Lakers': ['LA Lakers', 'LAL', 'Lakers'],
+        'Brooklyn Nets': ['BKN', 'Nets'],
+        'New York Knicks': ['NY Knicks', 'NYK'],
+        'Philadelphia 76ers': ['PHI', 'Sixers', '76ers'],
+        'Toronto Raptors': ['TOR'],
+        'Chicago Bulls': ['CHI'],
+        'Cleveland Cavaliers': ['CLE', 'Cavs'],
+        'Detroit Pistons': ['DET'],
+        'Indiana Pacers': ['IND'],
+        'Milwaukee Bucks': ['MIL'],
+        'Atlanta Hawks': ['ATL'],
+        'Charlotte Hornets': ['CHA'],
+        'Miami Heat': ['MIA'],
+        'Orlando Magic': ['ORL'],
+        'Washington Wizards': ['WAS'],
+        'Denver Nuggets': ['DEN'],
+        'Minnesota Timberwolves': ['MIN', 'Wolves'],
+        'Oklahoma City Thunder': ['OKC'],
+        'Portland Trail Blazers': ['POR', 'Blazers'],
+        'Utah Jazz': ['UTA'],
+        'Golden State Warriors': ['GSW', 'Warriors'],
+        'Phoenix Suns': ['PHX'],
+        'Sacramento Kings': ['SAC'],
+        'Dallas Mavericks': ['DAL', 'Mavs'],
+        'Houston Rockets': ['HOU'],
+        'Memphis Grizzlies': ['MEM'],
+        'New Orleans Pelicans': ['NOP', 'Pels'],
+        'San Antonio Spurs': ['SAS'],
+        'Boston Celtics': ['BOS']
+    }
+    
+    # Find the standardized team name
+    standardized_name = team_name
+    for full_name, variations in team_mapping.items():
+        if team_name in variations or team_name == full_name:
+            standardized_name = full_name
+            break
     
     # Team strength ratings (0.0 to 1.0 scale)
     strength_ratings = {
@@ -298,15 +336,19 @@ def generate_prediction(game):
 def fetch_and_save_games():
     """Fetch latest games and save predictions to Supabase"""
     try:
+        # Set date range for fetching games (2 days ago to 2 weeks ahead)
+        now = datetime.now(timezone.utc)
+        start_date = now - timedelta(days=2)
+        end_date = now + timedelta(weeks=2)
+        
         # Get upcoming games
-        games = nba_client.get_upcoming_games()
+        games = nba_client.get_upcoming_games(start_date=start_date, end_date=end_date)
         if not games:
             st.warning("No upcoming games found.")
             return []
         
         # Clean up old predictions (before today)
         try:
-            now = datetime.now(timezone.utc)
             today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
             supabase.table('predictions').delete().lt('scheduled_start', today_start).execute()
             logging.info("Cleaned up predictions from previous days")
@@ -434,7 +476,11 @@ def load_predictions(include_live=False):
 def refresh_predictions():
     """Refresh predictions by updating only missing or outdated ones"""
     try:
+        # Set date range for fetching games (2 days ago to 2 weeks ahead)
         now = datetime.now(timezone.utc)
+        start_date = now - timedelta(days=2)
+        end_date = now + timedelta(weeks=2)
+        
         today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
         tomorrow_start = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
         
@@ -455,7 +501,7 @@ def refresh_predictions():
         }
         
         # Fetch new games and generate predictions only for missing games
-        games = nba_client.get_upcoming_games()
+        games = nba_client.get_upcoming_games(start_date=start_date, end_date=end_date)
         new_predictions = []
         
         if games:

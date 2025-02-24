@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import pytz
 from supabase import create_client, Client
 from typing import Dict, List
@@ -29,11 +29,20 @@ def convert_to_et(utc_time: datetime) -> datetime:
     et_zone = ZoneInfo("America/New_York")
     return utc_time.replace(tzinfo=timezone.utc).astimezone(et_zone)
 
-def load_predictions():
-    """Load predictions from Supabase database."""
+def load_predictions(start_date: datetime, end_date: datetime):
+    """Load predictions from Supabase database within the specified date range."""
     try:
-        # Query all predictions from Supabase
-        result = supabase.from_('predictions').select("*").order('scheduled_start', desc=True).execute()
+        # Convert dates to UTC for database query
+        start_utc = start_date.astimezone(timezone.utc)
+        end_utc = end_date.astimezone(timezone.utc)
+        
+        # Query predictions within date range
+        result = (supabase.from_('predictions')
+                 .select("*")
+                 .gte('scheduled_start', start_utc.isoformat())
+                 .lt('scheduled_start', end_utc.isoformat())
+                 .order('scheduled_start', desc=True)
+                 .execute())
         
         # Convert to pandas DataFrame
         df = pd.DataFrame(result.data)
@@ -151,11 +160,39 @@ def apply_custom_styles():
 def display_history_dashboard():
     """Display the history dashboard with predictions and analytics."""
     
-    # Load predictions from Supabase
-    df = load_predictions()
+    # Add date range selector
+    st.subheader("Select Date Range")
+    col1, col2 = st.columns(2)
+    
+    # Default to showing 2 days in the past to 2 weeks in the future
+    default_start = datetime.now(timezone.utc) - timedelta(days=2)
+    default_end = datetime.now(timezone.utc) + timedelta(weeks=2)
+    
+    with col1:
+        start_date = st.date_input(
+            "Start Date",
+            value=default_start.date(),
+            min_value=(default_start - timedelta(weeks=4)).date(),
+            max_value=default_end.date()
+        )
+    
+    with col2:
+        end_date = st.date_input(
+            "End Date",
+            value=default_end.date(),
+            min_value=start_date,
+            max_value=(default_end + timedelta(weeks=4)).date()
+        )
+    
+    # Convert dates to datetime with timezone
+    start_datetime = datetime.combine(start_date, datetime.min.time()).replace(tzinfo=timezone.utc)
+    end_datetime = datetime.combine(end_date, datetime.max.time()).replace(tzinfo=timezone.utc)
+    
+    # Load predictions for selected date range
+    df = load_predictions(start_datetime, end_datetime)
     
     if df.empty:
-        st.warning("No prediction history found.")
+        st.warning(f"No predictions found between {start_date} and {end_date}.")
         return
     
     # Display summary statistics if we have completed games
@@ -228,13 +265,13 @@ def display_history_dashboard():
             
             with col1:
                 st.write("**Home Team:**", row['home_team'])
-                st.write("**Predicted Score Range:**", f"{row['home_score_min']}-{row['home_score_max']}")
+                st.write("**Score Range:**", f"{row['home_score_min']}-{row['home_score_max']}")
                 if row.get('game_status') == 'Final':
                     st.write("**Actual Score:**", row.get('actual_home_score', '-'))
             
             with col2:
                 st.write("**Away Team:**", row['away_team'])
-                st.write("**Predicted Score Range:**", f"{row['away_score_min']}-{row['away_score_max']}")
+                st.write("**Score Range:**", f"{row['away_score_min']}-{row['away_score_max']}")
                 if row.get('game_status') == 'Final':
                     st.write("**Actual Score:**", row.get('actual_away_score', '-'))
             
