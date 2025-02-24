@@ -21,10 +21,10 @@ class EnhancedNBAApiClient:
         
         # Configure logging
         logging.basicConfig(
-            level=logging.DEBUG,
+            level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler("nba_api.log"),
+                logging.FileHandler("nba_api.log", mode='a'),
                 logging.StreamHandler()
             ]
         )
