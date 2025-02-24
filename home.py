@@ -484,18 +484,14 @@ def show_login_page():
         password = st.text_input("Password", type="password")
         
         if st.form_submit_button("Login"):
-            if username == "admin" and password == "admin123":
+            if username == "match_wizard" and password == "GoalMaster":
                 SessionState.set('authenticated', True)
                 st.success("✅ Login successful!")
                 st.rerun()
             else:
                 st.error("❌ Invalid username or password")
     
-    st.info("""
-    **Login Credentials:**
-    - Username: admin
-    - Password: admin123
-    """)
+
 
 def delete_all_predictions():
     """Delete all predictions from Supabase"""
