@@ -273,31 +273,41 @@ def fetch_and_save_games():
             st.warning("No upcoming games found.")
             return []
         
-        # Delete old predictions first
+        # Clean up old predictions (before today)
         try:
             now = datetime.now(timezone.utc)
             today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
             supabase.table('predictions').delete().lt('scheduled_start', today_start).execute()
+            logging.info("Cleaned up predictions from previous days")
         except Exception as e:
-            logging.error(f"Error deleting old predictions: {str(e)}")
+            logging.error(f"Error cleaning up old predictions: {str(e)}")
+        
+        # Get existing predictions for today and tomorrow
+        tomorrow_end = (now + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+        existing = (
+            supabase.table('predictions')
+            .select('*')
+            .gte('scheduled_start', today_start)
+            .lt('scheduled_start', tomorrow_end)
+            .execute()
+        )
+        
+        # Create a set of existing game keys
+        existing_games = {
+            f"{pred['home_team']}_{pred['away_team']}_{pred['scheduled_start']}"
+            for pred in (existing.data or [])
+        }
         
         # Process each game
-        predictions = []
+        predictions = existing.data or []
+        new_predictions = []
+        
         for game in games:
             try:
-                # Check if prediction already exists for this game and date
-                existing = (
-                    supabase.table('predictions')
-                    .select('*')
-                    .eq('home_team', game['teams']['home']['name'])
-                    .eq('away_team', game['teams']['away']['name'])
-                    .eq('scheduled_start', game['date']['start'])
-                    .execute()
-                )
+                game_key = f"{game['teams']['home']['name']}_{game['teams']['away']['name']}_{game['date']['start']}"
                 
-                if existing.data:
-                    # Use existing prediction
-                    predictions.append(existing.data[0])
+                # Skip if prediction already exists
+                if game_key in existing_games:
                     logging.info(f"Using existing prediction for {game['teams']['home']['name']} vs {game['teams']['away']['name']}")
                     continue
                 
@@ -323,21 +333,19 @@ def fetch_and_save_games():
                     'updated_at': datetime.now(timezone.utc).isoformat()
                 }
                 
-                result = (
-                    supabase.table('predictions')
-                    .insert(data)
-                    .execute()
-                )
+                result = supabase.table('predictions').insert(data).execute()
                 
                 if result.data:
-                    predictions.append(result.data[0])
-                    logging.info(f"Saved new prediction for {game['teams']['home']['name']} vs {game['teams']['away']['name']}")
+                    new_predictions.extend(result.data)
+                    logging.info(f"Added game: {game['teams']['home']['name']} vs {game['teams']['away']['name']}")
                 
             except Exception as e:
                 logging.error(f"Error processing game: {str(e)}")
                 continue
         
-        return predictions
+        all_predictions = predictions + new_predictions
+        logging.info(f"Total predictions: {len(all_predictions)} ({len(new_predictions)} new)")
+        return all_predictions
         
     except Exception as e:
         st.error(f"Error fetching games: {str(e)}")
@@ -393,29 +401,53 @@ def load_predictions(include_live=False):
         return []
 
 def refresh_predictions():
-    """Delete existing predictions and generate new ones"""
+    """Refresh predictions by updating only missing or outdated ones"""
     try:
         now = datetime.now(timezone.utc)
         today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
         tomorrow_start = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
         
-        # Delete today's predictions
-        supabase.table('predictions').delete().gte('scheduled_start', today_start).lt('scheduled_start', tomorrow_start).execute()
-        logging.info("Deleted existing predictions for today")
+        # Get existing predictions for today
+        existing_predictions = (
+            supabase.table('predictions')
+            .select('*')
+            .gte('scheduled_start', today_start)
+            .lt('scheduled_start', tomorrow_start)
+            .execute()
+        )
+        logging.info(f"Loaded {len(existing_predictions.data) if existing_predictions.data else 0} predictions for today")
         
-        # Fetch new games and generate new predictions
+        # Create a set of existing game keys
+        existing_games = {
+            f"{pred['home_team']}_{pred['away_team']}_{pred['scheduled_start']}"
+            for pred in (existing_predictions.data or [])
+        }
+        
+        # Fetch new games and generate predictions only for missing games
         games = nba_client.get_upcoming_games()
         new_predictions = []
         
         if games:
             for game in games:
+                game_key = f"{game['teams']['home']['name']}_{game['teams']['away']['name']}_{game['date']['start']}"
+                
+                # Skip if prediction already exists
+                if game_key in existing_games:
+                    logging.info(f"Prediction already exists for {game['teams']['home']['name']} vs {game['teams']['away']['name']}")
+                    continue
+                
                 prediction = generate_prediction(game)
                 if prediction:
                     result = save_prediction(prediction)
                     if result and result.data:
                         new_predictions.extend(result.data)
+                        logging.info(f"Added game: {game['teams']['home']['name']} vs {game['teams']['away']['name']}")
         
-        return new_predictions
+        # Combine existing and new predictions
+        all_predictions = (existing_predictions.data or []) + new_predictions
+        logging.info(f"Found {len(games) if games else 0} upcoming games")
+        return all_predictions
+        
     except Exception as e:
         logging.error(f"Error refreshing predictions: {str(e)}")
         st.error(f"Error refreshing predictions: {str(e)}")
