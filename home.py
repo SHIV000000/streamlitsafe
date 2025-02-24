@@ -21,7 +21,13 @@ try:
     if not supabase:
         SUPABASE_URL = "https://jdvxisvtktunywgdtxvz.supabase.co"
         SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impkdnhpc3Z0a3R1bnl3Z2R0eHZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzOTE2MDAsImV4cCI6MjA1NTk2NzYwMH0.-Hdbq82ctFUCGjXkmzRDOUzlXkHjVZfp5ws4vpIFmi4"
-        supabase = Client(SUPABASE_URL, SUPABASE_KEY)
+        
+        # Initialize Supabase client with minimal configuration
+        from supabase.client import Client
+        supabase = Client(
+            supabase_url=SUPABASE_URL,
+            supabase_key=SUPABASE_KEY
+        )
         SessionState.set('supabase_client', supabase)
 except Exception as e:
     st.error(f"Error initializing Supabase client: {str(e)}")
