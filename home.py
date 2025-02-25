@@ -103,7 +103,10 @@ def save_prediction(prediction: Dict):
     try:
         supabase = init_supabase()
         
-        # Check for existing prediction
+        # Log the prediction object for debugging
+        logging.info(f"Saving prediction: {json.dumps(prediction, default=str)}")
+        
+        # Check for existing prediction with the same game details
         existing = (
             supabase.table('predictions')
             .select('*')
@@ -113,20 +116,54 @@ def save_prediction(prediction: Dict):
             .execute()
         )
         
+        # Filter prediction to only include fields that exist in the database schema
+        # Known valid fields based on the database schema
+        valid_fields = [
+            'id', 'created_at', 'home_team', 'away_team', 'predicted_winner',
+            'win_probability', 'home_score_min', 'home_score_max',
+            'away_score_min', 'away_score_max', 'scheduled_start'
+        ]
+        
+        filtered_prediction = {k: v for k, v in prediction.items() if k in valid_fields}
+        
         if existing.data:
-            # Update existing prediction
-            result = (
-                supabase.table('predictions')
-                .update(prediction)
-                .eq('id', existing.data[0]['id'])
-                .execute()
-            )
+            # Check if we need to update (if prediction has changed)
+            existing_pred = existing.data[0]
+            needs_update = False
+            
+            # Compare key fields to see if prediction has changed
+            for key in ['predicted_winner', 'win_probability', 'home_score_min', 
+                       'home_score_max', 'away_score_min', 'away_score_max']:
+                if key in filtered_prediction and str(filtered_prediction[key]) != str(existing_pred.get(key, '')):
+                    needs_update = True
+                    logging.info(f"Prediction changed for {key}: {existing_pred.get(key, '')} -> {filtered_prediction[key]}")
+                    break
+            
+            if needs_update:
+                # Update existing prediction
+                logging.info(f"Updating existing prediction for {prediction['home_team']} vs {prediction['away_team']}")
+                result = (
+                    supabase.table('predictions')
+                    .update(filtered_prediction)
+                    .eq('id', existing_pred['id'])
+                    .execute()
+                )
+                return result.data if result else None
+            else:
+                logging.info(f"Prediction already exists and hasn't changed for {prediction['home_team']} vs {prediction['away_team']}")
+                return existing_pred
         else:
             # Insert new prediction
-            prediction['id'] = str(uuid.uuid4())
-            result = supabase.table('predictions').insert(prediction).execute()
+            logging.info(f"Creating new prediction for {prediction['home_team']} vs {prediction['away_team']}")
             
-        return result.data if result else None
+            # Ensure we have an id field instead of prediction_id
+            if 'prediction_id' in filtered_prediction:
+                del filtered_prediction['prediction_id']  # Remove if it exists
+                
+            filtered_prediction['id'] = str(uuid.uuid4())
+            result = supabase.table('predictions').insert(filtered_prediction).execute()
+            
+            return result.data if result else None
         
     except Exception as e:
         logging.error(f"Error saving prediction: {str(e)}")
@@ -217,6 +254,18 @@ def show_predictions():
     for match in matches:
         prediction = generate_prediction(match)
         if prediction:
+            # Add created_at timestamp
+            prediction['created_at'] = datetime.now(timezone.utc).isoformat()
+            
+            # Save to database - only include fields that exist in the database schema
+            # Do not include username as it's not in the schema
+            saved_prediction = save_prediction(prediction)
+            
+            if saved_prediction:
+                logging.info(f"Saved prediction for {prediction['home_team']} vs {prediction['away_team']}")
+            else:
+                logging.warning(f"Failed to save prediction for {prediction['home_team']} vs {prediction['away_team']}")
+            
             with st.container():
                 # Create columns for better layout
                 col1, col2 = st.columns([3, 1])
@@ -238,11 +287,10 @@ def show_predictions():
                     st.write(game_time)
                     
                     winner = prediction['predicted_winner']
-                    winner_name = prediction['home_team'] if winner == 'home' else prediction['away_team']
                     prob = prediction['win_probability']
                     
                     st.markdown(f"**Predicted Winner:**")
-                    st.markdown(f"**{winner_name}**")
+                    st.markdown(f"**{winner}**")
                     st.markdown(f"**Win Probability:**")
                     st.markdown(f"**{prob:.1f}%**")
                 
@@ -279,7 +327,10 @@ def generate_prediction(game: Dict) -> Optional[Dict]:
         
         # Make prediction
         predictor = NBAPredictor()
-        winner, win_probability = predictor.predict_game(home_stats, away_stats)
+        winner_side, win_probability = predictor.predict_game(home_stats, away_stats)
+        
+        # Convert 'home'/'away' to actual team name
+        winner_team = home_team if winner_side == 'home' else away_team
         
         try:
             # Try to calculate score ranges
@@ -295,14 +346,14 @@ def generate_prediction(game: Dict) -> Optional[Dict]:
         prediction = {
             'home_team': home_team,
             'away_team': away_team,
-            'predicted_winner': winner,
+            'predicted_winner': winner_team,  # Store actual team name instead of 'home'/'away'
             'win_probability': win_probability,
             'home_score_min': home_score_range[0],
             'home_score_max': home_score_range[1],
             'away_score_min': away_score_range[0],
             'away_score_max': away_score_range[1],
-            'scheduled_start': game['date']['start'],
-            'prediction_id': str(uuid.uuid4())
+            'scheduled_start': game['date']['start']
+            # Removed prediction_id as it's not in the database schema
         }
         
         return prediction
