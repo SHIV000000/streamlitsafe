@@ -116,144 +116,110 @@ def apply_custom_styles():
         </style>
     """, unsafe_allow_html=True)
 
-def get_team_strength(team_name):
-    """Get team strength based on 2024 season performance (0.0 to 1.0 scale)"""
-    # Standardize team names
-    team_mapping = {
-        'LA Clippers': ['Los Angeles Clippers', 'LAC', 'LA Clippers'],
-        'Los Angeles Lakers': ['LA Lakers', 'LAL', 'Lakers'],
-        'Brooklyn Nets': ['BKN', 'Nets'],
-        'New York Knicks': ['NY Knicks', 'NYK'],
-        'Philadelphia 76ers': ['PHI', 'Sixers', '76ers'],
-        'Toronto Raptors': ['TOR'],
-        'Chicago Bulls': ['CHI'],
-        'Cleveland Cavaliers': ['CLE', 'Cavs'],
-        'Detroit Pistons': ['DET'],
-        'Indiana Pacers': ['IND'],
-        'Milwaukee Bucks': ['MIL'],
-        'Atlanta Hawks': ['ATL'],
-        'Charlotte Hornets': ['CHA'],
-        'Miami Heat': ['MIA'],
-        'Orlando Magic': ['ORL'],
-        'Washington Wizards': ['WAS'],
-        'Denver Nuggets': ['DEN'],
-        'Minnesota Timberwolves': ['MIN', 'Wolves'],
-        'Oklahoma City Thunder': ['OKC'],
-        'Portland Trail Blazers': ['POR', 'Blazers'],
-        'Utah Jazz': ['UTA'],
-        'Golden State Warriors': ['GSW', 'Warriors'],
-        'Phoenix Suns': ['PHX'],
-        'Sacramento Kings': ['SAC'],
-        'Dallas Mavericks': ['DAL', 'Mavs'],
-        'Houston Rockets': ['HOU'],
-        'Memphis Grizzlies': ['MEM'],
-        'New Orleans Pelicans': ['NOP', 'Pels'],
-        'San Antonio Spurs': ['SAS'],
-        'Boston Celtics': ['BOS']
-    }
-    
-    # Find the standardized team name
-    standardized_name = team_name
-    for full_name, variations in team_mapping.items():
-        if team_name in variations or team_name == full_name:
-            standardized_name = full_name
-            break
-    
-    # Team strength ratings (0.0 to 1.0 scale)
-    strength_ratings = {
-        'Boston Celtics': 0.95,
-        'Denver Nuggets': 0.90,
-        'Minnesota Timberwolves': 0.89,
-        'LA Clippers': 0.88,
-        'Oklahoma City Thunder': 0.87,
-        'Milwaukee Bucks': 0.86,
-        'Cleveland Cavaliers': 0.85,
-        'Phoenix Suns': 0.84,
-        'New York Knicks': 0.83,
-        'Sacramento Kings': 0.82,
-        'New Orleans Pelicans': 0.81,
-        'Dallas Mavericks': 0.80,
-        'Philadelphia 76ers': 0.79,
-        'Miami Heat': 0.78,
-        'Indiana Pacers': 0.77,
-        'Los Angeles Lakers': 0.76,
-        'Orlando Magic': 0.75,
-        'Golden State Warriors': 0.74,
-        'Houston Rockets': 0.73,
-        'Chicago Bulls': 0.72,
-        'Atlanta Hawks': 0.71,
-        'Utah Jazz': 0.70,
-        'Brooklyn Nets': 0.69,
-        'Toronto Raptors': 0.68,
-        'Memphis Grizzlies': 0.67,
-        'Portland Trail Blazers': 0.66,
-        'Washington Wizards': 0.64,
-        'Charlotte Hornets': 0.62,
-        'San Antonio Spurs': 0.61,
-        'Detroit Pistons': 0.55
-    }
-    
-    # Return team strength or default value
-    strength = strength_ratings.get(standardized_name)
-    if strength is None:
-        logging.warning(f"Unknown team name: {team_name} (standardized: {standardized_name})")
-        return 0.70  # Default strength for unknown teams
-    return strength
+def get_team_stats(team_name):
+    """Get team statistics from NBA API."""
+    try:
+        # Get team stats from the API
+        stats = nba_client.get_team_stats(team_name)
+        if not stats:
+            logging.warning(f"No stats found for team: {team_name}")
+            return None
+        
+        # Extract relevant statistics
+        team_stats = {
+            'wins': stats.get('wins', 0),
+            'losses': stats.get('losses', 0),
+            'points_per_game': float(stats.get('points_per_game', 110)),
+            'points_allowed': float(stats.get('points_allowed', 110)),
+            'field_goal_pct': float(stats.get('field_goal_pct', 45)),
+            'three_point_pct': float(stats.get('three_point_pct', 35)),
+            'win_streak': int(stats.get('win_streak', 0)),
+            'last_ten': stats.get('last_ten', {'wins': 5, 'losses': 5}),
+            'home_record': stats.get('home_record', {'wins': 0, 'losses': 0}),
+            'away_record': stats.get('away_record', {'wins': 0, 'losses': 0})
+        }
+        return team_stats
+    except Exception as e:
+        logging.error(f"Error getting team stats for {team_name}: {str(e)}")
+        return None
 
 def generate_prediction(game):
     try:
         home_team = game['teams']['home']
         away_team = game['teams']['away']
         
-        home_strength = get_team_strength(home_team['name'])
-        away_strength = get_team_strength(away_team['name'])
+        # Get team statistics
+        home_stats = get_team_stats(home_team['name'])
+        away_stats = get_team_stats(away_team['name'])
         
-        # Calculate win probability with higher impact of strength difference
-        strength_diff = home_strength - away_strength
-        home_advantage = 0.04
-        win_prob = 0.5 + (strength_diff * 5.0) + home_advantage
+        if not home_stats or not away_stats:
+            logging.error("Missing team statistics")
+            return None
+            
+        # Calculate win probability based on multiple factors
+        home_win_pct = home_stats['wins'] / max(1, home_stats['wins'] + home_stats['losses'])
+        away_win_pct = away_stats['wins'] / max(1, away_stats['wins'] + away_stats['losses'])
         
-        # Force higher probabilities for big strength differences
-        if abs(strength_diff) > 0.2:
-            if strength_diff > 0:
-                win_prob = max(0.75, win_prob)
-            else:
-                win_prob = min(0.25, win_prob)
+        # Calculate offensive and defensive ratings
+        home_off_rating = home_stats['points_per_game']
+        home_def_rating = home_stats['points_allowed']
+        away_off_rating = away_stats['points_per_game']
+        away_def_rating = away_stats['points_allowed']
         
-        win_prob = max(0.05, min(0.95, win_prob + random.uniform(-0.02, 0.02)))
+        # Calculate net ratings
+        home_net_rating = home_off_rating - home_def_rating
+        away_net_rating = away_off_rating - away_def_rating
+        
+        # Calculate home/away performance factor
+        home_record = home_stats['home_record']
+        away_record = away_stats['away_record']
+        home_home_win_pct = home_record['wins'] / max(1, home_record['wins'] + home_record['losses'])
+        away_away_win_pct = away_record['wins'] / max(1, away_record['wins'] + away_record['losses'])
+        
+        # Calculate recent form (last 10 games)
+        home_form = home_stats['last_ten']['wins'] / 10
+        away_form = away_stats['last_ten']['wins'] / 10
+        
+        # Calculate win probability
+        win_prob = 0.5
+        win_prob += (home_win_pct - away_win_pct) * 0.15  # Season record impact
+        win_prob += (home_net_rating - away_net_rating) * 0.02  # Net rating impact
+        win_prob += (home_home_win_pct - away_away_win_pct) * 0.1  # Home/Away record impact
+        win_prob += (home_form - away_form) * 0.1  # Recent form impact
+        win_prob += 0.04  # Home court advantage
+        
+        # Adjust for win streaks
+        win_prob += (home_stats['win_streak'] - away_stats['win_streak']) * 0.01
+        
+        # Ensure probability is within bounds
+        win_prob = max(0.2, min(0.8, win_prob))
         
         predicted_winner = home_team['name'] if win_prob > 0.5 else away_team['name']
         if win_prob <= 0.5:
             win_prob = 1 - win_prob
+            
+        # Calculate score ranges based on team stats
+        home_base = home_stats['points_per_game']
+        away_base = away_stats['points_per_game']
         
-        # Calculate scores based on team strengths
-        league_avg = 115.0
-        home_base = league_avg + ((home_strength - 0.70) * 30) + 3.5
-        away_base = league_avg + ((away_strength - 0.70) * 30)
+        # Adjust for opponent's defense
+        home_base = (home_base + (110 - away_stats['points_allowed'])) / 2
+        away_base = (away_base + (110 - home_stats['points_allowed'])) / 2
         
-        # Adjust scores based on win probability
-        score_adjust = (win_prob - 0.5) * 15
-        if predicted_winner == home_team['name']:
-            home_base += score_adjust
-            away_base -= score_adjust * 0.7
-        else:
-            away_base += score_adjust
-            home_base -= score_adjust * 0.7
-        
-        # Add variance
-        home_var = random.uniform(8, 11) if home_strength > 0.8 else random.uniform(9, 13)
-        away_var = random.uniform(8, 11) if away_strength > 0.8 else random.uniform(9, 13)
+        # Add variance based on shooting percentages
+        home_var = 5 + (home_stats['field_goal_pct'] / 10)
+        away_var = 5 + (away_stats['field_goal_pct'] / 10)
         
         return {
             'id': str(uuid.uuid4()),
             'home_team': home_team['name'],
             'away_team': away_team['name'],
             'predicted_winner': predicted_winner,
-            'win_probability': round(win_prob, 3),
+            'win_probability': round(win_prob * 100, 1),
             'scheduled_start': game['date']['start'],
-            'home_score_min': max(100, int(home_base - home_var)),
+            'home_score_min': max(85, int(home_base - home_var)),
             'home_score_max': min(140, int(home_base + home_var)),
-            'away_score_min': max(100, int(away_base - away_var)),
+            'away_score_min': max(85, int(away_base - away_var)),
             'away_score_max': min(140, int(away_base + away_var)),
             'created_at': datetime.now(timezone.utc).isoformat(),
             'updated_at': datetime.now(timezone.utc).isoformat()
@@ -532,7 +498,7 @@ def display_game_card(prediction):
         home_score = f"{prediction['home_score_min']}-{prediction['home_score_max']}"
         away_score = f"{prediction['away_score_min']}-{prediction['away_score_max']}"
         game_time_str = ist_time.strftime('%Y-%m-%d %H:%M IST')
-        win_prob = f"{prediction['win_probability']*100:.1f}"
+        win_prob = f"{prediction['win_probability']}%"
         
         # Create a container for the prediction card
         with st.container():
@@ -551,7 +517,7 @@ def display_game_card(prediction):
             st.write(f"Score Range: {away_score}")
             
             # Prediction result
-            st.info(f"Predicted Winner: {prediction['predicted_winner']}\nWin Probability: {win_prob}%")
+            st.info(f"Predicted Winner: {prediction['predicted_winner']}\nWin Probability: {win_prob}")
             
     except Exception as e:
         st.error(f"Error displaying prediction: {str(e)}")

@@ -460,101 +460,115 @@ class EnhancedNBAApiClient:
                 
         return processed_games
 
-    def get_team_stats(self, team_id: str) -> Dict:
-        """Get team statistics with proper error handling and ID validation."""
+    def get_team_stats(self, team_name: str) -> Dict:
+        """Get team statistics for prediction."""
         try:
-            validated_id = self._validate_team_id(team_id)
-            endpoint = f"{self.base_url}/teams/statistics"
+            # Standardize team name
+            team_name = self.standardize_team_name(team_name)
+            
+            # Try to get from cache first
+            cache_key = f"team_stats_{team_name}"
+            if cache_key in self._cache:
+                return self._cache[cache_key]
+            
+            # Get team ID
+            team_id = self._get_team_id(team_name)
+            if not team_id:
+                logging.error(f"Could not find team ID for {team_name}")
+                return None
+            
+            # Get team statistics
+            url = f"{self.base_url}/teams/statistics"
             params = {
-                'id': validated_id,
-                'season': self.current_season
+                "id": team_id,
+                "season": self.current_season
             }
             
-            response = self._make_request('GET', endpoint, params)
-            stats = response.get('response', [])
+            response = self._make_request("GET", url, params=params)
+            if not response or 'response' not in response:
+                logging.error(f"No statistics found for team {team_name}")
+                return None
             
-            if not stats:
-                # Try previous season if current season stats not available
-                params['season'] = self.previous_season
-                response = self._make_request('GET', endpoint, params)
-                stats = response.get('response', [])
+            stats = response['response'][0]
             
-            if stats and len(stats) > 0:
-                return self.process_team_stats(stats[0])
-            
-            # Return default stats structure if no data found
-            return {
-                'statistics': [{
-                    'points': 0.0,
-                    'fieldGoalsPercentage': 0.0,
-                    'threePointsPercentage': 0.0,
-                    'freeThrowsPercentage': 0.0,
-                    'reboundsTotal': 0.0,
-                    'assists': 0.0,
-                    'steals': 0.0,
-                    'blocks': 0.0,
-                    'turnovers': 0.0,
-                    'games': 0,
-                    'wins': 0
-                }]
+            # Get team games for additional stats
+            games_url = f"{self.base_url}/games"
+            games_params = {
+                "team": team_id,
+                "season": self.current_season
             }
+            
+            games_response = self._make_request("GET", games_url, params=games_params)
+            if not games_response or 'response' not in games_response:
+                logging.error(f"No games found for team {team_name}")
+                return None
+            
+            # Calculate win streak and last 10 games record
+            games = sorted(games_response['response'], key=lambda x: x['date']['start'], reverse=True)
+            win_streak = 0
+            last_ten = {'wins': 0, 'losses': 0}
+            home_record = {'wins': 0, 'losses': 0}
+            away_record = {'wins': 0, 'losses': 0}
+            
+            for i, game in enumerate(games):
+                if i < 10:  # Last 10 games
+                    if game['scores']['home']['points'] > game['scores']['visitors']['points']:
+                        if game['teams']['home']['name'] == team_name:
+                            last_ten['wins'] += 1
+                        else:
+                            last_ten['losses'] += 1
+                    else:
+                        if game['teams']['home']['name'] == team_name:
+                            last_ten['losses'] += 1
+                        else:
+                            last_ten['wins'] += 1
+                
+                # Calculate home/away record
+                is_home = game['teams']['home']['name'] == team_name
+                if is_home:
+                    if game['scores']['home']['points'] > game['scores']['visitors']['points']:
+                        home_record['wins'] += 1
+                    else:
+                        home_record['losses'] += 1
+                else:
+                    if game['scores']['visitors']['points'] > game['scores']['home']['points']:
+                        away_record['wins'] += 1
+                    else:
+                        away_record['losses'] += 1
+                
+                # Calculate win streak
+                if i == 0:  # Most recent game
+                    if (is_home and game['scores']['home']['points'] > game['scores']['visitors']['points']) or \
+                       (not is_home and game['scores']['visitors']['points'] > game['scores']['home']['points']):
+                        win_streak = 1
+                elif win_streak > 0:  # Check if streak continues
+                    if (is_home and game['scores']['home']['points'] > game['scores']['visitors']['points']) or \
+                       (not is_home and game['scores']['visitors']['points'] > game['scores']['home']['points']):
+                        win_streak += 1
+                    else:
+                        break
+            
+            # Compile all stats
+            team_stats = {
+                'wins': stats['games']['wins']['all'],
+                'losses': stats['games']['loses']['all'],
+                'points_per_game': stats['points']['for']['average']['all'],
+                'points_allowed': stats['points']['against']['average']['all'],
+                'field_goal_pct': stats['statistics']['fgp'],
+                'three_point_pct': stats['statistics']['tpp'],
+                'win_streak': win_streak,
+                'last_ten': last_ten,
+                'home_record': home_record,
+                'away_record': away_record
+            }
+            
+            # Cache the results
+            self._cache[cache_key] = team_stats
+            return team_stats
             
         except Exception as e:
-            logging.error(f"Error fetching team stats for ID {team_id}: {str(e)}")
-            return {'statistics': [{}]}
-
-    def _get_season_stats(self, team_id: str, season: str) -> Dict:
-        """Helper method to get stats for a specific season."""
-        endpoint = f"{self.base_url}/teams/statistics"
-        params = {
-            'id': team_id,
-            'season': season
-        }
-        
-        response = self._make_request('GET', endpoint, params)
-        stats = response.get('response', [])
-        
-        return self.process_team_stats(stats[0]) if stats else {}
-
-    def process_team_stats(self, stats: Dict) -> Dict:
-        """Process raw team statistics into required format."""
-        try:
-            games = float(stats.get('games', 1))
-            if games == 0:
-                games = 1
-            
-            return {
-                'statistics': [{
-                    'points': float(stats.get('points', 0)) / games,
-                    'fieldGoalsPercentage': float(stats.get('fgp', 0)),
-                    'threePointsPercentage': float(stats.get('tpp', 0)),
-                    'freeThrowsPercentage': float(stats.get('ftp', 0)),
-                    'reboundsTotal': float(stats.get('totReb', 0)) / games,
-                    'assists': float(stats.get('assists', 0)) / games,
-                    'steals': float(stats.get('steals', 0)) / games,
-                    'blocks': float(stats.get('blocks', 0)) / games,
-                    'turnovers': float(stats.get('turnovers', 0)) / games,
-                    'games': games,
-                    'wins': float(stats.get('wins', 0))
-                }]
-            }
-        except Exception as e:
-            logging.error(f"Error processing team stats: {str(e)}")
-            return {
-                'statistics': [{
-                    'points': 0.0,
-                    'fieldGoalsPercentage': 0.0,
-                    'threePointsPercentage': 0.0,
-                    'freeThrowsPercentage': 0.0,
-                    'reboundsTotal': 0.0,
-                    'assists': 0.0,
-                    'steals': 0.0,
-                    'blocks': 0.0,
-                    'turnovers': 0.0,
-                    'games': 0,
-                    'wins': 0
-                }]
-            }
+            logging.error(f"Error getting team stats for {team_name}: {str(e)}")
+            return None
 
     def get_game_statistics(self, game_id: str) -> Dict:
         """Get detailed game statistics."""
@@ -606,6 +620,46 @@ class EnhancedNBAApiClient:
         except Exception as e:
             logging.error(f"Error fetching alternative team stats for ID {team_id}: {str(e)}")
             return {}
+
+    def process_team_stats(self, stats: Dict) -> Dict:
+        """Process raw team statistics into required format."""
+        try:
+            games = float(stats.get('games', 1))
+            if games == 0:
+                games = 1
+            
+            return {
+                'statistics': [{
+                    'points': float(stats.get('points', 0)) / games,
+                    'fieldGoalsPercentage': float(stats.get('fgp', 0)),
+                    'threePointsPercentage': float(stats.get('tpp', 0)),
+                    'freeThrowsPercentage': float(stats.get('ftp', 0)),
+                    'reboundsTotal': float(stats.get('totReb', 0)) / games,
+                    'assists': float(stats.get('assists', 0)) / games,
+                    'steals': float(stats.get('steals', 0)) / games,
+                    'blocks': float(stats.get('blocks', 0)) / games,
+                    'turnovers': float(stats.get('turnovers', 0)) / games,
+                    'games': games,
+                    'wins': float(stats.get('wins', 0))
+                }]
+            }
+        except Exception as e:
+            logging.error(f"Error processing team stats: {str(e)}")
+            return {
+                'statistics': [{
+                    'points': 0.0,
+                    'fieldGoalsPercentage': 0.0,
+                    'threePointsPercentage': 0.0,
+                    'freeThrowsPercentage': 0.0,
+                    'reboundsTotal': 0.0,
+                    'assists': 0.0,
+                    'steals': 0.0,
+                    'blocks': 0.0,
+                    'turnovers': 0.0,
+                    'games': 0,
+                    'wins': 0
+                }]
+            }
 
     def get_game_results(self, date: str) -> List[Dict]:
         """
