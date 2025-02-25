@@ -634,7 +634,7 @@ def show_login_page():
         password = st.text_input("Password", type="password")
         
         if st.button("Login"):
-            if username == "admin" and password == "admin":
+            if username == "match_wizard" and password == "GoalMaster":
                 SessionState.authenticated = True
                 st.success("Login successful!")
                 st.experimental_rerun()
