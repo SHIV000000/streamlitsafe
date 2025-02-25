@@ -1,9 +1,0 @@
-# config.yaml
-
-credentials:
-  username: matchday_wizard
-  password: GoalMaster
-cookie:
-  expiry_days: 30
-  key: nba_predictions_signature_key
-  name: nba_predictions_auth

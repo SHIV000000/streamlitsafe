@@ -210,40 +210,77 @@ class NBAPredictor:
             # Return zero-filled array as fallback
             return np.zeros((1, len(self.feature_names)))
 
-    def predict_game(self, home_stats: Dict, away_stats: Dict) -> Tuple[float, Dict[str, float]]:
-        """Make prediction for a game."""
+    def predict_game(self, features: Dict) -> Tuple[str, float]:
+        """Make prediction using ensemble of models."""
         try:
-            # Use prepare_features directly instead of _prepare_feature_dict
-            features = self.prepare_features(home_stats, away_stats)
+            # Scale features
+            feature_vector = self._prepare_feature_vector(features)
+            scaled_features = self.scaler.transform([feature_vector])
             
             # Get predictions from each model
             predictions = {}
-            for name, model in self.models.items():
+            probabilities = {}
+            
+            for model_name, model in self.models.items():
                 try:
-                    # All models now use predict_proba
-                    pred = model.predict_proba(features)[0][1]
-                    predictions[name] = float(pred)
+                    pred = model.predict(scaled_features)[0]
+                    prob = model.predict_proba(scaled_features)[0]
+                    predictions[model_name] = pred
+                    probabilities[model_name] = prob
                 except Exception as e:
-                    logging.error(f"Error getting prediction from {name} model: {str(e)}")
+                    logging.error(f"Error with {model_name} prediction: {str(e)}")
                     continue
-
+            
             if not predictions:
-                raise ValueError("No valid predictions obtained from any model")
-
-            # Calculate weighted ensemble prediction
-            ensemble_pred = sum(
-                pred * self.model_weights[name]
-                for name, pred in predictions.items()
-            ) / sum(
-                self.model_weights[name]
-                for name in predictions.keys()
-            )
-
-            return ensemble_pred, predictions
-
+                raise ValueError("No models were able to make predictions")
+            
+            # Calculate weighted average probability
+            weighted_prob = 0
+            total_weight = 0
+            
+            for model_name, prob in probabilities.items():
+                weight = self.model_weights.get(model_name, 1.0)
+                weighted_prob += prob[1] * weight  # prob[1] is probability of home team winning
+                total_weight += weight
+            
+            final_prob = weighted_prob / total_weight if total_weight > 0 else 0.5
+            
+            # Determine winner based on probability
+            is_home_win = final_prob > 0.5
+            
+            return ('home' if is_home_win else 'away', final_prob if is_home_win else 1 - final_prob)
+            
         except Exception as e:
-            logging.error(f"Error making prediction: {str(e)}")
-            raise
+            logging.error(f"Error making prediction: {str(e)}", exc_info=True)
+            return ('unknown', 0.5)
+
+    def predict_score_range(self, team_stats: Dict, opponent_stats: Dict, is_home: bool) -> Tuple[int, int]:
+        """Predict score range for a team."""
+        try:
+            # Get base scoring stats
+            points_per_game = float(team_stats.get('points_per_game', 110))
+            opp_points_allowed = float(opponent_stats.get('points_allowed', 110))
+            
+            # Calculate expected points
+            expected_points = (points_per_game + (110 - opp_points_allowed)) / 2
+            
+            # Add home court adjustment
+            if is_home:
+                expected_points += 2.5
+            
+            # Calculate variance based on shooting percentages
+            fg_pct = float(team_stats.get('field_goal_pct', 45))
+            variance = 5 + (fg_pct / 10)
+            
+            # Return score range
+            min_score = max(85, int(expected_points - variance))
+            max_score = min(140, int(expected_points + variance))
+            
+            return (min_score, max_score)
+            
+        except Exception as e:
+            logging.error(f"Error predicting score range: {str(e)}")
+            return (100, 110)
 
     def _create_feature_array(self, features_dict: Dict[str, float]) -> np.ndarray:
         """Create numpy array from features dictionary."""
@@ -768,6 +805,7 @@ class NBAPredictor:
             strength = (win_pct * 0.6) + (point_diff * 0.002)  # Small weight for point diff
             
             return strength
+            
         except Exception as e:
             logging.error(f"Error calculating team strength: {str(e)}")
             return 0.5

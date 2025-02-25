@@ -11,6 +11,9 @@ from api_client import EnhancedNBAApiClient
 import logging
 import random
 import uuid
+import json
+import time
+from nba_predictor import NBAPredictor
 
 # Initialize session state
 SessionState.init_state()
@@ -33,9 +36,11 @@ except Exception as e:
     st.error(f"Error initializing Supabase client: {str(e)}")
     supabase = None
 
-# Initialize NBA API client
-NBA_API_KEY = "918ef216c6msh607da23f482096fp198faajsnc648d53dadc5"
-nba_client = EnhancedNBAApiClient(NBA_API_KEY)
+# Initialize NBA API client with your API key
+nba_client = EnhancedNBAApiClient(api_key="918ef216c6msh607da23f482096fp198faajsnc648d53dadc5")  # Replace with your actual API key
+
+# Initialize predictor with models path
+predictor = NBAPredictor(models_path="models")
 
 def apply_custom_styles():
     """Apply custom CSS styling to the app."""
@@ -117,115 +122,70 @@ def apply_custom_styles():
     """, unsafe_allow_html=True)
 
 def get_team_stats(team_name):
-    """Get team statistics from NBA API."""
-    try:
-        # Get team stats from the API
-        stats = nba_client.get_team_stats(team_name)
-        if not stats:
-            logging.warning(f"No stats found for team: {team_name}")
-            return None
-        
-        # Extract relevant statistics
-        team_stats = {
-            'wins': stats.get('wins', 0),
-            'losses': stats.get('losses', 0),
-            'points_per_game': float(stats.get('points_per_game', 110)),
-            'points_allowed': float(stats.get('points_allowed', 110)),
-            'field_goal_pct': float(stats.get('field_goal_pct', 45)),
-            'three_point_pct': float(stats.get('three_point_pct', 35)),
-            'win_streak': int(stats.get('win_streak', 0)),
-            'last_ten': stats.get('last_ten', {'wins': 5, 'losses': 5}),
-            'home_record': stats.get('home_record', {'wins': 0, 'losses': 0}),
-            'away_record': stats.get('away_record', {'wins': 0, 'losses': 0})
-        }
-        return team_stats
-    except Exception as e:
-        logging.error(f"Error getting team stats for {team_name}: {str(e)}")
-        return None
+    """Get team statistics from NBA API with retries."""
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            stats = nba_client.get_team_stats(team_name)
+            if stats:
+                logging.info(f"Successfully fetched stats for {team_name}")
+                return stats
+            else:
+                logging.warning(f"No stats found for {team_name}, attempt {attempt + 1}/{max_retries}")
+                time.sleep(2 ** attempt)  # Exponential backoff
+        except Exception as e:
+            logging.error(f"Error fetching stats for {team_name}: {str(e)}")
+            if attempt < max_retries - 1:
+                time.sleep(2 ** attempt)
+            else:
+                return None
+    return None
 
 def generate_prediction(game):
+    """Generate prediction with proper error handling and logging."""
     try:
         home_team = game['teams']['home']
         away_team = game['teams']['away']
         
-        # Get team statistics
+        # Get team statistics with retries
         home_stats = get_team_stats(home_team['name'])
         away_stats = get_team_stats(away_team['name'])
         
         if not home_stats or not away_stats:
-            logging.error("Missing team statistics")
+            logging.error(f"Missing stats for {home_team['name']} or {away_team['name']}")
             return None
             
-        # Calculate win probability based on multiple factors
-        home_win_pct = home_stats['wins'] / max(1, home_stats['wins'] + home_stats['losses'])
-        away_win_pct = away_stats['wins'] / max(1, away_stats['wins'] + away_stats['losses'])
+        # Log the stats we're using
+        logging.info(f"Home team ({home_team['name']}) stats: {json.dumps(home_stats, indent=2)}")
+        logging.info(f"Away team ({away_team['name']}) stats: {json.dumps(away_stats, indent=2)}")
         
-        # Calculate offensive and defensive ratings
-        home_off_rating = home_stats['points_per_game']
-        home_def_rating = home_stats['points_allowed']
-        away_off_rating = away_stats['points_per_game']
-        away_def_rating = away_stats['points_allowed']
+        # Prepare features for prediction
+        features = predictor.prepare_features(home_stats, away_stats)
         
-        # Calculate net ratings
-        home_net_rating = home_off_rating - home_def_rating
-        away_net_rating = away_off_rating - away_def_rating
+        # Get prediction from ML models
+        winner, probability = predictor.predict_game(features)
         
-        # Calculate home/away performance factor
-        home_record = home_stats['home_record']
-        away_record = away_stats['away_record']
-        home_home_win_pct = home_record['wins'] / max(1, home_record['wins'] + home_record['losses'])
-        away_away_win_pct = away_record['wins'] / max(1, away_record['wins'] + away_record['losses'])
-        
-        # Calculate recent form (last 10 games)
-        home_form = home_stats['last_ten']['wins'] / 10
-        away_form = away_stats['last_ten']['wins'] / 10
-        
-        # Calculate win probability
-        win_prob = 0.5
-        win_prob += (home_win_pct - away_win_pct) * 0.15  # Season record impact
-        win_prob += (home_net_rating - away_net_rating) * 0.02  # Net rating impact
-        win_prob += (home_home_win_pct - away_away_win_pct) * 0.1  # Home/Away record impact
-        win_prob += (home_form - away_form) * 0.1  # Recent form impact
-        win_prob += 0.04  # Home court advantage
-        
-        # Adjust for win streaks
-        win_prob += (home_stats['win_streak'] - away_stats['win_streak']) * 0.01
-        
-        # Ensure probability is within bounds
-        win_prob = max(0.2, min(0.8, win_prob))
-        
-        predicted_winner = home_team['name'] if win_prob > 0.5 else away_team['name']
-        if win_prob <= 0.5:
-            win_prob = 1 - win_prob
-            
-        # Calculate score ranges based on team stats
-        home_base = home_stats['points_per_game']
-        away_base = away_stats['points_per_game']
-        
-        # Adjust for opponent's defense
-        home_base = (home_base + (110 - away_stats['points_allowed'])) / 2
-        away_base = (away_base + (110 - home_stats['points_allowed'])) / 2
-        
-        # Add variance based on shooting percentages
-        home_var = 5 + (home_stats['field_goal_pct'] / 10)
-        away_var = 5 + (away_stats['field_goal_pct'] / 10)
+        # Calculate score ranges
+        home_score_range = predictor.predict_score_range(home_stats, away_stats, is_home=True)
+        away_score_range = predictor.predict_score_range(away_stats, home_stats, is_home=False)
         
         return {
             'id': str(uuid.uuid4()),
             'home_team': home_team['name'],
             'away_team': away_team['name'],
-            'predicted_winner': predicted_winner,
-            'win_probability': round(win_prob * 100, 1),
+            'predicted_winner': winner,
+            'win_probability': round(probability * 100, 1),
             'scheduled_start': game['date']['start'],
-            'home_score_min': max(85, int(home_base - home_var)),
-            'home_score_max': min(140, int(home_base + home_var)),
-            'away_score_min': max(85, int(away_base - away_var)),
-            'away_score_max': min(140, int(away_base + away_var)),
+            'home_score_min': home_score_range[0],
+            'home_score_max': home_score_range[1],
+            'away_score_min': away_score_range[0],
+            'away_score_max': away_score_range[1],
             'created_at': datetime.now(timezone.utc).isoformat(),
             'updated_at': datetime.now(timezone.utc).isoformat()
         }
+        
     except Exception as e:
-        logging.error(f"Error generating prediction: {str(e)}")
+        logging.error(f"Error generating prediction: {str(e)}", exc_info=True)
         return None
 
 def fetch_and_save_games():

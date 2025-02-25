@@ -124,29 +124,47 @@ class EnhancedNBAApiClient:
             logging.error(f"Invalid team ID: {team_id}. Error: {str(e)}")
             raise ValueError(f"Invalid team ID: {team_id}")
 
-    def _make_request(self, method: str, endpoint: str, params: Dict = None) -> Dict:
-        """Make API request with retry logic and error handling."""
-        max_retries = 3
-        retry_delay = 5
-        
-        for attempt in range(max_retries):
+    def _make_request(self, method: str, url: str, params: Dict = None, max_retries: int = 3) -> Dict:
+        """Make an API request with proper error handling and retries."""
+        current_retry = 0
+        while current_retry < max_retries:
             try:
+                # Use proper headers for NBA API
+                headers = {
+                    'x-rapidapi-host': 'v2.nba.api-sports.io',
+                    'x-rapidapi-key': self.api_key
+                }
+                
                 response = requests.request(
                     method,
-                    endpoint,
-                    headers=self.headers,
+                    url,
+                    headers=headers,
                     params=params,
                     timeout=30
                 )
-                response.raise_for_status()
-                return response.json()
-            except requests.exceptions.RequestException as e:
-                logging.error(f"API request failed (attempt {attempt + 1}/{max_retries}): {str(e)}")
-                if attempt < max_retries - 1:
-                    sleep(retry_delay)
+                
+                # Log the request details for debugging
+                logging.debug(f"API Request - URL: {url}, Method: {method}, Params: {params}")
+                logging.debug(f"API Response Status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    return response.json()
+                elif response.status_code == 429:  # Rate limit exceeded
+                    wait_time = int(response.headers.get('Retry-After', 60))
+                    logging.warning(f"Rate limit exceeded. Waiting {wait_time} seconds.")
+                    sleep(wait_time)
+                    current_retry += 1
                 else:
-                    raise
-        return {}
+                    logging.error(f"API request failed with status {response.status_code}: {response.text}")
+                    current_retry += 1
+                    sleep(2 ** current_retry)  # Exponential backoff
+                    
+            except Exception as e:
+                logging.error(f"Error making API request: {str(e)}")
+                current_retry += 1
+                sleep(2 ** current_retry)
+                
+        return {}  # Return empty dict after all retries failed
 
     def get_upcoming_games(self, *, start_date=None, end_date=None) -> List[Dict]:
         """
