@@ -8,8 +8,8 @@ import requests
 from nba_api_client import NBAGameResultsFetcher
 from prediction_service import NBAPredictor
 from nba_stats import NBA_TEAM_STATS
-from session_state import SessionState
-from supabase import Client
+from session_state import init_session_state, is_logged_in, login, logout, get_username
+from supabase import Client, create_client
 
 # Configure logging
 logging.basicConfig(
@@ -25,16 +25,15 @@ logging.basicConfig(
 nba_client = NBAGameResultsFetcher()
 predictor = NBAPredictor()
 
-# Initialize Supabase client
+# Supabase configuration
 SUPABASE_URL = "https://jdvxisvtktunywgdtxvz.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impkdnhpc3Z0a3R1bnl3Z2R0eHZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDAzOTE2MDAsImV4cCI6MjA1NTk2NzYwMH0.-Hdbq82ctFUCGjXkmzRDOUzlXkHjVZfp5ws4vpIFmi4"
 
 def init_supabase():
-    """Initialize Supabase client if not already initialized."""
-    if not SessionState.get('supabase_client'):
-        supabase = Client(SUPABASE_URL, SUPABASE_KEY)
-        SessionState.set('supabase_client', supabase)
-    return SessionState.get('supabase_client')
+    """Initialize Supabase client."""
+    if 'supabase' not in st.session_state:
+        st.session_state.supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    return st.session_state.supabase
 
 def get_todays_matches():
     """Get today's matches from NBA API."""
@@ -135,7 +134,7 @@ def save_prediction(prediction: Dict):
 
 def show_login():
     """Show login page."""
-    st.title("🏀 NBA Game Predictions")
+    st.title("🔒 Login")
     
     with st.form("login_form"):
         username = st.text_input("Username")
@@ -144,7 +143,7 @@ def show_login():
         
         if submit:
             if username == "match_wizard" and password == "GoalMaster":
-                st.session_state.logged_in = True
+                login(username)
                 st.success("✅ Login successful!")
                 st.rerun()
             else:
@@ -152,7 +151,6 @@ def show_login():
 
 def show_navigation():
     """Show navigation bar."""
-    # Add custom CSS for navigation bar
     st.markdown("""
         <style>
         .navbar {
@@ -169,9 +167,9 @@ def show_navigation():
             gap: 2rem;
         }
         .nav-link {
-            text-decoration: none;
             color: #1f77b4;
             font-weight: bold;
+            cursor: pointer;
         }
         .nav-link:hover {
             color: #0056b3;
@@ -182,15 +180,19 @@ def show_navigation():
             font-weight: bold;
         }
         </style>
-        
-        <div class="navbar">
-            <div class="nav-links">
-                <a href="/" class="nav-link">Home</a>
-                <a href="/History" class="nav-link">History</a>
-            </div>
-            <div class="logout-btn" onclick="window.location.href='/'">Logout</div>
-        </div>
     """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([2,2,1])
+    
+    with col1:
+        st.markdown(f"👤 Welcome, {get_username()}")
+    with col2:
+        if st.button("📊 History"):
+            st.switch_page("pages/01_History.py")
+    with col3:
+        if st.button("🚪 Logout"):
+            logout()
+            st.rerun()
 
 def show_predictions():
     """Show predictions page."""
@@ -325,9 +327,8 @@ def format_game_time(utc_time: str) -> str:
 def main():
     """Main function."""
     # Initialize session state
-    if 'logged_in' not in st.session_state:
-        st.session_state.logged_in = False
-        
+    init_session_state()
+    
     # Hide Streamlit's default menu and footer
     hide_streamlit_style = """
         <style>
@@ -338,10 +339,10 @@ def main():
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
     
     # Show login page if not logged in
-    if not st.session_state.logged_in:
+    if not is_logged_in():
         show_login()
     else:
         show_predictions()
-        
+
 if __name__ == "__main__":
     main()

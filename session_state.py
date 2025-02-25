@@ -1,67 +1,30 @@
 import streamlit as st
 
-class SessionState:
-    """Class to manage session state."""
-    
-    @staticmethod
-    def init_state():
-        """Initialize session state variables."""
-        if 'authenticated' not in st.session_state:
-            st.session_state.authenticated = False
-            
-        if 'username' not in st.session_state:
-            st.session_state.username = None
-            
-        if 'current_page' not in st.session_state:
-            st.session_state.current_page = 'home'
-            
-        if 'supabase_client' not in st.session_state:
-            st.session_state.supabase_client = None
-            
-    @staticmethod
-    def login(username: str):
-        """Set login state."""
-        st.session_state.authenticated = True
-        st.session_state.username = username
-        
-    @staticmethod
-    def logout():
-        """Clear login state."""
-        st.session_state.authenticated = False
+def init_session_state():
+    """Initialize session state variables."""
+    if 'logged_in' not in st.session_state:
+        st.session_state.logged_in = False
+    if 'username' not in st.session_state:
         st.session_state.username = None
-        
-    @staticmethod
-    def is_authenticated() -> bool:
-        """Check if user is authenticated."""
-        return st.session_state.get('authenticated', False)
-        
-    @staticmethod
-    def get_username() -> str:
-        """Get current username."""
-        return st.session_state.get('username', None)
-        
-    @staticmethod
-    def set_page(page: str):
-        """Set current page."""
-        st.session_state.current_page = page
-        
-    @staticmethod
-    def get_page() -> str:
-        """Get current page."""
-        return st.session_state.get('current_page', 'home')
-        
-    @staticmethod
-    def get(key):
-        """Get a value from session state."""
-        return st.session_state.get(key)
-        
-    @staticmethod
-    def set(key, value):
-        """Set a value in session state."""
-        st.session_state[key] = value
-        
-    @staticmethod
-    def clear():
-        """Clear all session state variables."""
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
+    if 'init_done' not in st.session_state:
+        st.session_state.init_done = True
+
+def login(username: str):
+    """Log in a user."""
+    st.session_state.logged_in = True
+    st.session_state.username = username
+
+def logout():
+    """Log out the current user."""
+    st.session_state.logged_in = False
+    st.session_state.username = None
+
+def is_logged_in() -> bool:
+    """Check if a user is logged in."""
+    init_session_state()  # Ensure session state is initialized
+    return bool(st.session_state.logged_in)
+
+def get_username() -> str:
+    """Get the current username."""
+    init_session_state()  # Ensure session state is initialized
+    return st.session_state.username or "Guest"
