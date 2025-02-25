@@ -179,7 +179,7 @@ class NBAGameResultsFetcher:
             team_id = None
             all_teams = teams.get_teams()
             for team in all_teams:
-                if team['full_name'] == team_name or team['nickname'] == team_name:
+                if team['full_name'].lower() == team_name.lower() or team['nickname'].lower() == team_name.lower():
                     team_id = team['id']
                     break
             
@@ -192,8 +192,7 @@ class NBAGameResultsFetcher:
                 team_id_nullable=team_id,
                 season_nullable='2023-24',
                 league_id_nullable='00',
-                season_type_nullable=SeasonType.regular,
-                headers=self.headers
+                season_type_nullable=SeasonType.regular
             )
             
             games_df = game_finder.get_data_frames()[0]
@@ -206,8 +205,9 @@ class NBAGameResultsFetcher:
             wins = len(games_df[games_df['WL'] == 'W'])
             losses = total_games - wins
             
+            # Calculate points per game and points allowed
             points_scored = games_df['PTS'].mean()
-            points_allowed = games_df['PLUS_MINUS'].mean() + points_scored
+            points_allowed = games_df['PTS'].mean() - games_df['PLUS_MINUS'].mean()
             
             # Get last 10 games
             last_10 = games_df.head(10)
@@ -228,13 +228,17 @@ class NBAGameResultsFetcher:
             home_wins = len(home_games[home_games['WL'] == 'W'])
             away_wins = len(away_games[away_games['WL'] == 'W'])
             
+            # Calculate shooting percentages
+            fg_pct = games_df['FG_PCT'].mean() * 100
+            fg3_pct = games_df['FG3_PCT'].mean() * 100
+            
             stats = {
                 'wins': wins,
                 'losses': losses,
                 'points_per_game': float(points_scored),
                 'points_allowed': float(points_allowed),
-                'field_goal_pct': float(games_df['FG_PCT'].mean() * 100),
-                'three_point_pct': float(games_df['FG3_PCT'].mean() * 100),
+                'field_goal_pct': float(fg_pct),
+                'three_point_pct': float(fg3_pct),
                 'win_streak': int(streak if games_df['WL'].iloc[0] == 'W' else 0),
                 'last_ten': {'wins': last_10_wins, 'losses': 10 - last_10_wins},
                 'home_record': {'wins': home_wins, 'losses': len(home_games) - home_wins},
