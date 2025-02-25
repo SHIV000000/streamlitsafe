@@ -22,36 +22,57 @@ class NBAPredictor:
         
     def prepare_features(self, home_stats: Dict, away_stats: Dict) -> Dict:
         """Prepare features for prediction."""
-        features = {}
-        
-        # Basic stats
-        for stat in self.feature_names:
-            features[f'home_{stat}'] = float(home_stats.get(stat, 0))
-            features[f'away_{stat}'] = float(away_stats.get(stat, 0))
-        
-        # Calculate win percentages
-        home_games = home_stats['wins'] + home_stats['losses']
-        away_games = away_stats['wins'] + away_stats['losses']
-        
-        features['home_win_pct'] = home_stats['wins'] / max(1, home_games)
-        features['away_win_pct'] = away_stats['wins'] / max(1, away_games)
-        
-        # Add home/away specific records
-        home_record = home_stats['home_record']
-        away_record = away_stats['away_record']
-        
-        features['home_home_win_pct'] = home_record['wins'] / max(1, home_record['wins'] + home_record['losses'])
-        features['away_away_win_pct'] = away_record['wins'] / max(1, away_record['wins'] + away_record['losses'])
-        
-        # Add recent form (last 10 games)
-        features['home_last_10_win_pct'] = home_stats['last_ten']['wins'] / 10
-        features['away_last_10_win_pct'] = away_stats['last_ten']['wins'] / 10
-        
-        return features
+        try:
+            # Calculate win percentages
+            home_total_games = home_stats['wins'] + home_stats['losses']
+            away_total_games = away_stats['wins'] + away_stats['losses']
             
+            home_win_pct = home_stats['wins'] / home_total_games if home_total_games > 0 else 0.5
+            away_win_pct = away_stats['wins'] / away_total_games if away_total_games > 0 else 0.5
+            
+            # Calculate last 10 games win percentage
+            home_last_10_win_pct = home_stats['last_ten']['wins'] / 10
+            away_last_10_win_pct = away_stats['last_ten']['wins'] / 10
+            
+            # Calculate home/away win percentages
+            home_home_games = home_stats['home_record']['wins'] + home_stats['home_record']['losses']
+            away_away_games = away_stats['away_record']['wins'] + away_stats['away_record']['losses']
+            
+            home_home_win_pct = home_stats['home_record']['wins'] / home_home_games if home_home_games > 0 else 0.5
+            away_away_win_pct = away_stats['away_record']['wins'] / away_away_games if away_away_games > 0 else 0.5
+            
+            features = {
+                'home_win_pct': home_win_pct,
+                'away_win_pct': away_win_pct,
+                'home_last_10_win_pct': home_last_10_win_pct,
+                'away_last_10_win_pct': away_last_10_win_pct,
+                'home_home_win_pct': home_home_win_pct,
+                'away_away_win_pct': away_away_win_pct,
+                'home_points_per_game': home_stats['points_per_game'],
+                'away_points_per_game': away_stats['points_per_game'],
+                'home_points_allowed': home_stats['points_allowed'],
+                'away_points_allowed': away_stats['points_allowed'],
+                'home_field_goal_pct': home_stats['field_goal_pct'],
+                'away_field_goal_pct': away_stats['field_goal_pct'],
+                'home_three_point_pct': home_stats['three_point_pct'],
+                'away_three_point_pct': away_stats['three_point_pct'],
+                'home_win_streak': home_stats.get('win_streak', 0),
+                'away_win_streak': away_stats.get('win_streak', 0)
+            }
+            
+            logging.info(f"Prepared features: {json.dumps(features, indent=2)}")
+            return features
+            
+        except Exception as e:
+            logging.error(f"Error preparing features: {str(e)}", exc_info=True)
+            return None
+
     def predict_game(self, features: Dict) -> Tuple[str, float]:
         """Make prediction using statistical analysis."""
         try:
+            if not features:
+                return ('unknown', 50.0)
+                
             # Calculate base win probability
             win_prob = 0.5
             
@@ -119,8 +140,8 @@ class NBAPredictor:
             points_per_game = float(team_stats.get('points_per_game', 110))
             opp_points_allowed = float(opponent_stats.get('points_allowed', 110))
             
-            # Calculate expected points
-            expected_points = (points_per_game * 0.65 + (110 - opp_points_allowed) * 0.35)
+            # Calculate expected points based on team's offense and opponent's defense
+            expected_points = (points_per_game * 0.6 + (110 - opp_points_allowed) * 0.4)
             
             # Add home court adjustment
             if is_home:
@@ -137,11 +158,20 @@ class NBAPredictor:
             min_score = max(85, int(expected_points - variance))
             max_score = min(140, int(expected_points + variance))
             
+            logging.info(f"""
+            Score Range Prediction:
+            - Base PPG: {points_per_game:.1f}
+            - Opp Points Allowed: {opp_points_allowed:.1f}
+            - Expected Points: {expected_points:.1f}
+            - Variance: {variance:.1f}
+            - Final Range: {min_score}-{max_score}
+            """)
+            
             return (min_score, max_score)
             
         except Exception as e:
             logging.error(f"Error predicting score range: {str(e)}")
-            return (100, 110)
+            return (100, 110) if is_home else (95, 105)
 
     def save_prediction(
         self,
