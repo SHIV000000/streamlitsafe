@@ -73,41 +73,60 @@ class NBAPredictor:
             if not features:
                 return ('unknown', 50.0)
                 
-            # Calculate base win probability
-            win_prob = 0.5
+            # Initialize factors dictionary for detailed logging
+            factors = {}
             
-            # Season record impact (30%)
+            # Season record impact (25%)
             home_win_pct = features['home_win_pct']
             away_win_pct = features['away_win_pct']
-            win_prob += (home_win_pct - away_win_pct) * 0.3
+            record_impact = (home_win_pct - away_win_pct) * 0.25
+            factors['record'] = record_impact
             
             # Recent form impact (20%)
-            home_last_10_win_pct = features['home_last_10_win_pct']
-            away_last_10_win_pct = features['away_last_10_win_pct']
-            win_prob += (home_last_10_win_pct - away_last_10_win_pct) * 0.2
+            home_form = features['home_last_10_win_pct']
+            away_form = features['away_last_10_win_pct']
+            form_impact = (home_form - away_form) * 0.20
+            factors['form'] = form_impact
             
-            # Home/Away record impact (20%)
-            home_home_win_pct = features['home_home_win_pct']
-            away_away_win_pct = features['away_away_win_pct']
-            win_prob += (home_home_win_pct - away_away_win_pct) * 0.2
+            # Offensive rating impact (15%)
+            home_off = features['home_points_per_game']
+            away_off = features['away_points_per_game']
+            offensive_impact = (home_off - away_off) * 0.0015  # Scaled due to larger numbers
+            factors['offense'] = offensive_impact
             
-            # Scoring differential impact (20%)
-            home_scoring_diff = features['home_points_per_game'] - features['home_points_allowed']
-            away_scoring_diff = features['away_points_per_game'] - features['away_points_allowed']
-            win_prob += (home_scoring_diff - away_scoring_diff) * 0.01
+            # Defensive rating impact (15%)
+            home_def = features['home_points_allowed']
+            away_def = features['away_points_allowed']
+            defensive_impact = (away_def - home_def) * 0.0015  # Reversed since lower is better
+            factors['defense'] = defensive_impact
+            
+            # Home/Away record impact (10%)
+            home_home_pct = features['home_home_win_pct']
+            away_away_pct = features['away_away_win_pct']
+            venue_impact = (home_home_pct - away_away_pct) * 0.10
+            factors['venue'] = venue_impact
             
             # Shooting efficiency impact (10%)
             home_efficiency = (features['home_field_goal_pct'] + features['home_three_point_pct']) / 2
             away_efficiency = (features['away_field_goal_pct'] + features['away_three_point_pct']) / 2
-            win_prob += (home_efficiency - away_efficiency) * 0.005
+            shooting_impact = (home_efficiency - away_efficiency) * 0.001
+            factors['shooting'] = shooting_impact
             
             # Win streak impact (5%)
             home_streak = features.get('home_win_streak', 0)
             away_streak = features.get('away_win_streak', 0)
-            win_prob += (home_streak - away_streak) * 0.02
+            streak_impact = (home_streak - away_streak) * 0.01
+            factors['streak'] = streak_impact
+            
+            # Calculate base win probability
+            win_prob = 0.5
+            for impact in factors.values():
+                win_prob += impact
             
             # Add home court advantage
-            win_prob += 0.04
+            home_advantage = 0.04
+            win_prob += home_advantage
+            factors['home_advantage'] = home_advantage
             
             # Ensure probability is within bounds
             win_prob = max(0.2, min(0.8, win_prob))
@@ -117,17 +136,20 @@ class NBAPredictor:
             
             # Log prediction details
             logging.info(f"""
-            Prediction Details:
-            - Season Record Impact: {home_win_pct:.3f} vs {away_win_pct:.3f}
-            - Recent Form Impact: {home_last_10_win_pct:.3f} vs {away_last_10_win_pct:.3f}
-            - Home/Away Impact: {home_home_win_pct:.3f} vs {away_away_win_pct:.3f}
-            - Scoring Diff Impact: {home_scoring_diff:.1f} vs {away_scoring_diff:.1f}
-            - Shooting Impact: {home_efficiency:.1f} vs {away_efficiency:.1f}
-            - Win Streak Impact: {home_streak} vs {away_streak}
+            Prediction Details for {features.get('home_team', 'Home')} vs {features.get('away_team', 'Away')}:
+            Factors contributing to prediction:
+            - Season Record Impact: {factors['record']:.3f} ({home_win_pct:.3f} vs {away_win_pct:.3f})
+            - Recent Form Impact: {factors['form']:.3f} ({home_form:.3f} vs {away_form:.3f})
+            - Offensive Impact: {factors['offense']:.3f} ({home_off:.1f} vs {away_off:.1f})
+            - Defensive Impact: {factors['defense']:.3f} ({home_def:.1f} vs {away_def:.1f})
+            - Home/Away Impact: {factors['venue']:.3f} ({home_home_pct:.3f} vs {away_away_pct:.3f})
+            - Shooting Impact: {factors['shooting']:.3f} ({home_efficiency:.1f} vs {away_efficiency:.1f})
+            - Win Streak Impact: {factors['streak']:.3f} ({home_streak} vs {away_streak})
+            - Home Court Advantage: {factors['home_advantage']:.3f}
             Final Win Probability: {win_prob_pct}%
             """)
             
-            return ('home' if win_prob > 0.5 else 'away', win_prob_pct if win_prob > 0.5 else 100 - win_prob_pct)
+            return ('home' if win_prob > 0.5 else 'away', win_prob_pct)
             
         except Exception as e:
             logging.error(f"Error making prediction: {str(e)}", exc_info=True)
@@ -140,30 +162,50 @@ class NBAPredictor:
             points_per_game = float(team_stats.get('points_per_game', 110))
             opp_points_allowed = float(opponent_stats.get('points_allowed', 110))
             
-            # Calculate expected points based on team's offense and opponent's defense
-            expected_points = (points_per_game * 0.6 + (110 - opp_points_allowed) * 0.4)
+            # Get recent scoring trends
+            recent_points = float(team_stats.get('last_ten', {}).get('points_per_game', points_per_game))
+            recent_opp_allowed = float(opponent_stats.get('last_ten', {}).get('points_allowed', opp_points_allowed))
+            
+            # Weight recent performance vs season average
+            expected_points = (points_per_game * 0.6) + (recent_points * 0.4)
+            expected_opp_defense = (opp_points_allowed * 0.6) + (recent_opp_allowed * 0.4)
+            
+            # Calculate base expected score
+            base_score = (expected_points * 0.6) + ((110 - expected_opp_defense) * 0.4)
             
             # Add home court adjustment
             if is_home:
-                expected_points += 3.5
+                base_score += 3.5
             
-            # Calculate variance based on shooting percentages and recent form
+            # Calculate variance based on team stats
             fg_pct = float(team_stats.get('field_goal_pct', 45))
             last_ten_wins = team_stats.get('last_ten', {}).get('wins', 5)
+            offensive_rating = float(team_stats.get('offensive_rating', 110))
             
-            # More variance for teams with better shooting and recent form
-            variance = 7 + (fg_pct / 10) + (last_ten_wins / 2)
+            # More variance for high-scoring and inconsistent teams
+            base_variance = 7
+            shooting_variance = (fg_pct - 45) / 5  # More variance for better shooting teams
+            form_variance = (last_ten_wins - 5) / 2  # More variance for teams on streaks
+            pace_variance = (offensive_rating - 110) / 20  # More variance for fast-paced teams
             
-            # Return score range
-            min_score = max(85, int(expected_points - variance))
-            max_score = min(140, int(expected_points + variance))
+            total_variance = base_variance + shooting_variance + form_variance + pace_variance
+            
+            # Calculate score range
+            min_score = max(85, int(base_score - total_variance))
+            max_score = min(140, int(base_score + total_variance))
             
             logging.info(f"""
             Score Range Prediction:
-            - Base PPG: {points_per_game:.1f}
-            - Opp Points Allowed: {opp_points_allowed:.1f}
-            - Expected Points: {expected_points:.1f}
-            - Variance: {variance:.1f}
+            - Season PPG: {points_per_game:.1f}
+            - Recent PPG: {recent_points:.1f}
+            - Opponent Points Allowed: {opp_points_allowed:.1f}
+            - Recent Opp Points Allowed: {recent_opp_allowed:.1f}
+            - Base Expected Score: {base_score:.1f}
+            - Variance Components:
+              * Base: {base_variance:.1f}
+              * Shooting: {shooting_variance:.1f}
+              * Form: {form_variance:.1f}
+              * Pace: {pace_variance:.1f}
             - Final Range: {min_score}-{max_score}
             """)
             
@@ -660,6 +702,15 @@ class NBAPredictor:
             # Set score range with dynamic bounds
             lower_bound = int(max(expected_points - variance, 85))
             upper_bound = int(min(expected_points + variance, 140))
+            
+            logging.info(f"""
+            Score Range Prediction:
+            - Base PPG: {avg_points:.1f}
+            - Opp Points Allowed: {avg_points_allowed:.1f}
+            - Expected Points: {expected_points:.1f}
+            - Variance: {variance:.1f}
+            - Final Range: {lower_bound}-{upper_bound}
+            """)
             
             return (lower_bound, upper_bound)
             

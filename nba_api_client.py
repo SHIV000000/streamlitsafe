@@ -207,11 +207,18 @@ class NBAGameResultsFetcher:
             
             # Calculate points per game and points allowed
             points_scored = games_df['PTS'].mean()
-            points_allowed = games_df['PTS'].mean() - games_df['PLUS_MINUS'].mean()
+            opponent_points = games_df['OPP_PTS'].mean() if 'OPP_PTS' in games_df.columns else (games_df['PTS'].mean() - games_df['PLUS_MINUS'].mean())
+            
+            # Calculate offensive and defensive ratings
+            possessions = games_df['FGA'].mean() - games_df['OREB'].mean() + games_df['TOV'].mean() + (0.44 * games_df['FTA'].mean())
+            offensive_rating = (points_scored / possessions) * 100
+            defensive_rating = (opponent_points / possessions) * 100
             
             # Get last 10 games
             last_10 = games_df.head(10)
             last_10_wins = len(last_10[last_10['WL'] == 'W'])
+            last_10_points = last_10['PTS'].mean()
+            last_10_opp_points = last_10['OPP_PTS'].mean() if 'OPP_PTS' in last_10.columns else (last_10['PTS'].mean() - last_10['PLUS_MINUS'].mean())
             
             # Calculate win streak
             streak = 0
@@ -228,21 +235,33 @@ class NBAGameResultsFetcher:
             home_wins = len(home_games[home_games['WL'] == 'W'])
             away_wins = len(away_games[away_games['WL'] == 'W'])
             
-            # Calculate shooting percentages
+            # Calculate shooting percentages and efficiency
             fg_pct = games_df['FG_PCT'].mean() * 100
             fg3_pct = games_df['FG3_PCT'].mean() * 100
+            
+            # Calculate recent form (last 5 games)
+            last_5 = games_df.head(5)
+            recent_form = len(last_5[last_5['WL'] == 'W']) / 5.0
             
             stats = {
                 'wins': wins,
                 'losses': losses,
                 'points_per_game': float(points_scored),
-                'points_allowed': float(points_allowed),
+                'points_allowed': float(opponent_points),
+                'offensive_rating': float(offensive_rating),
+                'defensive_rating': float(defensive_rating),
                 'field_goal_pct': float(fg_pct),
                 'three_point_pct': float(fg3_pct),
                 'win_streak': int(streak if games_df['WL'].iloc[0] == 'W' else 0),
-                'last_ten': {'wins': last_10_wins, 'losses': 10 - last_10_wins},
+                'last_ten': {
+                    'wins': last_10_wins,
+                    'losses': 10 - last_10_wins,
+                    'points_per_game': float(last_10_points),
+                    'points_allowed': float(last_10_opp_points)
+                },
                 'home_record': {'wins': home_wins, 'losses': len(home_games) - home_wins},
-                'away_record': {'wins': away_wins, 'losses': len(away_games) - away_wins}
+                'away_record': {'wins': away_wins, 'losses': len(away_games) - away_wins},
+                'recent_form': float(recent_form)
             }
             
             logging.info(f"Calculated stats for {team_name}: {json.dumps(stats, indent=2)}")
