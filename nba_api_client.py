@@ -10,6 +10,8 @@ import time
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import json
+from typing import Dict
 
 class NBAGameResultsFetcher:
     def __init__(self):
@@ -169,6 +171,79 @@ class NBAGameResultsFetcher:
         for old, new in replacements.items():
             normalized = normalized.replace(old, new)
         return normalized
-
-
-
+    
+    def get_team_stats(self, team_name: str) -> Dict:
+        """Get team statistics from NBA.com."""
+        try:
+            # Get team ID
+            team_id = None
+            all_teams = teams.get_teams()
+            for team in all_teams:
+                if team['full_name'] == team_name or team['nickname'] == team_name:
+                    team_id = team['id']
+                    break
+            
+            if not team_id:
+                logging.error(f"Could not find team ID for {team_name}")
+                return None
+            
+            # Get team game logs
+            game_finder = LeagueGameFinder(
+                team_id_nullable=team_id,
+                season_nullable='2023-24',
+                league_id_nullable='00',
+                season_type_nullable=SeasonType.regular,
+                headers=self.headers
+            )
+            
+            games_df = game_finder.get_data_frames()[0]
+            if games_df.empty:
+                logging.error(f"No games found for team {team_name}")
+                return None
+            
+            # Calculate statistics
+            total_games = len(games_df)
+            wins = len(games_df[games_df['WL'] == 'W'])
+            losses = total_games - wins
+            
+            points_scored = games_df['PTS'].mean()
+            points_allowed = games_df['PLUS_MINUS'].mean() + points_scored
+            
+            # Get last 10 games
+            last_10 = games_df.head(10)
+            last_10_wins = len(last_10[last_10['WL'] == 'W'])
+            
+            # Calculate win streak
+            streak = 0
+            for wl in games_df['WL']:
+                if wl == games_df['WL'].iloc[0]:
+                    streak += 1
+                else:
+                    break
+            
+            # Get home/away records
+            home_games = games_df[games_df['MATCHUP'].str.contains('vs.')]
+            away_games = games_df[games_df['MATCHUP'].str.contains('@')]
+            
+            home_wins = len(home_games[home_games['WL'] == 'W'])
+            away_wins = len(away_games[away_games['WL'] == 'W'])
+            
+            stats = {
+                'wins': wins,
+                'losses': losses,
+                'points_per_game': float(points_scored),
+                'points_allowed': float(points_allowed),
+                'field_goal_pct': float(games_df['FG_PCT'].mean() * 100),
+                'three_point_pct': float(games_df['FG3_PCT'].mean() * 100),
+                'win_streak': int(streak if games_df['WL'].iloc[0] == 'W' else 0),
+                'last_ten': {'wins': last_10_wins, 'losses': 10 - last_10_wins},
+                'home_record': {'wins': home_wins, 'losses': len(home_games) - home_wins},
+                'away_record': {'wins': away_wins, 'losses': len(away_games) - away_wins}
+            }
+            
+            logging.info(f"Calculated stats for {team_name}: {json.dumps(stats, indent=2)}")
+            return stats
+            
+        except Exception as e:
+            logging.error(f"Error getting team stats for {team_name}: {str(e)}")
+            return None
