@@ -148,7 +148,7 @@ class EnhancedNBAApiClient:
                     raise
         return {}
 
-    def get_upcoming_games(self, start_date=None, end_date=None) -> List[Dict]:
+    def get_upcoming_games(self, *, start_date=None, end_date=None) -> List[Dict]:
         """
         Get upcoming games within a date range.
         Args:
