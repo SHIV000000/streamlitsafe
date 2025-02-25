@@ -534,36 +534,55 @@ def display_game_card(prediction):
         game_time_str = ist_time.strftime('%Y-%m-%d %H:%M IST')
         win_prob = f"{prediction['win_probability']*100:.1f}"
         
+        st.markdown("""
+            <style>
+                .prediction-card {
+                    background-color: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .team-name {
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #2c3e50;
+                    margin-bottom: 5px;
+                }
+                .score-range {
+                    font-size: 14px;
+                    color: #666;
+                    margin-bottom: 10px;
+                }
+                .game-info {
+                    text-align: center;
+                    margin: 15px 0;
+                }
+                .prediction-result {
+                    background-color: #e8f4f8;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin-top: 15px;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+        
         st.markdown(f"""
-            <div style="background-color: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <div style="font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">
-                    {prediction['home_team']}
-                </div>
-                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">
-                    Score Range: {home_score}
-                </div>
+            <div class="prediction-card">
+                <div class="team-name">{prediction['home_team']}</div>
+                <div class="score-range">Score Range: {home_score}</div>
                 
-                <div style="font-size: 16px; font-weight: bold; color: #95a5a6; margin: 10px 0; text-align: center;">
-                    vs
-                </div>
-                <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 15px; text-align: center;">
+                <div class="game-info">
+                    <strong>vs</strong><br>
                     Game Time: {game_time_str}
                 </div>
                 
-                <div style="font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">
-                    {prediction['away_team']}
-                </div>
-                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">
-                    Score Range: {away_score}
-                </div>
+                <div class="team-name">{prediction['away_team']}</div>
+                <div class="score-range">Score Range: {away_score}</div>
                 
-                <div style="background-color: #e8f4f8; padding: 10px; border-radius: 5px; margin-top: 15px;">
-                    <div style="font-size: 16px; font-weight: bold; color: #2980b9; margin-bottom: 5px;">
-                        Predicted Winner: {prediction['predicted_winner']}
-                    </div>
-                    <div style="font-size: 14px; color: #34495e;">
-                        Win Probability: {win_prob}%
-                    </div>
+                <div class="prediction-result">
+                    <strong>Predicted Winner:</strong> {prediction['predicted_winner']}<br>
+                    <strong>Win Probability:</strong> {win_prob}%
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -594,22 +613,37 @@ def create_navigation():
     st.divider()
 
 def show_login_page():
-    """Display the login page"""
-    st.title("NBA Predictions")
-    
-    with st.form("login_form"):
+    """Show the login page with username and password fields."""
+    try:
+        st.markdown("""
+            <style>
+                .stApp {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 2rem;
+                }
+                [data-testid="stSidebar"] {
+                    display: none;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+        
+        st.title("🏀 NBA Predictions Login")
+        
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         
-        if st.form_submit_button("Login"):
-            if username == "match_wizard" and password == "GoalMaster":
-                SessionState.set('authenticated', True)
-                st.success("✅ Login successful!")
-                st.rerun()
+        if st.button("Login"):
+            if username == "admin" and password == "admin":
+                SessionState.authenticated = True
+                st.success("Login successful!")
+                st.experimental_rerun()
             else:
-                st.error("❌ Invalid username or password")
-    
-
+                st.error("Invalid username or password")
+                
+    except Exception as e:
+        st.error(f"Error in login: {str(e)}")
+        logging.error(f"Error in show_login_page: {str(e)}")
 
 def delete_all_predictions():
     """Delete all predictions from Supabase"""
