@@ -491,6 +491,34 @@ def load_predictions(include_live=False):
         logging.error(f"Error in load_predictions: {str(e)}")
         return []
 
+def clean_duplicate_predictions():
+    """Remove duplicate predictions from the database."""
+    try:
+        # Get all predictions
+        result = supabase.table('predictions').select('*').execute()
+        if not result.data:
+            return
+            
+        # Track unique games and their first occurrence
+        seen_games = {}
+        duplicates = []
+        
+        for pred in result.data:
+            game_key = f"{pred['home_team']}_{pred['away_team']}_{pred['scheduled_start']}"
+            if game_key in seen_games:
+                # This is a duplicate
+                duplicates.append(pred['id'])
+            else:
+                seen_games[game_key] = pred['id']
+        
+        # Delete all duplicates
+        if duplicates:
+            supabase.table('predictions').delete().in_('id', duplicates).execute()
+            logging.info(f"Cleaned up {len(duplicates)} duplicate predictions")
+            
+    except Exception as e:
+        logging.error(f"Error cleaning duplicate predictions: {str(e)}")
+
 def refresh_predictions():
     """Refresh predictions by updating only missing or outdated ones"""
     try:
