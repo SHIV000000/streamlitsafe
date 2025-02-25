@@ -38,151 +38,80 @@ NBA_API_KEY = "918ef216c6msh607da23f482096fp198faajsnc648d53dadc5"
 nba_client = EnhancedNBAApiClient(NBA_API_KEY)
 
 def apply_custom_styles():
-    """Apply custom CSS styling"""
+    """Apply custom CSS styling to the app."""
     st.markdown("""
         <style>
-        /* Hide sidebar and menu */
-        [data-testid="stSidebar"] {display: none;}
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        
-        /* Remove default Streamlit padding and margins */
-        .block-container {
-            padding-top: 2rem !important;
-            padding-bottom: 0rem !important;
-            max-width: 95% !important;
+        .prediction-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
-        .element-container, .stMarkdown {
-            margin-bottom: 0 !important;
-        }
-        
-        /* Game card styling */
-        .game-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-            margin-bottom: 1.5rem;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Team names */
         .team-name {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1a237e;
-            margin: 0;
-            padding: 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
         }
         
-        /* VS text */
-        .vs-text {
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: #9e9e9e;
-            text-align: center;
-            margin: 0.5rem 0;
-            padding: 0;
-        }
-        
-        /* Score range */
         .score-range {
-            font-size: 1.1rem;
-            color: #424242;
-            padding: 0.5rem 1rem;
-            background: #f5f5f5;
-            border-radius: 8px;
-            display: inline-block;
-            margin: 0.5rem 0 0 0;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
         }
         
-        /* Prediction details */
-        .prediction-details {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .prediction-winner {
-            font-size: 1.2rem;
-            color: #2e7d32;
-            font-weight: 600;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .win-probability {
-            font-size: 1.1rem;
-            color: #1565c0;
-            font-weight: 500;
-            margin: 0.5rem 0 0 0;
-            padding: 0;
-        }
-        
-        /* Game time */
-        .game-time {
-            margin: 0.5rem 0 0 0;
-            padding: 0;
-            font-size: 1rem;
-            color: #757575;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Admin controls */
-        .admin-controls {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        /* Title styling */
-        h1 {
-            color: #1a237e;
-            font-weight: 700;
-            margin: 1rem 0;
+        .vs-text {
+            font-size: 16px;
+            font-weight: bold;
+            color: #95a5a6;
+            margin: 10px 0;
             text-align: center;
         }
         
-        /* Column layout */
-        .st-emotion-cache-1n76uvr {
-            gap: 0.5rem !important;
+        .game-time {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            text-align: center;
         }
         
-        /* Button styling */
-        .stButton > button {
-            margin: 0 !important;
-            border: 1px solid #ddd;
+        .prediction-result {
+            background-color: #e8f4f8;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        
+        .winner {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 5px;
+        }
+        
+        .probability {
+            font-size: 14px;
+            color: #34495e;
+        }
+        
+        .date-filters {
             background-color: white;
-            color: #333;
-            border-radius: 8px;
-            padding: 0.6rem 1.2rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        
-        .stButton > button:hover {
-            background-color: #f0f0f0;
-            border-color: #ccc;
-            transform: translateY(-2px);
-        }
-        
-        /* Info message styling */
-        .stAlert {
-            background: #e3f2fd;
+            padding: 20px;
             border-radius: 10px;
-            border: none;
-            padding: 1rem;
-            margin: 1rem 0;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .stButton>button {
+            width: 100%;
+            background-color: #2980b9;
+            color: white;
+        }
+        
+        .stButton>button:hover {
+            background-color: #2471a3;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -595,49 +524,32 @@ def refresh_predictions():
 def display_game_card(prediction):
     """Display a game prediction card."""
     try:
-        # Extract game information
-        home_team = prediction['home_team']
-        away_team = prediction['away_team']
-        predicted_winner = prediction['predicted_winner']
-        win_probability = prediction['win_probability']
-        scheduled_start = prediction['scheduled_start']
+        # Convert UTC time to IST for display
+        game_time = datetime.fromisoformat(prediction['scheduled_start'])
+        ist_time = game_time.astimezone(pytz.timezone('Asia/Kolkata'))
         
-        # Convert game time to local time
-        try:
-            game_time_utc = datetime.fromisoformat(scheduled_start.replace('Z', '+00:00'))
-        except ValueError:
-            # If the date is already in ISO format with timezone
-            game_time_utc = datetime.fromisoformat(scheduled_start)
-            
-        # Get user's local timezone
-        local_tz = pytz.timezone('Asia/Kolkata')  # Using Indian Standard Time
-        game_time_local = game_time_utc.astimezone(local_tz)
+        # Create the prediction card
+        st.markdown(f"""
+            <div class="prediction-card">
+                <div class="team-name">{prediction['home_team']}</div>
+                <div class="score-range">Score Range: {prediction['home_score_min']}-{prediction['home_score_max']}</div>
+                
+                <div class="vs-text">vs</div>
+                <div class="game-time">Game Time: {ist_time.strftime('%Y-%m-%d %H:%M IST')}</div>
+                
+                <div class="team-name">{prediction['away_team']}</div>
+                <div class="score-range">Score Range: {prediction['away_score_min']}-{prediction['away_score_max']}</div>
+                
+                <div class="prediction-result">
+                    <div class="winner">Predicted Winner: {prediction['predicted_winner']}</div>
+                    <div class="probability">Win Probability: {prediction['win_probability']*100:.1f}%</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
         
-        # Format times for display
-        utc_display = game_time_utc.strftime('%Y-%m-%d %H:%M UTC')
-        local_display = game_time_local.strftime('%Y-%m-%d %H:%M %Z')
-        
-        # Create columns for the game card
-        col1, col2, col3 = st.columns([2,3,2])
-        
-        with col1:
-            st.markdown(f"### {away_team}")
-            st.write(f"Score Range: {prediction['away_score_min']}-{prediction['away_score_max']}")
-            
-        with col2:
-            st.markdown("### vs")
-            st.write(f"Game Time: {local_display}")
-            st.write(f"Predicted Winner: {predicted_winner}")
-            st.write(f"Win Probability: {win_probability:.1%}")
-            
-        with col3:
-            st.markdown(f"### {home_team}")
-            st.write(f"Score Range: {prediction['home_score_min']}-{prediction['home_score_max']}")
-            
-        st.markdown("---")
     except Exception as e:
-        logging.error(f"Error displaying game card: {str(e)}")
-        st.error("Error displaying game prediction")
+        st.error(f"Error displaying prediction: {str(e)}")
+        logging.error(f"Error in display_game_card: {str(e)}")
 
 def create_navigation():
     """Create navigation bar with buttons"""
@@ -709,12 +621,13 @@ def main():
             show_login_page()
             return
 
-        # Create navigation
-        create_navigation()
+        # Apply custom styles
+        apply_custom_styles()
         
         # Add date filters in a container
         with st.container():
-            col1, col2, _ = st.columns([2, 2, 4])
+            st.title("🏀 NBA Game Predictions")
+            col1, col2, col3 = st.columns([2, 2, 1])
             
             # Get today's date in UTC
             now = datetime.now(timezone.utc)
@@ -737,26 +650,53 @@ def main():
                     max_value=today + timedelta(weeks=2)
                 )
             
-            # Convert dates to UTC datetime
-            start_datetime = datetime.combine(start_date, datetime.min.time()).replace(tzinfo=timezone.utc)
-            end_datetime = datetime.combine(end_date, datetime.max.time()).replace(tzinfo=timezone.utc)
+            with col3:
+                refresh = st.button("🔄 Refresh")
 
-        # Load predictions for the selected date range
-        predictions = load_predictions(start_datetime, end_datetime)
-        
+        # Convert dates to UTC datetime
+        start_datetime = datetime.combine(start_date, datetime.min.time()).replace(tzinfo=timezone.utc)
+        end_datetime = datetime.combine(end_date, datetime.max.time()).replace(tzinfo=timezone.utc)
+
+        # Load or refresh predictions
+        with st.spinner("Loading predictions..."):
+            if refresh:
+                predictions = refresh_predictions()
+            else:
+                predictions = load_predictions(start_datetime, end_datetime)
+
         if not predictions:
-            st.warning("No predictions available. Click 'Generate New Predictions' to create predictions.")
+            st.warning("No predictions available for the selected date range.")
             return
 
-        # Display predictions in a grid
-        total_predictions = len(predictions)
-        st.write(f"Showing {total_predictions} predictions for {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
-        
-        # Create a grid layout
-        cols = st.columns(3)
-        for idx, prediction in enumerate(predictions):
-            with cols[idx % 3]:
-                display_game_card(prediction)
+        # Group predictions by game date
+        predictions_by_date = {}
+        for pred in predictions:
+            game_date = datetime.fromisoformat(pred['scheduled_start']).strftime('%Y-%m-%d')
+            if game_date not in predictions_by_date:
+                predictions_by_date[game_date] = []
+            predictions_by_date[game_date].append(pred)
+
+        # Display predictions grouped by date
+        for date in sorted(predictions_by_date.keys()):
+            st.subheader(f"Games on {date}")
+            
+            # Create columns for predictions
+            cols = st.columns(3)
+            date_predictions = predictions_by_date[date]
+            
+            # Remove duplicates based on teams and start time
+            seen = set()
+            unique_predictions = []
+            for pred in date_predictions:
+                key = (pred['home_team'], pred['away_team'], pred['scheduled_start'])
+                if key not in seen:
+                    seen.add(key)
+                    unique_predictions.append(pred)
+            
+            # Display unique predictions in columns
+            for idx, prediction in enumerate(unique_predictions):
+                with cols[idx % 3]:
+                    display_game_card(prediction)
 
     except Exception as e:
         st.error(f"Error in main: {str(e)}")
