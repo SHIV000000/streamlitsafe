@@ -528,21 +528,42 @@ def display_game_card(prediction):
         game_time = datetime.fromisoformat(prediction['scheduled_start'])
         ist_time = game_time.astimezone(pytz.timezone('Asia/Kolkata'))
         
-        # Create the prediction card
+        # Format score ranges
+        home_score = f"{prediction['home_score_min']}-{prediction['home_score_max']}"
+        away_score = f"{prediction['away_score_min']}-{prediction['away_score_max']}"
+        game_time_str = ist_time.strftime('%Y-%m-%d %H:%M IST')
+        win_prob = f"{prediction['win_probability']*100:.1f}"
+        
         st.markdown(f"""
-            <div class="prediction-card">
-                <div class="team-name">{prediction['home_team']}</div>
-                <div class="score-range">Score Range: {prediction['home_score_min']}-{prediction['home_score_max']}</div>
+            <div style="background-color: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div style="font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">
+                    {prediction['home_team']}
+                </div>
+                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                    Score Range: {home_score}
+                </div>
                 
-                <div class="vs-text">vs</div>
-                <div class="game-time">Game Time: {ist_time.strftime('%Y-%m-%d %H:%M IST')}</div>
+                <div style="font-size: 16px; font-weight: bold; color: #95a5a6; margin: 10px 0; text-align: center;">
+                    vs
+                </div>
+                <div style="font-size: 14px; color: #7f8c8d; margin-bottom: 15px; text-align: center;">
+                    Game Time: {game_time_str}
+                </div>
                 
-                <div class="team-name">{prediction['away_team']}</div>
-                <div class="score-range">Score Range: {prediction['away_score_min']}-{prediction['away_score_max']}</div>
+                <div style="font-size: 18px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">
+                    {prediction['away_team']}
+                </div>
+                <div style="font-size: 14px; color: #666; margin-bottom: 10px;">
+                    Score Range: {away_score}
+                </div>
                 
-                <div class="prediction-result">
-                    <div class="winner">Predicted Winner: {prediction['predicted_winner']}</div>
-                    <div class="probability">Win Probability: {prediction['win_probability']*100:.1f}%</div>
+                <div style="background-color: #e8f4f8; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                    <div style="font-size: 16px; font-weight: bold; color: #2980b9; margin-bottom: 5px;">
+                        Predicted Winner: {prediction['predicted_winner']}
+                    </div>
+                    <div style="font-size: 14px; color: #34495e;">
+                        Win Probability: {win_prob}%
+                    </div>
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -668,7 +689,7 @@ def main():
             st.warning("No predictions available for the selected date range.")
             return
 
-        # Group predictions by game date
+        # Group predictions by date
         predictions_by_date = {}
         for pred in predictions:
             game_date = datetime.fromisoformat(pred['scheduled_start']).strftime('%Y-%m-%d')
@@ -680,23 +701,18 @@ def main():
         for date in sorted(predictions_by_date.keys()):
             st.subheader(f"Games on {date}")
             
-            # Create columns for predictions
-            cols = st.columns(3)
-            date_predictions = predictions_by_date[date]
-            
             # Remove duplicates based on teams and start time
             seen = set()
             unique_predictions = []
-            for pred in date_predictions:
+            for pred in predictions_by_date[date]:
                 key = (pred['home_team'], pred['away_team'], pred['scheduled_start'])
                 if key not in seen:
                     seen.add(key)
                     unique_predictions.append(pred)
             
-            # Display unique predictions in columns
-            for idx, prediction in enumerate(unique_predictions):
-                with cols[idx % 3]:
-                    display_game_card(prediction)
+            # Display predictions in a single column
+            for prediction in unique_predictions:
+                display_game_card(prediction)
 
     except Exception as e:
         st.error(f"Error in main: {str(e)}")
