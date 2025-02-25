@@ -565,33 +565,63 @@ def create_navbar():
                 display: none;
             }
             .navbar {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 1rem 0;
+                background-color: #f8f9fa;
+                padding: 1rem;
                 margin-bottom: 2rem;
                 border-bottom: 1px solid #e1e4e8;
-            }
-            .nav-buttons {
                 display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .stButton > button {
+                background-color: transparent;
+                border: 1px solid #ddd;
+                padding: 0.5rem 1rem;
+                margin: 0 0.5rem;
+                border-radius: 5px;
+                color: #444;
+                font-weight: 500;
+            }
+            .stButton > button:hover {
+                background-color: #e9ecef;
+                border-color: #ccc;
+                color: #000;
+            }
+            /* Container for buttons */
+            div[data-testid="column"] {
+                display: flex;
+                justify-content: center;
+                align-items: center;
                 gap: 1rem;
+            }
+            /* Make buttons appear in a row */
+            div[data-testid="column"] > div {
+                display: inline-block;
             }
         </style>
     """, unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns([2, 2, 1])
+    # Create a container for the navbar
+    st.markdown('<div class="navbar">', unsafe_allow_html=True)
+    
+    # Use a single column for centered buttons
+    col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.markdown('<div class="nav-buttons">', unsafe_allow_html=True)
-        if st.button("📊 History"):
-            st.switch_page("pages/01_History.py")
-        if st.button("🔄 Refresh"):
-            refresh_predictions()
-            st.rerun()
-        if st.button("🚪 Logout"):
-            SessionState.set('authenticated', False)
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        col_a, col_b, col_c = st.columns([1, 1, 1])
+        with col_a:
+            if st.button("📊 History", use_container_width=True):
+                st.switch_page("pages/01_History.py")
+        with col_b:
+            if st.button("🔄 Refresh", use_container_width=True):
+                refresh_predictions()
+                st.rerun()
+        with col_c:
+            if st.button("🚪 Logout", use_container_width=True):
+                SessionState.set('authenticated', False)
+                st.rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 def main():
     """Main function to run the Streamlit app."""
