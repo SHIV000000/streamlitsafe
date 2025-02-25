@@ -36,8 +36,8 @@ except Exception as e:
 # Initialize NBA API client with your API key
 nba_client = EnhancedNBAApiClient(api_key="918ef216c6msh607da23f482096fp198faajsnc648d53dadc5")  # Replace with your actual API key
 
-# Initialize predictor with models path
-predictor = NBAPredictor(models_path="models")
+# Initialize predictor
+predictor = NBAPredictor()
 
 def apply_custom_styles():
     """Apply custom CSS styling to the app."""

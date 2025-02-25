@@ -13,247 +13,82 @@ from sklearn.ensemble import GradientBoostingClassifier
 
 
 class NBAPredictor:
-    def __init__(self, models_path: str):
-        self.models_path = models_path
-        self.scaler = None
-        self.feature_names = None
-        self.load_scaler()
-        self.models = {}
-        self._load_models()
-        self.model_weights = {
-            'random_forest': 0.4,
-            'xgboost': 0.4,
-            'svm': 0.2
-        }
-
-    def load_scaler(self):
-        """Load the scaler from disk."""
-        try:
-            scaler_path = os.path.join(self.models_path, 'scaler_20241111_040330.joblib')
-            self.scaler = joblib.load(scaler_path)
-            
-            # Initialize feature names from scaler if available
-            if hasattr(self.scaler, 'feature_names_in_'):
-                self.feature_names = list(self.scaler.feature_names_in_)
-                logging.info("Loaded feature names from scaler")
-            else:
-                self.feature_names = self._get_default_feature_names()
-                logging.warning("Scaler does not have feature names; using default feature names")
-            
-            # Create a mapping between feature names and indices
-            self.feature_indices = {name: idx for idx, name in enumerate(self.feature_names)}
-            
-            logging.info("Loaded scaler successfully")
-            
-            # Compare generated feature names with expected feature names
-            self._compare_feature_names()
-            
-        except Exception as e:
-            logging.error(f"Error loading scaler: {str(e)}")
-            raise
-
-    def _compare_feature_names(self):
-        """Compare generated feature names with expected feature names from the scaler."""
-        generated_features = set(self._get_default_feature_names())
-        expected_features = set(self.feature_names)
-        
-        missing_in_generated = expected_features - generated_features
-        extra_in_generated = generated_features - expected_features
-        
-        if missing_in_generated:
-            logging.warning(f"Features missing in generated features: {missing_in_generated}")
-        if extra_in_generated:
-            logging.warning(f"Extra features in generated features: {extra_in_generated}")
-        
-        return missing_in_generated, extra_in_generated
-
-    def _get_default_feature_names(self):
-        """Generate default feature names."""
-        # Base stats used in training (9 stats)
-        base_stats = [
-            'points', 'fgp', 'tpp', 'ftp', 'totReb', 
-            'assists', 'steals', 'blocks', 'turnovers'  # Removed 'plusMinus'
+    def __init__(self, models_path: str = None):
+        """Initialize the NBA predictor."""
+        self.feature_names = [
+            'wins', 'losses', 'points_per_game', 'points_allowed',
+            'field_goal_pct', 'three_point_pct', 'win_streak'
         ]
         
-        windows = [3, 5, 10]
-        feature_names = []
+    def prepare_features(self, home_stats: Dict, away_stats: Dict) -> Dict:
+        """Prepare features for prediction."""
+        features = {}
         
-        # Add basic stat features (9 stats * 3 windows * 3 types = 81 features)
-        for stat in base_stats:
-            for window in windows:
-                feature_names.append(f'avg_{stat}_diff_{window}')
-                feature_names.append(f'avg_{stat}_home_{window}')
-                feature_names.append(f'avg_{stat}_away_{window}')
+        # Basic stats
+        for stat in self.feature_names:
+            features[f'home_{stat}'] = float(home_stats.get(stat, 0))
+            features[f'away_{stat}'] = float(away_stats.get(stat, 0))
         
-        # Add win percentage features (3 windows * 3 types = 9 features)
-        for window in windows:
-            feature_names.append(f'win_pct_diff_{window}')
-            feature_names.append(f'home_win_pct_{window}')
-            feature_names.append(f'away_win_pct_{window}')
+        # Calculate win percentages
+        home_games = home_stats['wins'] + home_stats['losses']
+        away_games = away_stats['wins'] + away_stats['losses']
         
-        # Add streak features (2 features)
-        streak_features = ['current_streak']  # Removed 'home_streak' and 'away_streak'
-        for feature in streak_features:
-            feature_names.append(f'{feature}_home')
-            feature_names.append(f'{feature}_away')
+        features['home_win_pct'] = home_stats['wins'] / max(1, home_games)
+        features['away_win_pct'] = away_stats['wins'] / max(1, away_games)
         
-        # Add form features (6 features)
-        for window in [3, 5]:  # Only using windows 3 and 5 for form
-            feature_names.append(f'form_diff_{window}')
-            feature_names.append(f'home_form_{window}')
-            feature_names.append(f'away_form_{window}')
+        # Add home/away specific records
+        home_record = home_stats['home_record']
+        away_record = away_stats['away_record']
         
-        # Add rest days and games played (5 features)
-        feature_names.extend([
-            'rest_days_diff',
-            'home_rest_days',
-            'away_rest_days',
-            'home_games_played',
-            'away_games_played'
-        ])
+        features['home_home_win_pct'] = home_record['wins'] / max(1, home_record['wins'] + home_record['losses'])
+        features['away_away_win_pct'] = away_record['wins'] / max(1, away_record['wins'] + away_record['losses'])
         
-        # Total features:
-        # 81 (basic stats) + 9 (win_pct) + 2 (streak) + 6 (form) + 5 (rest/games) = 103 features
+        # Add recent form (last 10 games)
+        features['home_last_10_win_pct'] = home_stats['last_ten']['wins'] / 10
+        features['away_last_10_win_pct'] = away_stats['last_ten']['wins'] / 10
         
-        return feature_names
-
-    def _load_models(self):
-        """Load all saved models."""
-        try:
-            # Load traditional ML models
-            model_files = {
-                'random_forest': 'random_forest_20241111_040330.joblib',
-                'xgboost': 'xgboost_20241111_040330.joblib',
-                'svm': 'svm_20241111_040330.joblib'
-            }
-
-            # Initialize models with default parameters
-            default_models = {
-                'random_forest': joblib.load(os.path.join(self.models_path, 'random_forest_20241111_040330.joblib')),
-                'xgboost': joblib.load(os.path.join(self.models_path, 'xgboost_20241111_040330.joblib')),
-                'svm': joblib.load(os.path.join(self.models_path, 'svm_20241111_040330.joblib'))
-            }
-
-            # Load traditional models
-            for model_name, file_name in model_files.items():
-                try:
-                    self.models[model_name] = joblib.load(os.path.join(self.models_path, file_name))
-                    logging.info(f"Loaded {model_name} model successfully")
-                except Exception as e:
-                    logging.error(f"Error loading {model_name} model: {str(e)}")
-                    # Use the default model if loading fails
-                    if model_name in default_models:
-                        self.models[model_name] = default_models[model_name]
-                        logging.info(f"Using default {model_name} model")
-
-            # Update model weights to remove gradient boosting
-            self.model_weights = {
-                'random_forest': 0.4,
-                'xgboost': 0.4,
-                'svm': 0.2
-            }
-
-        except Exception as e:
-            logging.error(f"Error in model loading: {str(e)}")
-            raise
-
-    def prepare_features(self, home_stats: Dict, away_stats: Dict) -> np.ndarray:
-        """Prepare features with validation."""
-        try:
-            features_dict = {}
+        return features
             
-            # Get base statistics
-            home_stats_obj = home_stats.get('statistics', [{}])[0]
-            away_stats_obj = away_stats.get('statistics', [{}])[0]
-            
-            # Add default values for missing stats
-            default_stats = {
-                'points': 0, 'fgp': 0, 'tpp': 0, 'ftp': 0,
-                'totReb': 0, 'assists': 0, 'steals': 0,
-                'blocks': 0, 'turnovers': 0
-            }
-            
-            # Update with defaults
-            home_stats_obj = {**default_stats, **home_stats_obj}
-            away_stats_obj = {**default_stats, **away_stats_obj}
-            
-            # Calculate offensive and defensive ratings
-            home_off_rating = self._calculate_offensive_rating(home_stats_obj)
-            away_off_rating = self._calculate_offensive_rating(away_stats_obj)
-            home_def_rating = self._calculate_defensive_rating(home_stats_obj)
-            away_def_rating = self._calculate_defensive_rating(away_stats_obj)
-            
-            # Add ratings to stats
-            home_stats_obj['off_rating'] = home_off_rating
-            away_stats_obj['off_rating'] = away_off_rating
-            home_stats_obj['def_rating'] = home_def_rating
-            away_stats_obj['def_rating'] = away_def_rating
-            
-            # Process features with balanced home/away consideration
-            for feature_name in self.feature_names:
-                value = self._calculate_feature_value(
-                    feature_name, home_stats_obj, away_stats_obj
-                )
-                # Normalize differential features
-                if '_diff_' in feature_name:
-                    value = value / 2  # Reduce the impact of differentials
-                features_dict[feature_name] = value
-            
-            # Create feature array
-            features = np.array([[features_dict[name] for name in self.feature_names]])
-            
-            # Apply feature scaling
-            return self.scaler.transform(features)
-            
-        except Exception as e:
-            logging.error(f"Feature preparation error: {str(e)}")
-            # Return zero-filled array as fallback
-            return np.zeros((1, len(self.feature_names)))
-
     def predict_game(self, features: Dict) -> Tuple[str, float]:
-        """Make prediction using ensemble of models."""
+        """Make prediction using statistical analysis."""
         try:
-            # Scale features
-            feature_vector = self._prepare_feature_vector(features)
-            scaled_features = self.scaler.transform([feature_vector])
+            # Calculate base win probability
+            win_prob = 0.5
             
-            # Get predictions from each model
-            predictions = {}
-            probabilities = {}
+            # Season record impact (30%)
+            win_prob += (features['home_win_pct'] - features['away_win_pct']) * 0.3
             
-            for model_name, model in self.models.items():
-                try:
-                    pred = model.predict(scaled_features)[0]
-                    prob = model.predict_proba(scaled_features)[0]
-                    predictions[model_name] = pred
-                    probabilities[model_name] = prob
-                except Exception as e:
-                    logging.error(f"Error with {model_name} prediction: {str(e)}")
-                    continue
+            # Recent form impact (20%)
+            win_prob += (features['home_last_10_win_pct'] - features['away_last_10_win_pct']) * 0.2
             
-            if not predictions:
-                raise ValueError("No models were able to make predictions")
+            # Home/Away record impact (20%)
+            win_prob += (features['home_home_win_pct'] - features['away_away_win_pct']) * 0.2
             
-            # Calculate weighted average probability
-            weighted_prob = 0
-            total_weight = 0
+            # Scoring differential impact (20%)
+            home_scoring_diff = features['home_points_per_game'] - features['home_points_allowed']
+            away_scoring_diff = features['away_points_per_game'] - features['away_points_allowed']
+            win_prob += (home_scoring_diff - away_scoring_diff) * 0.002  # Small weight due to large numbers
             
-            for model_name, prob in probabilities.items():
-                weight = self.model_weights.get(model_name, 1.0)
-                weighted_prob += prob[1] * weight  # prob[1] is probability of home team winning
-                total_weight += weight
+            # Shooting efficiency impact (10%)
+            home_efficiency = (features['home_field_goal_pct'] + features['home_three_point_pct']) / 2
+            away_efficiency = (features['away_field_goal_pct'] + features['away_three_point_pct']) / 2
+            win_prob += (home_efficiency - away_efficiency) * 0.001  # Small weight due to percentages
             
-            final_prob = weighted_prob / total_weight if total_weight > 0 else 0.5
+            # Win streak impact (5%)
+            win_prob += (features['home_win_streak'] - features['away_win_streak']) * 0.01
             
-            # Determine winner based on probability
-            is_home_win = final_prob > 0.5
+            # Add home court advantage
+            win_prob += 0.04
             
-            return ('home' if is_home_win else 'away', final_prob if is_home_win else 1 - final_prob)
+            # Ensure probability is within bounds
+            win_prob = max(0.1, min(0.9, win_prob))
+            
+            return ('home' if win_prob > 0.5 else 'away', win_prob if win_prob > 0.5 else 1 - win_prob)
             
         except Exception as e:
             logging.error(f"Error making prediction: {str(e)}", exc_info=True)
             return ('unknown', 0.5)
-
+            
     def predict_score_range(self, team_stats: Dict, opponent_stats: Dict, is_home: bool) -> Tuple[int, int]:
         """Predict score range for a team."""
         try:
@@ -282,105 +117,34 @@ class NBAPredictor:
             logging.error(f"Error predicting score range: {str(e)}")
             return (100, 110)
 
-    def _create_feature_array(self, features_dict: Dict[str, float]) -> np.ndarray:
-        """Create numpy array from features dictionary."""
+    def save_prediction(
+        self,
+        game_id: str,
+        prediction_data: Dict[str, Any],
+        timestamp: datetime = None
+    ) -> None:
+        """Save prediction to file with timestamp."""
         try:
-            features = np.array([[
-                features_dict[feature_name] 
-                for feature_name in self.feature_names
-            ]])
-            return features
-        except Exception as e:
-            logging.error(f"Error creating feature array: {str(e)}")
-            raise
-
-    def _get_model_predictions(self, features: np.ndarray) -> Dict[str, float]:
-        """Get predictions from all models."""
-        predictions = {}
-        for name, model in self.models.items():
-            try:
-                # All models now use predict_proba
-                pred = model.predict_proba(features)[0][1]
-                predictions[name] = float(pred)
-            except Exception as e:
-                logging.error(f"Error getting prediction from {name} model: {str(e)}")
-                continue
-        return predictions
-
-    def _calculate_ensemble_prediction(self, predictions: Dict[str, float]) -> float:
-        """Calculate weighted ensemble prediction."""
-        if not predictions:
-            raise ValueError("No predictions available for ensemble")
-            
-        weighted_sum = sum(
-            pred * self.model_weights[name]
-            for name, pred in predictions.items()
-        )
-        weight_sum = sum(
-            self.model_weights[name]
-            for name in predictions.keys()
-        )
-        
-        return weighted_sum / weight_sum if weight_sum > 0 else 0.5
-
-    def _calculate_offensive_rating(self, stats: Dict) -> float:
-        """Calculate offensive rating based on team statistics."""
-        try:
-            points = float(stats.get('points', 0))
-            fgp = float(stats.get('fgp', 0))
-            tpp = float(stats.get('tpp', 0))
-            assists = float(stats.get('assists', 0))
-            
-            # Weighted formula for offensive rating
-            off_rating = (points * 0.4 + 
-                         fgp * 0.3 + 
-                         tpp * 0.2 + 
-                         assists * 0.1)
-            
-            return off_rating
-        except:
-            return 0.0
-
-    def _calculate_defensive_rating(self, stats: Dict) -> float:
-        """Calculate defensive rating based on team statistics."""
-        try:
-            blocks = float(stats.get('blocks', 0))
-            steals = float(stats.get('steals', 0))
-            rebounds = float(stats.get('totReb', 0))
-            turnovers = float(stats.get('turnovers', 0))
-            
-            # Weighted formula for defensive rating
-            def_rating = (blocks * 0.3 + 
-                         steals * 0.3 + 
-                         rebounds * 0.3 - 
-                         turnovers * 0.1)
-            
-            return def_rating
-        except:
-            return 0.0
-
-    def _calculate_pace_factor(self, stats: Dict) -> float:
-        """Calculate pace factor."""
-        try:
-            team_possessions = (
-                float(stats.get('fieldGoalsAttempted', 0)) +
-                0.4 * float(stats.get('freeThrowsAttempted', 0)) -
-                1.07 * (float(stats.get('reboundsOffensive', 0)) / 
-                        (float(stats.get('reboundsOffensive', 0)) + 
-                         float(stats.get('reboundsDefensive', 0)))) *
-                (float(stats.get('fieldGoalsAttempted', 0)) - 
-                 float(stats.get('fieldGoalsMade', 0))) +
-                float(stats.get('turnovers', 0))
-            )
-            
-            minutes_played = float(stats.get('minutes', 48))
-            if minutes_played <= 0:
-                return 0
+            if timestamp is None:
+                timestamp = datetime.now()
                 
-            return 48 * (team_possessions / minutes_played)
+            filename = f"predictions/game_{game_id}_{timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+            
+            with open(filename, 'w') as f:
+                json.dump(
+                    {
+                        'timestamp': timestamp.isoformat(),
+                        'game_id': game_id,
+                        'predictions': prediction_data
+                    },
+                    f,
+                    indent=4
+                )
+                
+            logging.info(f"Saved prediction to {filename}")
+            
         except Exception as e:
-            logging.error(f"Error calculating pace factor: {str(e)}")
-            return 0
+            logging.error(f"Error saving prediction: {str(e)}")
 
     def predict_live_game(self, game_stats: Dict) -> Dict[str, Any]:
         """Make predictions for a live game with current statistics."""
@@ -462,170 +226,6 @@ class NBAPredictor:
         except Exception as e:
             logging.error(f"Error adjusting win probability: {str(e)}")
             return base_prob
-
-    def save_prediction(
-        self,
-        game_id: str,
-        prediction_data: Dict[str, Any],
-        timestamp: datetime = None
-    ) -> None:
-        """Save prediction to file with timestamp."""
-        try:
-            if timestamp is None:
-                timestamp = datetime.now()
-                
-            filename = f"predictions/game_{game_id}_{timestamp.strftime('%Y%m%d_%H%M%S')}.json"
-            
-            with open(filename, 'w') as f:
-                json.dump(
-                    {
-                        'timestamp': timestamp.isoformat(),
-                        'game_id': game_id,
-                        'predictions': prediction_data
-                    },
-                    f,
-                    indent=4
-                )
-                
-            logging.info(f"Saved prediction to {filename}")
-            
-        except Exception as e:
-            logging.error(f"Error saving prediction: {str(e)}")
-
-    def _validate_features(self, features_dict: Dict[str, float]) -> bool:
-        """Validate that all required features are present."""
-        missing_features = set(self.feature_names) - set(features_dict.keys())
-        if missing_features:
-            logging.warning(f"Missing features: {missing_features}")
-            return False
-        return True
-
-    def _check_scaler_compatibility(self):
-        """Check if scaler is compatible with current scikit-learn version."""
-        try:
-            from sklearn import __version__ as sk_version
-            
-            # Get scaler attributes
-            scaler_attrs = dir(self.scaler)
-            
-            if 'feature_names_in_' not in scaler_attrs:
-                logging.warning("Scaler might be from an older scikit-learn version")
-                
-            return True
-        except Exception as e:
-            logging.error(f"Error checking scaler compatibility: {str(e)}")
-            return False
-
-    def _scale_features_safe(self, features: np.ndarray) -> np.ndarray:
-        """Scale features with fallback mechanism."""
-        try:
-            return self.scaler.transform(features)
-        except Exception as e:
-            logging.warning(f"Error using scaler: {str(e)}")
-            # Fallback to manual scaling if needed
-            mean = self.scaler.mean_ if hasattr(self.scaler, 'mean_') else 0
-            scale = self.scaler.scale_ if hasattr(self.scaler, 'scale_') else 1
-            return (features - mean) / scale
-
-    def _calculate_feature_value(
-        self, 
-        feature_name: str, 
-        home_stats: Dict, 
-        away_stats: Dict
-    ) -> float:
-        """Calculate value for a specific feature."""
-        try:
-            # Extract base stat name and window size if present
-            parts = feature_name.split('_')
-            
-            # Handle different feature types
-            if 'avg_' in feature_name:
-                stat_name = parts[1]
-                window = int(parts[-1])
-                
-                if 'home_' in feature_name:
-                    return float(home_stats.get(stat_name, 0))
-                elif 'away_' in feature_name:
-                    return float(away_stats.get(stat_name, 0))
-                else:
-                    return float(home_stats.get(stat_name, 0)) - float(away_stats.get(stat_name, 0))
-                    
-            elif 'win_pct' in feature_name:
-                window = int(parts[-1]) if parts[-1].isdigit() else 10
-                home_games = float(home_stats.get('games', 1))
-                away_games = float(away_stats.get('games', 1))
-                
-                if 'home_' in feature_name:
-                    return float(home_stats.get('wins', 0)) / home_games if home_games > 0 else 0
-                elif 'away_' in feature_name:
-                    return float(away_stats.get('wins', 0)) / away_games if away_games > 0 else 0
-                else:
-                    home_pct = float(home_stats.get('wins', 0)) / home_games if home_games > 0 else 0
-                    away_pct = float(away_stats.get('wins', 0)) / away_games if away_games > 0 else 0
-                    return home_pct - away_pct
-                    
-            elif 'form' in feature_name:
-                window = int(parts[-1]) if parts[-1].isdigit() else 5
-                home_form = float(home_stats.get('recent_form', {}).get(str(window), 0.5))
-                away_form = float(away_stats.get('recent_form', {}).get(str(window), 0.5))
-                
-                if 'home_' in feature_name:
-                    return home_form
-                elif 'away_' in feature_name:
-                    return away_form
-                else:
-                    return home_form - away_form
-                
-            elif 'streak' in feature_name:
-                if 'home_' in feature_name:
-                    return float(home_stats.get('current_streak', 0))
-                else:
-                    return float(away_stats.get('current_streak', 0))
-                
-            elif 'rest_days' in feature_name:
-                home_rest = float(home_stats.get('days_rest', 2))
-                away_rest = float(away_stats.get('days_rest', 2))
-                
-                if 'home_' in feature_name:
-                    return home_rest
-                elif 'away_' in feature_name:
-                    return away_rest
-                else:
-                    return home_rest - away_rest
-                
-            else:
-                return float(home_stats.get(feature_name, 0)) - float(away_stats.get(feature_name, 0))
-                
-        except Exception as e:
-            logging.warning(f"Error calculating feature {feature_name}: {str(e)}")
-            return 0.0
-
-    def _validate_feature_count(self, features: np.ndarray) -> bool:
-        """Validate that the feature count matches the scaler."""
-        try:
-            # Get expected feature count from scaler
-            if hasattr(self.scaler, 'feature_names_in_'):
-                expected_features = len(self.scaler.feature_names_in_)
-            elif hasattr(self.scaler, 'n_features_in_'):
-                expected_features = self.scaler.n_features_in_
-            else:
-                # For older versions, use the scale_ attribute length
-                expected_features = len(self.scaler.scale_)
-            
-            actual_features = features.shape[1]
-            
-            if actual_features != expected_features:
-                logging.error(
-                    f"Feature count mismatch. Expected {expected_features}, got {actual_features}. "
-                    f"Feature names: {self.feature_names}"
-                )
-                return False
-            return True
-            
-        except Exception as e:
-            logging.error(f"Error validating feature count: {str(e)}")
-            # If validation fails, return True to continue with prediction
-            return True
 
     def predict_game_with_context(self, game_info: Dict) -> Dict[str, Any]:
         """Enhanced prediction with team context and injuries."""
