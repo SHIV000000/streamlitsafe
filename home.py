@@ -579,11 +579,13 @@ def create_navbar():
         </style>
     """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns([3, 1])
+    col1, col2, col3 = st.columns([2, 2, 1])
     
     with col2:
         st.markdown('<div class="nav-buttons">', unsafe_allow_html=True)
-        if st.button("🔄 Refresh Predictions"):
+        if st.button("📊 History"):
+            st.switch_page("pages/01_History.py")
+        if st.button("🔄 Refresh"):
             refresh_predictions()
             st.rerun()
         if st.button("🚪 Logout"):
