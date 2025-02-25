@@ -1,11 +1,11 @@
 # nba_api_client.py
 
-from nba_api.stats.endpoints import LeagueGameFinder, BoxScoreTraditionalV2
+from nba_api.stats.endpoints import LeagueGameFinder, BoxScoreTraditionalV2, Scoreboard
+from nba_api.stats.static import teams
+from nba_api.stats.library.parameters import SeasonType
 from datetime import datetime, timedelta
 import pandas as pd
 import logging
-from nba_api.stats.static import teams
-from nba_api.stats.library.parameters import SeasonType
 import time
 import requests
 from requests.adapters import HTTPAdapter

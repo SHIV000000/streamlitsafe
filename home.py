@@ -1,19 +1,16 @@
 import streamlit as st
-
-# Must be the first Streamlit command
-st.set_page_config(page_title="NBA Game Predictions", page_icon="🏀", layout="wide")
-
-from datetime import datetime, timezone, timedelta
-import pytz
-from supabase import Client
-from session_state import SessionState
-from api_client import EnhancedNBAApiClient
-import logging
-import random
+import pandas as pd
+from datetime import datetime, timedelta, timezone
 import uuid
 import json
+import logging
+import random
 import time
-from nba_predictor import NBAPredictor
+from prediction_service import NBAPredictor
+from api_client import EnhancedNBAApiClient
+from session_state import SessionState
+from supabase import Client
+from reward_system import RewardSystem
 
 # Initialize session state
 SessionState.init_state()
