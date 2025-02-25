@@ -815,47 +815,47 @@ class NBAPredictor:
     def predict(self, home_stats: Dict, away_stats: Dict) -> Dict:
         """Make prediction with adjusted probabilities."""
         try:
-            # Get base team strengths first
+            # Get base team strengths
             home_strength = self._calculate_base_strength(home_stats)
             away_strength = self._calculate_base_strength(away_stats)
             
-            # Calculate probability based on relative strengths
-            total_strength = home_strength + away_strength
-            if total_strength == 0:
-                base_prob = 0.5
-            else:
-                # Base probability from team strengths - away team perspective
-                away_base_prob = away_strength / total_strength
-                
-                # Only apply home court advantage if home team is within 90% of away team's strength
-                home_court_advantage = 0.02 if home_strength >= (away_strength * 0.9) else 0
-                away_base_prob = max(0.2, min(0.8, away_base_prob - home_court_advantage))
-                base_prob = 1 - away_base_prob  # Convert to home team perspective
+            # Get team statistics
+            home_stats_obj = home_stats.get('statistics', [{}])[0]
+            away_stats_obj = away_stats.get('statistics', [{}])[0]
             
-            # Get team records
+            # Calculate offensive and defensive ratings
+            home_off_rating = float(home_stats_obj.get('points', 0))
+            home_def_rating = float(home_stats_obj.get('pointsAllowed', 0))
+            away_off_rating = float(away_stats_obj.get('points', 0))
+            away_def_rating = float(away_stats_obj.get('pointsAllowed', 0))
+            
+            # Calculate efficiency differentials
+            home_net_rating = home_off_rating - home_def_rating
+            away_net_rating = away_off_rating - away_def_rating
+            
+            # Get win-loss records
             home_record = self._get_team_record(home_stats)
             away_record = self._get_team_record(away_stats)
             
-            # Calculate win percentage difference from away team perspective
-            away_winpct = away_record['win_pct']
+            # Calculate win percentage impact
             home_winpct = home_record['win_pct']
-            winpct_diff = (away_winpct - home_winpct) * 0.2  # 20% impact from win percentage
+            away_winpct = away_record['win_pct']
+            winpct_factor = (home_winpct - away_winpct) * 0.3
             
-            # Calculate streak impact from away team perspective
-            home_streak = float(home_stats.get('statistics', [{}])[0].get('streak', 0))
-            away_streak = float(away_stats.get('statistics', [{}])[0].get('streak', 0))
-            streak_diff = (away_streak - home_streak) * 0.02
+            # Calculate streak impact
+            home_streak = float(home_stats_obj.get('streak', 0))
+            away_streak = float(away_stats_obj.get('streak', 0))
+            streak_factor = (home_streak - away_streak) * 0.05
             
-            # Calculate final probability from away team perspective
-            away_final_prob = 1 - base_prob  # Convert to away perspective
-            away_final_prob += winpct_diff
-            away_final_prob += streak_diff
+            # Calculate base probability using multiple factors
+            base_prob = 0.5  # Start at neutral
+            base_prob += (home_net_rating - away_net_rating) * 0.02  # Net rating impact
+            base_prob += winpct_factor  # Win percentage impact
+            base_prob += streak_factor  # Streak impact
+            base_prob += 0.03  # Home court advantage
             
-            # Ensure probability is within reasonable bounds
-            away_final_prob = max(0.2, min(0.8, away_final_prob))
-            
-            # Convert back to home team perspective
-            final_prob = 1 - away_final_prob
+            # Ensure probability is within bounds
+            final_prob = max(0.35, min(0.65, base_prob))  # Limit extreme predictions
             
             # Calculate score predictions
             home_score_range = self._predict_score_range(home_stats)
@@ -871,19 +871,20 @@ class NBAPredictor:
                     'away_strength': away_strength,
                     'home_record': home_record,
                     'away_record': away_record,
-                    'base_probability': base_prob,
-                    'home_court_advantage': home_court_advantage,
-                    'win_pct_adjustment': winpct_diff,
-                    'streak_adjustment': streak_diff
+                    'home_net_rating': home_net_rating,
+                    'away_net_rating': away_net_rating,
+                    'winpct_factor': winpct_factor,
+                    'streak_factor': streak_factor
                 }
             }
+            
         except Exception as e:
             logging.error(f"Prediction error: {str(e)}")
             return {
                 'home_probability': 0.5,
                 'away_probability': 0.5,
-                'home_score_range': (100, 100),
-                'away_score_range': (100, 100),
+                'home_score_range': (95, 105),
+                'away_score_range': (95, 105),
                 'prediction_details': {}
             }
 
@@ -945,18 +946,29 @@ class NBAPredictor:
             # Get scoring statistics
             avg_points = float(stats_obj.get('points', 100))
             avg_points_allowed = float(stats_obj.get('pointsAllowed', 100))
+            fgp = float(stats_obj.get('fgp', 45))  # Field goal percentage
+            pace = float(stats_obj.get('pace', 100))  # Team's pace factor
             
-            # Use both scored and allowed points for range
-            base_score = (avg_points + avg_points_allowed) / 2
+            # Calculate expected points using multiple factors
+            expected_points = (
+                avg_points * 0.5 +  # Historical scoring
+                (fgp * 2) * 0.3 +  # Shooting efficiency impact
+                (pace / 100 * 100) * 0.2  # Pace impact
+            )
             
-            # Calculate range with smaller variation
-            lower_bound = int(max(base_score * 0.9, 85))
-            upper_bound = int(min(base_score * 1.1, 140))
+            # Calculate variance based on team's consistency
+            variance = abs(avg_points - avg_points_allowed) * 0.15
+            
+            # Set score range with dynamic bounds
+            lower_bound = int(max(expected_points - variance, 85))
+            upper_bound = int(min(expected_points + variance, 140))
             
             return (lower_bound, upper_bound)
+            
         except Exception as e:
             logging.error(f"Error predicting score range: {str(e)}")
-            return (95, 115)
+            # Return more varied default ranges based on league averages
+            return (95, 105)
 
     def _weighted_average(self, predictions: Dict[str, float]) -> float:
         """Calculate weighted average of predictions."""
