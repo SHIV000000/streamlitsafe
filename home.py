@@ -451,40 +451,47 @@ def save_prediction(data):
         logging.error(f"Error saving prediction: {str(e)}")
         return None
 
-def load_predictions(include_live=False):
+def load_predictions(start_date=None, end_date=None, include_live=False):
     """Load predictions from Supabase database."""
     try:
-        # Get today's date in UTC
-        now = datetime.now(timezone.utc)
-        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
-        tomorrow_start = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+        # Start with base query
+        query = supabase.table('predictions').select('*')
         
-        # Query predictions
-        query = (
-            supabase.table('predictions')
-            .select('*')
-            .gte('scheduled_start', today_start)
-            .lt('scheduled_start', tomorrow_start)
-            .order('scheduled_start', desc=False)
-            .execute()
-        )
+        # Add date filters if provided
+        if start_date:
+            query = query.gte('scheduled_start', start_date.isoformat())
+        if end_date:
+            query = query.lte('scheduled_start', end_date.isoformat())
+            
+        # Execute query
+        result = query.execute()
+        predictions = result.data if result else []
         
-        # Process results
-        if query.data:
-            # Remove any duplicates based on teams and scheduled_start
-            seen = set()
-            unique_predictions = []
-            for pred in query.data:
-                key = (pred['home_team'], pred['away_team'], pred['scheduled_start'])
-                if key not in seen:
-                    seen.add(key)
-                    unique_predictions.append(pred)
+        if not predictions:
+            return []
             
-            logging.info(f"Loaded {len(unique_predictions)} predictions for today")
-            return unique_predictions
-            
-        logging.info("No predictions found for today")
-        return []
+        # Sort predictions by scheduled start time
+        predictions.sort(key=lambda x: x['scheduled_start'])
+        
+        # Update with live scores if requested
+        if include_live:
+            try:
+                live_games = nba_client.get_live_games()
+                if live_games:
+                    for pred in predictions:
+                        game_key = f"{pred['home_team']}_{pred['away_team']}"
+                        for live in live_games:
+                            live_key = f"{live['teams']['home']['name']}_{live['teams']['away']['name']}"
+                            if game_key == live_key:
+                                pred['live_scores'] = {
+                                    'home': live['scores']['home']['points'],
+                                    'away': live['scores']['away']['points'],
+                                    'status': live['status']
+                                }
+            except Exception as e:
+                logging.error(f"Error fetching live scores: {str(e)}")
+                
+        return predictions
         
     except Exception as e:
         st.error(f"Error loading predictions: {str(e)}")
@@ -696,31 +703,64 @@ def delete_all_predictions():
         logging.error(f"Delete error: {str(e)}")
 
 def main():
-    apply_custom_styles()
-    
-    if not SessionState.get('authenticated'):
-        show_login_page()
-        return
-    
-    create_navigation()
-    st.title("🏀 NBA Game Predictions")
-    
-    # Add refresh button
-    refresh = st.button("🔄 Generate New Predictions")
-    
-    with st.spinner("Loading predictions..."):
-        if refresh:
-            predictions = refresh_predictions()
-        else:
-            predictions = load_predictions(include_live=False)
+    """Main function to run the Streamlit app."""
+    try:
+        if not SessionState.get('authenticated'):
+            show_login_page()
+            return
+
+        # Create navigation
+        create_navigation()
         
-        if predictions:
-            # Sort predictions by game time
-            predictions.sort(key=lambda x: x['scheduled_start'])
-            for prediction in predictions:
+        # Add date filters in a container
+        with st.container():
+            col1, col2, _ = st.columns([2, 2, 4])
+            
+            # Get today's date in UTC
+            now = datetime.now(timezone.utc)
+            today = now.date()
+            
+            # Date inputs (convert to UTC for consistency)
+            with col1:
+                start_date = st.date_input(
+                    "Start Date",
+                    value=today,
+                    min_value=today - timedelta(days=7),
+                    max_value=today + timedelta(weeks=2)
+                )
+            
+            with col2:
+                end_date = st.date_input(
+                    "End Date",
+                    value=today,
+                    min_value=start_date,
+                    max_value=today + timedelta(weeks=2)
+                )
+            
+            # Convert dates to UTC datetime
+            start_datetime = datetime.combine(start_date, datetime.min.time()).replace(tzinfo=timezone.utc)
+            end_datetime = datetime.combine(end_date, datetime.max.time()).replace(tzinfo=timezone.utc)
+
+        # Load predictions for the selected date range
+        predictions = load_predictions(start_datetime, end_datetime)
+        
+        if not predictions:
+            st.warning("No predictions available. Click 'Generate New Predictions' to create predictions.")
+            return
+
+        # Display predictions in a grid
+        total_predictions = len(predictions)
+        st.write(f"Showing {total_predictions} predictions for {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
+        
+        # Create a grid layout
+        cols = st.columns(3)
+        for idx, prediction in enumerate(predictions):
+            with cols[idx % 3]:
                 display_game_card(prediction)
-        else:
-            st.info("No predictions available. Click 'Generate New Predictions' to create predictions.")
+
+    except Exception as e:
+        st.error(f"Error in main: {str(e)}")
+        logging.error(f"Error in main: {str(e)}")
 
 if __name__ == "__main__":
     main()
