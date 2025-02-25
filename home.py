@@ -10,7 +10,7 @@ from prediction_service import NBAPredictor
 from api_client import EnhancedNBAApiClient
 from session_state import SessionState
 from supabase import Client
-from reward_system import RewardSystem
+from reward_system import RewardSystemManager
 
 # Initialize session state
 SessionState.init_state()
