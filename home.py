@@ -428,7 +428,25 @@ def fetch_and_save_games():
 def save_prediction(data):
     """Save a prediction to Supabase."""
     try:
-        return supabase.table('predictions').insert(data).execute()
+        # Create a unique key for the game
+        game_key = f"{data['home_team']}_{data['away_team']}_{data['scheduled_start']}"
+        
+        # Check if prediction already exists
+        existing = (
+            supabase.table('predictions')
+            .select('*')
+            .eq('home_team', data['home_team'])
+            .eq('away_team', data['away_team'])
+            .eq('scheduled_start', data['scheduled_start'])
+            .execute()
+        )
+        
+        if existing.data:
+            # Update existing prediction
+            return supabase.table('predictions').update(data).eq('id', existing.data[0]['id']).execute()
+        else:
+            # Insert new prediction
+            return supabase.table('predictions').insert(data).execute()
     except Exception as e:
         logging.error(f"Error saving prediction: {str(e)}")
         return None
@@ -476,6 +494,9 @@ def load_predictions(include_live=False):
 def refresh_predictions():
     """Refresh predictions by updating only missing or outdated ones"""
     try:
+        # Clean up any existing duplicates first
+        clean_duplicate_predictions()
+        
         # Set date range for fetching games (2 days ago to 2 weeks ahead)
         now = datetime.now(timezone.utc)
         start_date = now - timedelta(days=2)
@@ -520,10 +541,16 @@ def refresh_predictions():
                         new_predictions.extend(result.data)
                         logging.info(f"Added game: {game['teams']['home']['name']} vs {game['teams']['away']['name']}")
         
-        # Combine existing and new predictions
-        all_predictions = (existing_predictions.data or []) + new_predictions
-        logging.info(f"Found {len(games) if games else 0} upcoming games")
-        return all_predictions
+        # Load all predictions again to ensure we have the latest data
+        latest_predictions = (
+            supabase.table('predictions')
+            .select('*')
+            .gte('scheduled_start', today_start)
+            .lt('scheduled_start', tomorrow_start)
+            .execute()
+        )
+        
+        return latest_predictions.data or []
         
     except Exception as e:
         logging.error(f"Error refreshing predictions: {str(e)}")
