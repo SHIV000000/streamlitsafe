@@ -1,50 +1,67 @@
 import streamlit as st
-from typing import Any, Dict
 
 class SessionState:
-    """Manages session state across all pages"""
+    """Class to manage session state."""
     
     @staticmethod
     def init_state():
-        """Initialize all session state variables"""
-        defaults = {
-            'current_page': 'predictions',
-            'supabase_client': None,
-            'predictions': [],
-            'last_refresh': None,
-            'show_history': False,
-            'filter_date': None,
-            'selected_teams': [],
-        }
+        """Initialize session state variables."""
+        if 'authenticated' not in st.session_state:
+            st.session_state.authenticated = False
+            
+        if 'username' not in st.session_state:
+            st.session_state.username = None
+            
+        if 'current_page' not in st.session_state:
+            st.session_state.current_page = 'home'
+            
+        if 'supabase_client' not in st.session_state:
+            st.session_state.supabase_client = None
+            
+    @staticmethod
+    def login(username: str):
+        """Set login state."""
+        st.session_state.authenticated = True
+        st.session_state.username = username
         
-        # Initialize each state variable if not already present
-        for key, default_value in defaults.items():
-            if key not in st.session_state:
-                st.session_state[key] = default_value
-    
     @staticmethod
-    def get(key: str, default: Any = None) -> Any:
-        """Get a session state value"""
-        return st.session_state.get(key, default)
-    
+    def logout():
+        """Clear login state."""
+        st.session_state.authenticated = False
+        st.session_state.username = None
+        
     @staticmethod
-    def set(key: str, value: Any):
-        """Set a session state value"""
+    def is_authenticated() -> bool:
+        """Check if user is authenticated."""
+        return st.session_state.get('authenticated', False)
+        
+    @staticmethod
+    def get_username() -> str:
+        """Get current username."""
+        return st.session_state.get('username', None)
+        
+    @staticmethod
+    def set_page(page: str):
+        """Set current page."""
+        st.session_state.current_page = page
+        
+    @staticmethod
+    def get_page() -> str:
+        """Get current page."""
+        return st.session_state.get('current_page', 'home')
+        
+    @staticmethod
+    def get(key):
+        """Get a value from session state."""
+        return st.session_state.get(key)
+        
+    @staticmethod
+    def set(key, value):
+        """Set a value in session state."""
         st.session_state[key] = value
-    
+        
     @staticmethod
     def clear():
-        """Clear all session state"""
+        """Clear all session state variables."""
         for key in list(st.session_state.keys()):
             del st.session_state[key]
-        SessionState.init_state()
-    
-    @staticmethod
-    def navigate_to(page: str):
-        """Navigate to a different page"""
-        st.session_state.current_page = page
-    
-    @staticmethod
-    def get_all_state() -> Dict[str, Any]:
-        """Get all session state as a dictionary"""
-        return dict(st.session_state)

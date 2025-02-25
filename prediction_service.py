@@ -3,9 +3,10 @@
 import joblib
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, Tuple, List
+from typing import Dict, List, Optional, Tuple, Any
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
+from nba_stats import NBA_TEAM_STATS  # Import the stats
 import json
 import os
 import pickle
@@ -23,197 +24,96 @@ class NBAPredictor:
     def prepare_features(self, home_stats: Dict, away_stats: Dict) -> Dict:
         """Prepare features for prediction."""
         try:
-            # Calculate win percentages
+            # Calculate basic stats
             home_total_games = home_stats['wins'] + home_stats['losses']
             away_total_games = away_stats['wins'] + away_stats['losses']
             
             home_win_pct = home_stats['wins'] / home_total_games if home_total_games > 0 else 0.5
             away_win_pct = away_stats['wins'] / away_total_games if away_total_games > 0 else 0.5
             
-            # Calculate last 10 games win percentage
-            home_last_10_win_pct = home_stats['last_ten']['wins'] / 10
-            away_last_10_win_pct = away_stats['last_ten']['wins'] / 10
-            
-            # Calculate home/away win percentages
-            home_home_games = home_stats['home_record']['wins'] + home_stats['home_record']['losses']
-            away_away_games = away_stats['away_record']['wins'] + away_stats['away_record']['losses']
-            
-            home_home_win_pct = home_stats['home_record']['wins'] / home_home_games if home_home_games > 0 else 0.5
-            away_away_win_pct = away_stats['away_record']['wins'] / away_away_games if away_away_games > 0 else 0.5
-            
+            # Prepare features dictionary
             features = {
                 'home_win_pct': home_win_pct,
                 'away_win_pct': away_win_pct,
-                'home_last_10_win_pct': home_last_10_win_pct,
-                'away_last_10_win_pct': away_last_10_win_pct,
-                'home_home_win_pct': home_home_win_pct,
-                'away_away_win_pct': away_away_win_pct,
-                'home_points_per_game': home_stats['points_per_game'],
-                'away_points_per_game': away_stats['points_per_game'],
-                'home_points_allowed': home_stats['points_allowed'],
-                'away_points_allowed': away_stats['points_allowed'],
-                'home_field_goal_pct': home_stats['field_goal_pct'],
-                'away_field_goal_pct': away_stats['field_goal_pct'],
-                'home_three_point_pct': home_stats['three_point_pct'],
-                'away_three_point_pct': away_stats['three_point_pct'],
-                'home_win_streak': home_stats.get('win_streak', 0),
-                'away_win_streak': away_stats.get('win_streak', 0)
+                'home_ppg': home_stats['points_per_game'],
+                'away_ppg': away_stats['points_per_game'],
+                'home_papg': home_stats['points_allowed'],
+                'away_papg': away_stats['points_allowed'],
+                'home_off_rtg': home_stats['offensive_rating'],
+                'away_off_rtg': away_stats['offensive_rating'],
+                'home_def_rtg': home_stats['defensive_rating'],
+                'away_def_rtg': away_stats['defensive_rating']
             }
             
-            logging.info(f"Prepared features: {json.dumps(features, indent=2)}")
             return features
             
         except Exception as e:
             logging.error(f"Error preparing features: {str(e)}", exc_info=True)
             return None
-
-    def predict_game(self, features: Dict) -> Tuple[str, float]:
+            
+    def predict_game(self, home_stats: Dict, away_stats: Dict) -> Tuple[str, float]:
         """Make prediction using statistical analysis."""
         try:
-            if not features:
+            if not home_stats or not away_stats:
                 return ('unknown', 50.0)
                 
-            # Initialize factors dictionary for detailed logging
-            factors = {}
+            # Team strength factors
+            home_strength = (
+                home_stats['offensive_rating'] / 100 +
+                (100 - home_stats['defensive_rating']) / 100 +
+                home_stats['wins'] / (home_stats['wins'] + home_stats['losses'])
+            )
             
-            # Season record impact (25%)
-            home_win_pct = features['home_win_pct']
-            away_win_pct = features['away_win_pct']
-            record_impact = (home_win_pct - away_win_pct) * 0.25
-            factors['record'] = record_impact
+            away_strength = (
+                away_stats['offensive_rating'] / 100 +
+                (100 - away_stats['defensive_rating']) / 100 +
+                away_stats['wins'] / (away_stats['wins'] + away_stats['losses'])
+            )
             
-            # Recent form impact (20%)
-            home_form = features['home_last_10_win_pct']
-            away_form = features['away_last_10_win_pct']
-            form_impact = (home_form - away_form) * 0.20
-            factors['form'] = form_impact
-            
-            # Offensive rating impact (15%)
-            home_off = features['home_points_per_game']
-            away_off = features['away_points_per_game']
-            offensive_impact = (home_off - away_off) * 0.0015  # Scaled due to larger numbers
-            factors['offense'] = offensive_impact
-            
-            # Defensive rating impact (15%)
-            home_def = features['home_points_allowed']
-            away_def = features['away_points_allowed']
-            defensive_impact = (away_def - home_def) * 0.0015  # Reversed since lower is better
-            factors['defense'] = defensive_impact
-            
-            # Home/Away record impact (10%)
-            home_home_pct = features['home_home_win_pct']
-            away_away_pct = features['away_away_win_pct']
-            venue_impact = (home_home_pct - away_away_pct) * 0.10
-            factors['venue'] = venue_impact
-            
-            # Shooting efficiency impact (10%)
-            home_efficiency = (features['home_field_goal_pct'] + features['home_three_point_pct']) / 2
-            away_efficiency = (features['away_field_goal_pct'] + features['away_three_point_pct']) / 2
-            shooting_impact = (home_efficiency - away_efficiency) * 0.001
-            factors['shooting'] = shooting_impact
-            
-            # Win streak impact (5%)
-            home_streak = features.get('home_win_streak', 0)
-            away_streak = features.get('away_win_streak', 0)
-            streak_impact = (home_streak - away_streak) * 0.01
-            factors['streak'] = streak_impact
-            
-            # Calculate base win probability
-            win_prob = 0.5
-            for impact in factors.values():
-                win_prob += impact
+            # Calculate win probability
+            base_prob = 50 + (home_strength - away_strength) * 20
             
             # Add home court advantage
-            home_advantage = 0.04
-            win_prob += home_advantage
-            factors['home_advantage'] = home_advantage
+            home_advantage = 10
+            win_prob = base_prob + home_advantage
             
             # Ensure probability is within bounds
-            win_prob = max(0.2, min(0.8, win_prob))
+            win_prob = max(20, min(80, win_prob))
             
-            # Convert to percentage
-            win_prob_pct = round(win_prob * 100, 1)
-            
-            # Log prediction details
-            logging.info(f"""
-            Prediction Details for {features.get('home_team', 'Home')} vs {features.get('away_team', 'Away')}:
-            Factors contributing to prediction:
-            - Season Record Impact: {factors['record']:.3f} ({home_win_pct:.3f} vs {away_win_pct:.3f})
-            - Recent Form Impact: {factors['form']:.3f} ({home_form:.3f} vs {away_form:.3f})
-            - Offensive Impact: {factors['offense']:.3f} ({home_off:.1f} vs {away_off:.1f})
-            - Defensive Impact: {factors['defense']:.3f} ({home_def:.1f} vs {away_def:.1f})
-            - Home/Away Impact: {factors['venue']:.3f} ({home_home_pct:.3f} vs {away_away_pct:.3f})
-            - Shooting Impact: {factors['shooting']:.3f} ({home_efficiency:.1f} vs {away_efficiency:.1f})
-            - Win Streak Impact: {factors['streak']:.3f} ({home_streak} vs {away_streak})
-            - Home Court Advantage: {factors['home_advantage']:.3f}
-            Final Win Probability: {win_prob_pct}%
-            """)
-            
-            return ('home' if win_prob > 0.5 else 'away', win_prob_pct)
-            
+            # Determine winner based on team strengths
+            if home_strength > away_strength:
+                return ('home', win_prob)
+            else:
+                return ('away', win_prob)
+                
         except Exception as e:
             logging.error(f"Error making prediction: {str(e)}", exc_info=True)
             return ('unknown', 50.0)
-            
+
     def predict_score_range(self, team_stats: Dict, opponent_stats: Dict, is_home: bool) -> Tuple[int, int]:
         """Predict score range for a team."""
         try:
-            # Get base scoring stats
-            points_per_game = float(team_stats.get('points_per_game', 110))
-            opp_points_allowed = float(opponent_stats.get('points_allowed', 110))
+            # Get team's scoring stats
+            team_ppg = team_stats['points_per_game']
+            opp_defense = opponent_stats['points_allowed']
             
-            # Get recent scoring trends
-            recent_points = float(team_stats.get('last_ten', {}).get('points_per_game', points_per_game))
-            recent_opp_allowed = float(opponent_stats.get('last_ten', {}).get('points_allowed', opp_points_allowed))
+            # Calculate base score prediction
+            base_score = (team_ppg + opp_defense) / 2
             
-            # Weight recent performance vs season average
-            expected_points = (points_per_game * 0.6) + (recent_points * 0.4)
-            expected_opp_defense = (opp_points_allowed * 0.6) + (recent_opp_allowed * 0.4)
-            
-            # Calculate base expected score
-            base_score = (expected_points * 0.6) + ((110 - expected_opp_defense) * 0.4)
-            
-            # Add home court adjustment
+            # Add home court advantage if applicable
             if is_home:
-                base_score += 3.5
-            
-            # Calculate variance based on team stats
-            fg_pct = float(team_stats.get('field_goal_pct', 45))
-            last_ten_wins = team_stats.get('last_ten', {}).get('wins', 5)
-            offensive_rating = float(team_stats.get('offensive_rating', 110))
-            
-            # More variance for high-scoring and inconsistent teams
-            base_variance = 7
-            shooting_variance = (fg_pct - 45) / 5  # More variance for better shooting teams
-            form_variance = (last_ten_wins - 5) / 2  # More variance for teams on streaks
-            pace_variance = (offensive_rating - 110) / 20  # More variance for fast-paced teams
-            
-            total_variance = base_variance + shooting_variance + form_variance + pace_variance
-            
-            # Calculate score range
-            min_score = max(85, int(base_score - total_variance))
-            max_score = min(140, int(base_score + total_variance))
-            
-            logging.info(f"""
-            Score Range Prediction:
-            - Season PPG: {points_per_game:.1f}
-            - Recent PPG: {recent_points:.1f}
-            - Opponent Points Allowed: {opp_points_allowed:.1f}
-            - Recent Opp Points Allowed: {recent_opp_allowed:.1f}
-            - Base Expected Score: {base_score:.1f}
-            - Variance Components:
-              * Base: {base_variance:.1f}
-              * Shooting: {shooting_variance:.1f}
-              * Form: {form_variance:.1f}
-              * Pace: {pace_variance:.1f}
-            - Final Range: {min_score}-{max_score}
-            """)
+                base_score += 2  # Home teams typically score 2-3 more points
+                
+            # Add random variation
+            variation = 5
+            min_score = int(base_score - variation)
+            max_score = int(base_score + variation)
             
             return (min_score, max_score)
             
         except Exception as e:
-            logging.error(f"Error predicting score range: {str(e)}")
-            return (100, 110) if is_home else (95, 105)
+            logging.error(f"Error predicting score range: {str(e)}", exc_info=True)
+            return (95, 105)  # Fallback range
 
     def save_prediction(
         self,
@@ -741,3 +641,90 @@ class NBAPredictor:
         except Exception as e:
             logging.error(f"Error in weighted average calculation: {str(e)}")
             return 0.5
+
+    def generate_prediction(self, game):
+        """Generate prediction with proper error handling and logging."""
+        try:
+            home_team = game['teams']['home']
+            away_team = game['teams']['away']
+            
+            # Get team statistics with retries
+            home_stats = self.nba_client.get_team_stats(home_team['name'])
+            away_stats = self.nba_client.get_team_stats(away_team['name'])
+            
+            logging.info(f"Raw home team stats for {home_team['name']}: {json.dumps(home_stats, indent=2)}")
+            logging.info(f"Raw away team stats for {away_team['name']}: {json.dumps(away_stats, indent=2)}")
+            
+            if not home_stats or not away_stats:
+                logging.error(f"Missing stats for {home_team['name']} or {away_team['name']}")
+                return None
+            
+            # Prepare features for prediction
+            features = self.prepare_features(home_stats, away_stats)
+            features['home_team'] = home_team['name']
+            features['away_team'] = away_team['name']
+            
+            logging.info(f"Prepared features: {json.dumps(features, indent=2)}")
+            
+            # Get prediction from ML models
+            winner, probability = self.predict_game(features)
+            
+            logging.info(f"Initial prediction: Winner={winner}, Probability={probability}")
+            
+            # Calculate score ranges
+            home_score_range = self.predict_score_range(home_stats, away_stats, is_home=True)
+            away_score_range = self.predict_score_range(away_stats, home_stats, is_home=False)
+            
+            logging.info(f"Score ranges: Home={home_score_range}, Away={away_score_range}")
+            
+            return {
+                'id': str(uuid.uuid4()),
+                'home_team': home_team['name'],
+                'away_team': away_team['name'],
+                'predicted_winner': winner,
+                'win_probability': probability,
+                'scheduled_start': game['date']['start'],
+                'home_score_min': home_score_range[0],
+                'home_score_max': home_score_range[1],
+                'away_score_min': away_score_range[0],
+                'away_score_max': away_score_range[1],
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }
+            
+        except Exception as e:
+            logging.error(f"Error generating prediction: {str(e)}", exc_info=True)
+            return None
+
+    def calculate_score_range(self, team_stats: Dict) -> Tuple[int, int]:
+        """Calculate the predicted score range for a team."""
+        try:
+            # Base score from points per game
+            base_score = 110  # League average points per game
+            
+            # Adjust based on offensive rating relative to league average (100)
+            offensive_factor = team_stats['offensive_rating'] / 100
+            
+            # Calculate predicted score
+            predicted_score = base_score * offensive_factor
+            
+            # Add variance for range
+            variance = 10  # Points of variance for the range
+            min_score = max(85, int(predicted_score - variance))  # Minimum reasonable NBA score
+            max_score = min(135, int(predicted_score + variance))  # Maximum reasonable NBA score
+            
+            # Log the calculation
+            logging.info(f"""
+            Score Range Calculation for {team_stats.get('team_name', 'Unknown Team')}:
+            - Base Score: {base_score}
+            - Offensive Rating: {team_stats['offensive_rating']}
+            - Offensive Factor: {offensive_factor:.2f}
+            - Predicted Score: {predicted_score:.1f}
+            - Final Range: {min_score}-{max_score}
+            """)
+            
+            return (min_score, max_score)
+            
+        except Exception as e:
+            logging.error(f"Error calculating score range: {str(e)}")
+            return (100, 110)  # Default reasonable NBA score range
