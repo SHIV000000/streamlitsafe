@@ -614,36 +614,27 @@ def create_navigation():
 
 def show_login_page():
     """Show the login page with username and password fields."""
-    try:
-        st.markdown("""
-            <style>
-                .stApp {
-                    max-width: 800px;
-                    margin: 0 auto;
-                    padding: 2rem;
-                }
-                [data-testid="stSidebar"] {
-                    display: none;
-                }
-            </style>
-        """, unsafe_allow_html=True)
-        
-        st.title("🏀 NBA Predictions Login")
-        
+    st.markdown("""
+        <style>
+            [data-testid="stSidebar"] {
+                display: none;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    st.title("🏀 NBA Predictions Login")
+    
+    with st.form("login_form"):
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
         
-        if st.button("Login"):
+        if st.form_submit_button("Login"):
             if username == "match_wizard" and password == "GoalMaster":
-                SessionState.authenticated = True
-                st.success("Login successful!")
-                st.experimental_rerun()
+                SessionState.set('authenticated', True)
+                st.success("✅ Login successful!")
+                st.rerun()
             else:
-                st.error("Invalid username or password")
-                
-    except Exception as e:
-        st.error(f"Error in login: {str(e)}")
-        logging.error(f"Error in show_login_page: {str(e)}")
+                st.error("❌ Invalid username or password")
 
 def delete_all_predictions():
     """Delete all predictions from Supabase"""
