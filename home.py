@@ -528,89 +528,145 @@ def display_game_card(prediction):
         game_time = datetime.fromisoformat(prediction['scheduled_start'])
         ist_time = game_time.astimezone(pytz.timezone('Asia/Kolkata'))
         
-        # Format score ranges
+        # Format score ranges and time
         home_score = f"{prediction['home_score_min']}-{prediction['home_score_max']}"
         away_score = f"{prediction['away_score_min']}-{prediction['away_score_max']}"
         game_time_str = ist_time.strftime('%Y-%m-%d %H:%M IST')
         win_prob = f"{prediction['win_probability']*100:.1f}"
         
-        st.markdown("""
-            <style>
-                .prediction-card {
-                    background-color: #f8f9fa;
-                    border-radius: 10px;
-                    padding: 20px;
-                    margin-bottom: 20px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }
-                .team-name {
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: #2c3e50;
-                    margin-bottom: 5px;
-                }
-                .score-range {
-                    font-size: 14px;
-                    color: #666;
-                    margin-bottom: 10px;
-                }
-                .game-info {
-                    text-align: center;
-                    margin: 15px 0;
-                }
-                .prediction-result {
-                    background-color: #e8f4f8;
-                    padding: 10px;
-                    border-radius: 5px;
-                    margin-top: 15px;
-                }
-            </style>
-        """, unsafe_allow_html=True)
-        
-        st.markdown(f"""
-            <div class="prediction-card">
-                <div class="team-name">{prediction['home_team']}</div>
-                <div class="score-range">Score Range: {home_score}</div>
-                
-                <div class="game-info">
-                    <strong>vs</strong><br>
-                    Game Time: {game_time_str}
-                </div>
-                
-                <div class="team-name">{prediction['away_team']}</div>
-                <div class="score-range">Score Range: {away_score}</div>
-                
-                <div class="prediction-result">
-                    <strong>Predicted Winner:</strong> {prediction['predicted_winner']}<br>
-                    <strong>Win Probability:</strong> {win_prob}%
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-        
+        # Create a container for the prediction card
+        with st.container():
+            st.markdown("---")  # Divider
+            
+            # Home team
+            st.markdown(f"### {prediction['home_team']}")
+            st.write(f"Score Range: {home_score}")
+            
+            # Game info
+            st.markdown("### vs")
+            st.write(f"Game Time: {game_time_str}")
+            
+            # Away team
+            st.markdown(f"### {prediction['away_team']}")
+            st.write(f"Score Range: {away_score}")
+            
+            # Prediction result
+            st.info(f"Predicted Winner: {prediction['predicted_winner']}\nWin Probability: {win_prob}%")
+            
     except Exception as e:
         st.error(f"Error displaying prediction: {str(e)}")
         logging.error(f"Error in display_game_card: {str(e)}")
 
-def create_navigation():
-    """Create navigation bar with buttons"""
-    col1, col2, col3, col4 = st.columns([2, 2, 2, 1])
+def create_navbar():
+    """Create a navigation bar at the top of the page."""
+    st.markdown("""
+        <style>
+            [data-testid="stSidebar"] {
+                display: none;
+            }
+            .navbar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 0;
+                margin-bottom: 2rem;
+                border-bottom: 1px solid #e1e4e8;
+            }
+            .nav-buttons {
+                display: flex;
+                gap: 1rem;
+            }
+        </style>
+    """, unsafe_allow_html=True)
     
-    with col1:
-        if st.button("🏠 Home", use_container_width=True):
-            SessionState.set('current_page', 'predictions')
-            st.switch_page("home.py")
+    col1, col2 = st.columns([3, 1])
     
     with col2:
-        if st.button("📊 History", use_container_width=True):
-            SessionState.set('current_page', 'history')
-            st.switch_page("pages/01_History.py")
-    
-    with col4:
-        if st.button("🚪 Logout", type="primary", use_container_width=True):
-            SessionState.clear()
+        st.markdown('<div class="nav-buttons">', unsafe_allow_html=True)
+        if st.button("🔄 Refresh Predictions"):
+            refresh_predictions()
             st.rerun()
-    
-    st.divider()
+        if st.button("🚪 Logout"):
+            SessionState.set('authenticated', False)
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+def main():
+    """Main function to run the Streamlit app."""
+    try:
+        if not SessionState.get('authenticated'):
+            show_login_page()
+            return
+
+        # Create navbar
+        create_navbar()
+        
+        # Add date filters in a container
+        with st.container():
+            st.title("🏀 NBA Game Predictions")
+            col1, col2 = st.columns([2, 2])
+            
+            # Get today's date in UTC
+            now = datetime.now(timezone.utc)
+            today = now.date()
+            
+            # Date inputs (convert to UTC for consistency)
+            with col1:
+                start_date = st.date_input(
+                    "Start Date",
+                    value=today,
+                    min_value=today - timedelta(days=7),
+                    max_value=today + timedelta(weeks=2)
+                )
+            
+            with col2:
+                end_date = st.date_input(
+                    "End Date",
+                    value=today,
+                    min_value=start_date,
+                    max_value=today + timedelta(weeks=2)
+                )
+
+        # Convert dates to UTC datetime
+        start_datetime = datetime.combine(start_date, datetime.min.time()).replace(tzinfo=timezone.utc)
+        end_datetime = datetime.combine(end_date, datetime.max.time()).replace(tzinfo=timezone.utc)
+
+        # Load predictions
+        with st.spinner("Loading predictions..."):
+            predictions = load_predictions(start_datetime, end_datetime)
+
+        if not predictions:
+            st.warning("No predictions available for the selected date range.")
+            return
+
+        # Group predictions by date
+        predictions_by_date = {}
+        for pred in predictions:
+            game_date = datetime.fromisoformat(pred['scheduled_start']).strftime('%Y-%m-%d')
+            if game_date not in predictions_by_date:
+                predictions_by_date[game_date] = []
+            predictions_by_date[game_date].append(pred)
+
+        # Display predictions grouped by date
+        for date in sorted(predictions_by_date.keys()):
+            st.subheader(f"Games on {date}")
+            
+            # Remove duplicates based on teams and start time
+            seen = set()
+            unique_predictions = []
+            for pred in predictions_by_date[date]:
+                key = (pred['home_team'], pred['away_team'], pred['scheduled_start'])
+                if key not in seen:
+                    seen.add(key)
+                    unique_predictions.append(pred)
+            
+            # Display predictions in a single column
+            for prediction in unique_predictions:
+                display_game_card(prediction)
+
+    except Exception as e:
+        st.error(f"Error in main: {str(e)}")
+        logging.error(f"Error in main: {str(e)}")
 
 def show_login_page():
     """Show the login page with username and password fields."""
@@ -659,89 +715,6 @@ def delete_all_predictions():
     except Exception as e:
         st.error(f"Error deleting predictions: {str(e)}")
         logging.error(f"Delete error: {str(e)}")
-
-def main():
-    """Main function to run the Streamlit app."""
-    try:
-        if not SessionState.get('authenticated'):
-            show_login_page()
-            return
-
-        # Apply custom styles
-        apply_custom_styles()
-        
-        # Add date filters in a container
-        with st.container():
-            st.title("🏀 NBA Game Predictions")
-            col1, col2, col3 = st.columns([2, 2, 1])
-            
-            # Get today's date in UTC
-            now = datetime.now(timezone.utc)
-            today = now.date()
-            
-            # Date inputs (convert to UTC for consistency)
-            with col1:
-                start_date = st.date_input(
-                    "Start Date",
-                    value=today,
-                    min_value=today - timedelta(days=7),
-                    max_value=today + timedelta(weeks=2)
-                )
-            
-            with col2:
-                end_date = st.date_input(
-                    "End Date",
-                    value=today,
-                    min_value=start_date,
-                    max_value=today + timedelta(weeks=2)
-                )
-            
-            with col3:
-                refresh = st.button("🔄 Refresh")
-
-        # Convert dates to UTC datetime
-        start_datetime = datetime.combine(start_date, datetime.min.time()).replace(tzinfo=timezone.utc)
-        end_datetime = datetime.combine(end_date, datetime.max.time()).replace(tzinfo=timezone.utc)
-
-        # Load or refresh predictions
-        with st.spinner("Loading predictions..."):
-            if refresh:
-                predictions = refresh_predictions()
-            else:
-                predictions = load_predictions(start_datetime, end_datetime)
-
-        if not predictions:
-            st.warning("No predictions available for the selected date range.")
-            return
-
-        # Group predictions by date
-        predictions_by_date = {}
-        for pred in predictions:
-            game_date = datetime.fromisoformat(pred['scheduled_start']).strftime('%Y-%m-%d')
-            if game_date not in predictions_by_date:
-                predictions_by_date[game_date] = []
-            predictions_by_date[game_date].append(pred)
-
-        # Display predictions grouped by date
-        for date in sorted(predictions_by_date.keys()):
-            st.subheader(f"Games on {date}")
-            
-            # Remove duplicates based on teams and start time
-            seen = set()
-            unique_predictions = []
-            for pred in predictions_by_date[date]:
-                key = (pred['home_team'], pred['away_team'], pred['scheduled_start'])
-                if key not in seen:
-                    seen.add(key)
-                    unique_predictions.append(pred)
-            
-            # Display predictions in a single column
-            for prediction in unique_predictions:
-                display_game_card(prediction)
-
-    except Exception as e:
-        st.error(f"Error in main: {str(e)}")
-        logging.error(f"Error in main: {str(e)}")
 
 if __name__ == "__main__":
     main()
