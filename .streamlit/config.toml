@@ -1,15 +1,15 @@
 [theme]
 # Primary accent color for interactive elements
-primaryColor = "#FF4B4B"  # A vibrant red color for NBA theme
+primaryColor = "#3498db"  # A professional blue color
 
 # Background color for the main content area
-backgroundColor = "#FFFFFF"  # Pure white background
+backgroundColor = "#f5f7fa"  # A light gray background
 
 # Background color for sidebar and most interactive widgets
-secondaryBackgroundColor = "#FFFFFF"  # Pure white for all backgrounds
+secondaryBackgroundColor = "#ffffff"  # Pure white for all backgrounds
 
 # Color used for almost all text
-textColor = "#000000"  # Pure black text
+textColor = "#2c3e50"  # A dark gray text
 
 # Font family for all text in the app
 font = "sans serif"
@@ -48,6 +48,9 @@ showfileUploaderEncoding = false
 [ui]
 # Hide sidebar navigation globally
 showSidebarNavigation = false
+# Additional settings to completely hide the sidebar
+hideSidebarNav = true
+hideTopBar = true
 
 [mapbox]
 token = ""

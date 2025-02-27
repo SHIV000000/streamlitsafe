@@ -1,0 +1,372 @@
+/* Professional and aesthetic style for NBA Predictions App */
+
+/* Base colors */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #3498db;
+    --accent-light: #5dade2;
+    --text-color: #333;
+    --light-bg: #f5f7fa;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --error-color: #e74c3c;
+}
+
+/* Main container styling */
+.main {
+    background-color: var(--light-bg);
+    color: var(--text-color);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Header styling */
+.stApp header {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Title styling */
+h1, h2, h3 {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Card styling for predictions */
+.prediction-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.prediction-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Prediction main layout */
+.prediction-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+/* Team column layout */
+.team-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Middle column layout */
+.middle-column {
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0 20px;
+}
+
+/* Team name styling */
+.team-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Score label styling */
+.score-label, .range-label {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+/* Score styling */
+.score {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+}
+
+/* Range styling */
+.range {
+    font-size: 1.3rem;
+    color: var(--secondary-color);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* Vs text styling */
+.vs-text {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+}
+
+/* Game status styling */
+.game-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    background-color: var(--accent-light);
+    color: white;
+    text-align: center;
+    width: 100%;
+}
+
+/* Game details section */
+.game-details {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-top: 8px;
+    gap: 24px;
+}
+
+.detail-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    font-size: 0.9rem;
+}
+
+.detail-label {
+    color: var(--secondary-color);
+}
+
+.detail-value {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.detail-separator {
+    width: 1px;
+    height: 24px;
+    background-color: var(--border-color);
+    margin: 0 8px;
+}
+
+/* Confidence level indicators */
+.confidence-level {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.confidence-high {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.confidence-medium {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.confidence-low {
+    background-color: var(--error-color);
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .prediction-main {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .team-column {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .middle-column {
+        width: 100%;
+        margin: 10px 0;
+    }
+    
+    .team-name {
+        font-size: 1.4rem;
+    }
+    
+    .score {
+        font-size: 2rem;
+    }
+    
+    .range {
+        font-size: 1.1rem;
+    }
+    
+    .game-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 8px;
+    }
+    
+    .detail-item {
+        width: 100%;
+    }
+}
+
+/* Button styling */
+.stButton > button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.stButton > button:hover {
+    background-color: var(--accent-light);
+}
+
+/* Warning and info messages */
+.stAlert {
+    border-radius: 6px;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Login form styling */
+.login-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.login-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+/* Navigation styling */
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-link {
+    color: var(--accent-color);
+    font-weight: 500;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.logout-btn {
+    color: var(--error-color);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Navigation bar styling */
+.nav-bar {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-bar .stButton > button {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.nav-bar .stButton > button:hover {
+    background-color: var(--light-bg);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
+/* Specific button styles */
+.nav-bar button[key="history_btn"] {
+    color: var(--primary-color);
+}
+
+.nav-bar button[key="refresh_btn"] {
+    color: var(--accent-color);
+}
+
+.nav-bar button[key="logout_btn"] {
+    color: var(--error-color);
+}
+
+/* Responsive navigation */
+@media (max-width: 768px) {
+    .nav-bar {
+        padding: 8px 12px;
+        flex-wrap: wrap;
+    }
+    
+    .nav-bar .stButton > button {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Hide default Streamlit elements */
+#MainMenu, footer, [data-testid="stSidebar"] {
+    display: none !important;
+}

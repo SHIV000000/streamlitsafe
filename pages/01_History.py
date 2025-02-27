@@ -99,9 +99,12 @@ def show_history():
     # Remove sidebar and style columns
     st.markdown("""
         <style>
-        /* Reset and base styles */
+        /* Hide sidebar */
         [data-testid="stSidebar"] {display: none !important;}
-        .css-1d391kg, .css-1lcbmhc, .css-12oz5g7 {display: none !important;}
+        
+        /* Hide default Streamlit elements */
+        #MainMenu {visibility: hidden !important;}
+        footer {visibility: hidden !important;}
         
         /* Button styling */
         .stButton > button {

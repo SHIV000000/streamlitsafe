@@ -93,21 +93,44 @@ class NBAPredictor:
     def predict_score_range(self, team_stats: Dict, opponent_stats: Dict, is_home: bool) -> Tuple[int, int]:
         """Predict score range for a team."""
         try:
-            # Get team's scoring stats
-            team_ppg = team_stats['points_per_game']
-            opp_defense = opponent_stats['points_allowed']
+            # Base score for NBA games
+            base_score = 110  # Average NBA team score
             
-            # Calculate base score prediction
-            base_score = (team_ppg + opp_defense) / 2
+            # Adjust based on team's offensive rating (normalized around 100)
+            offensive_factor = team_stats['offensive_rating'] / 100
+            
+            # Adjust based on opponent's defensive rating (normalized around 100)
+            # Lower defensive rating is better, so we invert the relationship
+            defensive_factor = 2 - (opponent_stats['defensive_rating'] / 100)
+            
+            # Calculate adjusted score
+            adjusted_score = base_score * offensive_factor * (defensive_factor * 0.5 + 0.5)
             
             # Add home court advantage if applicable
             if is_home:
-                base_score += 2  # Home teams typically score 2-3 more points
-                
-            # Add random variation
-            variation = 5
-            min_score = int(base_score - variation)
-            max_score = int(base_score + variation)
+                adjusted_score += 3.5  # Home teams typically score 3-4 more points
+            
+            # Round to nearest integer
+            predicted_score = round(adjusted_score)
+            
+            # Create a range with tighter bounds for more accurate predictions
+            variation = max(4, min(8, predicted_score * 0.05))  # 5% variation, min 4, max 8
+            
+            min_score = max(80, int(predicted_score - variation))  # Minimum reasonable NBA score
+            max_score = int(predicted_score + variation)
+            
+            logging.debug(f"""
+                Score prediction details:
+                - Team: {team_stats.get('team_name', 'Unknown')}
+                - Base Score: {base_score}
+                - Offensive Rating: {team_stats['offensive_rating']}
+                - Offensive Factor: {offensive_factor:.2f}
+                - Opponent Defensive Rating: {opponent_stats['defensive_rating']}
+                - Defensive Factor: {defensive_factor:.2f}
+                - Home Court: {is_home}
+                - Adjusted Score: {adjusted_score:.1f}
+                - Final Range: {min_score}-{max_score}
+            """)
             
             return (min_score, max_score)
             
