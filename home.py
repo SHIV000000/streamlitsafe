@@ -303,7 +303,6 @@ def show_login():
     
     # Registration link
     st.markdown('<div style="text-align: center; margin-top: 20px;">', unsafe_allow_html=True)
-    st.markdown('Don\'t have an account? <a href="#" onclick="alert(\'Please contact admin to create an account\')">Register</a>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('</div>', unsafe_allow_html=True)  # Close login-container

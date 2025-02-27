@@ -76,11 +76,20 @@ def show_navigation():
 
 def get_prediction_accuracy(prediction: Dict, actual_result: Dict) -> str:
     """Calculate prediction accuracy and return formatted string."""
-    if not actual_result:
+    if not actual_result or not prediction:
         return "Pending"
         
     predicted_winner = prediction.get('predicted_winner')
-    actual_winner = actual_result.get('winner')
+    home_score = actual_result.get('home_score')
+    away_score = actual_result.get('away_score')
+    
+    # Determine actual winner based on scores
+    if home_score > away_score:
+        actual_winner = prediction.get('home_team')
+    elif away_score > home_score:
+        actual_winner = prediction.get('away_team')
+    else:
+        actual_winner = None  # Game tied
     
     if predicted_winner == actual_winner:
         return "✅ Correct"
@@ -428,91 +437,88 @@ def show_history():
     
     st.markdown("<hr>", unsafe_allow_html=True)
     
-    # Display table headers
+    # Sort predictions by date (newest first)
+    predictions.sort(key=lambda x: x.get('scheduled_start', ''), reverse=True)
+    
+    # Create table header
     st.markdown('<div class="prediction-table">', unsafe_allow_html=True)
     st.markdown('<div class="table-header">', unsafe_allow_html=True)
-    header_cols = st.columns([1.5, 2, 1.5, 1, 1, 1, 1.5, 1.5, 1.5])
-    with header_cols[0]:
-        st.markdown("**Date**")
-    with header_cols[1]:
-        st.markdown("**Match**")
-    with header_cols[2]:
-        st.markdown("**Predicted Winner**")
-    with header_cols[3]:
-        st.markdown("**Win %**")
-    with header_cols[4]:
-        st.markdown("**Home Score**")
-    with header_cols[5]:
-        st.markdown("**Away Score**")
-    with header_cols[6]:
-        st.markdown("**Actual Score**")
-    with header_cols[7]:
-        st.markdown("**Actual Winner**")
-    with header_cols[8]:
-        st.markdown("**Result**")
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown("---")
-
-    # Display predictions with results
-    for i, pred in enumerate(predictions):
-        # Get actual result
-        game_key = f"{pred.get('home_team')}_{pred.get('away_team')}"
-        actual_result = all_results.get(game_key)
-        
-        # Parse game time
-        game_time = datetime.fromisoformat(pred.get('scheduled_start').replace('Z', '+00:00'))
-        is_past_game = game_time < current_time
-        
-        st.markdown(f'<div class="table-row" id="row-{i}">', unsafe_allow_html=True)
-        cols = st.columns([1.5, 2, 1.5, 1, 1, 1, 1.5, 1.5, 1.5])
-        with cols[0]:
-            st.write(format_datetime(pred.get('created_at', '')))
-        with cols[1]:
-            st.write(f"{pred.get('home_team', 'N/A')} vs {pred.get('away_team', 'N/A')}")
-        with cols[2]:
-            st.write(pred.get('predicted_winner', 'N/A'))
-        with cols[3]:
-            # Convert probability from decimal to percentage
-            win_prob = pred.get('win_probability', 0)
-            # Check if the probability is already in percentage format
-            if win_prob <= 1.0:
-                win_prob = win_prob * 100
-            st.write(f"{win_prob:.1f}%")
-        with cols[4]:
-            st.markdown(f'<span class="score-display">{pred.get("home_score_min", "N/A")}-{pred.get("home_score_max", "N/A")}</span>', unsafe_allow_html=True)
-        with cols[5]:
-            st.markdown(f'<span class="score-display">{pred.get("away_score_min", "N/A")}-{pred.get("away_score_max", "N/A")}</span>', unsafe_allow_html=True)
-        with cols[6]:
-            if is_past_game:
-                if actual_result:
-                    st.markdown(f'<span class="score-display">{actual_result["home_score"]}-{actual_result["away_score"]}</span>', unsafe_allow_html=True)
-                else:
-                    st.markdown('<span class="status-pending">No result</span>', unsafe_allow_html=True)
-            else:
-                st.markdown('<span class="status-pending">Upcoming</span>', unsafe_allow_html=True)
-        with cols[7]:
-            if is_past_game:
-                if actual_result:
-                    actual_winner = actual_result.get('winner', 'N/A')
-                    winner_display = actual_result.get('home_team') if actual_winner == 'home' else actual_result.get('away_team')
-                    st.write(winner_display)
-                else:
-                    st.markdown('<span class="status-pending">No result</span>', unsafe_allow_html=True)
-            else:
-                st.markdown('<span class="status-pending">Upcoming</span>', unsafe_allow_html=True)
-        with cols[8]:
-            if is_past_game:
-                if actual_result:
-                    result = get_prediction_accuracy(pred, actual_result)
-                    css_class = "status-correct" if "Correct" in result else "status-incorrect"
-                    st.markdown(f'<span class="{css_class}">{result}</span>', unsafe_allow_html=True)
-                else:
-                    st.markdown('<span class="status-pending">No result</span>', unsafe_allow_html=True)
-            else:
-                st.markdown('<span class="status-pending">Upcoming</span>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    header_cols = st.columns([1, 2, 1.5, 1, 1.5, 1.5, 1.5, 1.5, 1])
     
-    st.markdown("---")
+    headers = [
+        "Date", "Match", "Predicted", "Win %", "Home", "Away", 
+        "Score", "Winner", "Result"
+    ]
+    
+    for col, header in zip(header_cols, headers):
+        with col:
+            st.markdown(f'<span class="header-text">{header}</span>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Group predictions by date
+    current_date = None
+    
+    # Display each prediction
+    for prediction in predictions:
+        game_key = f"{prediction.get('home_team')}_{prediction.get('away_team')}"
+        actual_result = all_results.get(game_key, {})
+        
+        # Format date
+        date = format_datetime(prediction.get('scheduled_start'))
+        
+        # Get teams and scores
+        home_team = prediction.get('home_team')
+        away_team = prediction.get('away_team')
+        home_score = actual_result.get('home_score', '-')
+        away_score = actual_result.get('away_score', '-')
+        
+        # Create columns for the prediction
+        cols = st.columns([1, 2, 1.5, 1, 1.5, 1.5, 1.5, 1.5, 1])
+        
+        with cols[0]:  # Date
+            st.markdown(f'<span class="date-display">{date}</span>', unsafe_allow_html=True)
+        
+        with cols[1]:  # Match
+            st.markdown(f'<div class="team-name">{home_team}<span class="team-vs">vs</span>{away_team}</div>', unsafe_allow_html=True)
+        
+        with cols[2]:  # Predicted Winner
+            st.markdown(f'<span class="team-name">{prediction.get("predicted_winner")}</span>', unsafe_allow_html=True)
+        
+        with cols[3]:  # Win %
+            prob = prediction.get("win_probability", 0)
+            color = "#166534" if prob > 65 else "#854d0e" if prob > 50 else "#991b1b"
+            st.markdown(f'<span class="win-probability" style="color: {color}">{prob:.1f}%</span>', unsafe_allow_html=True)
+        
+        with cols[4]:  # Home Score Range
+            st.markdown(f'<span class="score-display">{prediction.get("home_score_min")}-{prediction.get("home_score_max")}</span>', unsafe_allow_html=True)
+        
+        with cols[5]:  # Away Score Range
+            st.markdown(f'<span class="score-display">{prediction.get("away_score_min")}-{prediction.get("away_score_max")}</span>', unsafe_allow_html=True)
+        
+        with cols[6]:  # Actual Score
+            score_text = f"{home_score}-{away_score}" if home_score != '-' else "Pending"
+            st.markdown(f'<span class="score-display">{score_text}</span>', unsafe_allow_html=True)
+        
+        with cols[7]:  # Actual Winner
+            if home_score != '-':
+                if int(home_score) > int(away_score):
+                    st.markdown(f'<span class="team-name">{home_team}</span>', unsafe_allow_html=True)
+                elif int(away_score) > int(home_score):
+                    st.markdown(f'<span class="team-name">{away_team}</span>', unsafe_allow_html=True)
+                else:
+                    st.markdown('<span class="status-pending">Tie</span>', unsafe_allow_html=True)
+            else:
+                st.markdown('<span class="status-pending">-</span>', unsafe_allow_html=True)
+        
+        with cols[8]:  # Result
+            accuracy = get_prediction_accuracy(prediction, actual_result)
+            status_class = "status-correct" if "✅" in accuracy else "status-incorrect" if "❌" in accuracy else "status-pending"
+            st.markdown(f'<span class="{status_class}">{accuracy}</span>', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)  # Close prediction-table
+
+    st.markdown("<hr>", unsafe_allow_html=True)
     
     # Calculate and display prediction accuracy
     past_predictions = [p for p in predictions if datetime.fromisoformat(p.get('scheduled_start').replace('Z', '+00:00')) < current_time]
@@ -525,12 +531,12 @@ def show_history():
     if st.button("📥 Export to CSV"):
         # Convert predictions to CSV format
         csv_rows = [
-            "Date,Match,Predicted Winner,Win Probability,Home Score Range,Away Score Range,Actual Score,Actual Winner,Result"
+            "Date,Match,Predicted,Win %,Home,Away,Score,Winner,Result"
         ]
-        for pred in predictions:
-            game_key = f"{pred.get('home_team')}_{pred.get('away_team')}"
+        for prediction in predictions:
+            game_key = f"{prediction.get('home_team')}_{prediction.get('away_team')}"
             actual_result = all_results.get(game_key)
-            game_time = datetime.fromisoformat(pred.get('scheduled_start').replace('Z', '+00:00'))
+            game_time = datetime.fromisoformat(prediction.get('scheduled_start').replace('Z', '+00:00'))
             is_past_game = game_time < current_time
             
             actual_score = "Upcoming"
@@ -540,25 +546,25 @@ def show_history():
                 if actual_result:
                     actual_score = f"{actual_result['home_score']}-{actual_result['away_score']}"
                     actual_winner = actual_result.get('home_team') if actual_result.get('winner') == 'home' else actual_result.get('away_team')
-                    accuracy = get_prediction_accuracy(pred, actual_result)
+                    accuracy = get_prediction_accuracy(prediction, actual_result)
                 else:
                     actual_score = "No result"
                     actual_winner = "No result"
                     accuracy = "No result"
             
             # Format date to only show the date part
-            prediction_date = format_datetime(pred.get('created_at', ''))
+            prediction_date = format_datetime(prediction.get('created_at', ''))
             
             # Convert probability from decimal to percentage for CSV
-            win_prob = pred.get('win_probability', 0)
+            win_prob = prediction.get('win_probability', 0)
             if win_prob <= 1.0:
                 win_prob = win_prob * 100
             
             csv_rows.append(
-                f"{prediction_date},{pred.get('home_team', 'N/A')} vs {pred.get('away_team', 'N/A')},"
-                f"{pred.get('predicted_winner', 'N/A')},{win_prob:.1f}%,"
-                f"{pred.get('home_score_min', 'N/A')}-{pred.get('home_score_max', 'N/A')},"
-                f"{pred.get('away_score_min', 'N/A')}-{pred.get('away_score_max', 'N/A')},"
+                f"{prediction_date},{prediction.get('home_team', 'N/A')} vs {prediction.get('away_team', 'N/A')},"
+                f"{prediction.get('predicted_winner', 'N/A')},{win_prob:.1f}%,"
+                f"{prediction.get('home_score_min', 'N/A')}-{prediction.get('home_score_max', 'N/A')},"
+                f"{prediction.get('away_score_min', 'N/A')}-{prediction.get('away_score_max', 'N/A')},"
                 f"{actual_score},{actual_winner},{accuracy}"
             )
         
