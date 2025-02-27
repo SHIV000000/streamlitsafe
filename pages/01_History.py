@@ -4,6 +4,8 @@ import sys
 import os
 import logging
 from typing import List, Dict
+import pandas as pd
+import numpy as np
 
 # Add parent directory to path to import from parent
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -437,86 +439,196 @@ def show_history():
     
     st.markdown("<hr>", unsafe_allow_html=True)
     
-    # Sort predictions by date (newest first)
-    predictions.sort(key=lambda x: x.get('scheduled_start', ''), reverse=True)
-    
-    # Create table header
-    st.markdown('<div class="prediction-table">', unsafe_allow_html=True)
-    st.markdown('<div class="table-header">', unsafe_allow_html=True)
-    header_cols = st.columns([1, 2, 1.5, 1, 1.5, 1.5, 1.5, 1.5, 1])
-    
-    headers = [
-        "Date", "Match", "Predicted", "Win %", "Home", "Away", 
-        "Score", "Winner", "Result"
-    ]
-    
-    for col, header in zip(header_cols, headers):
-        with col:
-            st.markdown(f'<span class="header-text">{header}</span>', unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    # Group predictions by date
-    current_date = None
-    
-    # Display each prediction
+    # Convert predictions to a pandas DataFrame for better display
+    table_data = []
     for prediction in predictions:
         game_key = f"{prediction.get('home_team')}_{prediction.get('away_team')}"
         actual_result = all_results.get(game_key, {})
         
-        # Format date
+        # Get basic data
         date = format_datetime(prediction.get('scheduled_start'))
-        
-        # Get teams and scores
         home_team = prediction.get('home_team')
         away_team = prediction.get('away_team')
         home_score = actual_result.get('home_score', '-')
         away_score = actual_result.get('away_score', '-')
         
-        # Create columns for the prediction
-        cols = st.columns([1, 2, 1.5, 1, 1.5, 1.5, 1.5, 1.5, 1])
+        # Format predicted scores
+        home_range = f"{prediction.get('home_score_min')}-{prediction.get('home_score_max')}"
+        away_range = f"{prediction.get('away_score_min')}-{prediction.get('away_score_max')}"
         
-        with cols[0]:  # Date
-            st.markdown(f'<span class="date-display">{date}</span>', unsafe_allow_html=True)
-        
-        with cols[1]:  # Match
-            st.markdown(f'<div class="team-name">{home_team}<span class="team-vs">vs</span>{away_team}</div>', unsafe_allow_html=True)
-        
-        with cols[2]:  # Predicted Winner
-            st.markdown(f'<span class="team-name">{prediction.get("predicted_winner")}</span>', unsafe_allow_html=True)
-        
-        with cols[3]:  # Win %
-            prob = prediction.get("win_probability", 0)
-            color = "#166534" if prob > 65 else "#854d0e" if prob > 50 else "#991b1b"
-            st.markdown(f'<span class="win-probability" style="color: {color}">{prob:.1f}%</span>', unsafe_allow_html=True)
-        
-        with cols[4]:  # Home Score Range
-            st.markdown(f'<span class="score-display">{prediction.get("home_score_min")}-{prediction.get("home_score_max")}</span>', unsafe_allow_html=True)
-        
-        with cols[5]:  # Away Score Range
-            st.markdown(f'<span class="score-display">{prediction.get("away_score_min")}-{prediction.get("away_score_max")}</span>', unsafe_allow_html=True)
-        
-        with cols[6]:  # Actual Score
-            score_text = f"{home_score}-{away_score}" if home_score != '-' else "Pending"
-            st.markdown(f'<span class="score-display">{score_text}</span>', unsafe_allow_html=True)
-        
-        with cols[7]:  # Actual Winner
-            if home_score != '-':
-                if int(home_score) > int(away_score):
-                    st.markdown(f'<span class="team-name">{home_team}</span>', unsafe_allow_html=True)
-                elif int(away_score) > int(home_score):
-                    st.markdown(f'<span class="team-name">{away_team}</span>', unsafe_allow_html=True)
-                else:
-                    st.markdown('<span class="status-pending">Tie</span>', unsafe_allow_html=True)
+        # Get actual winner
+        actual_winner = '-'
+        if home_score != '-':
+            if int(home_score) > int(away_score):
+                actual_winner = home_team
+            elif int(away_score) > int(home_score):
+                actual_winner = away_team
             else:
-                st.markdown('<span class="status-pending">-</span>', unsafe_allow_html=True)
+                actual_winner = 'Tie'
         
-        with cols[8]:  # Result
-            accuracy = get_prediction_accuracy(prediction, actual_result)
-            status_class = "status-correct" if "✅" in accuracy else "status-incorrect" if "❌" in accuracy else "status-pending"
-            st.markdown(f'<span class="{status_class}">{accuracy}</span>', unsafe_allow_html=True)
+        # Format actual score
+        actual_score = f"{home_score}-{away_score}" if home_score != '-' else "Pending"
+        
+        # Get prediction accuracy
+        accuracy = get_prediction_accuracy(prediction, actual_result)
+        
+        # Format win probability with confidence level
+        win_prob = prediction.get('win_probability', 0)
+        if win_prob >= 70:
+            confidence = "HIGH"
+        elif win_prob >= 50:
+            confidence = "MEDIUM"
+        else:
+            confidence = "LOW"
+            
+        table_data.append({
+            'Date': date,
+            'Home Team': home_team,
+            'Away Team': away_team,
+            'Predicted Winner': prediction.get('predicted_winner'),
+            'Confidence': confidence,
+            'Home Score Range': home_range,
+            'Away Score Range': away_range,
+            'Actual Score': actual_score,
+            'Actual Winner': actual_winner,
+            'Result': accuracy
+        })
+
+    # Create DataFrame
+    df = pd.DataFrame(table_data)
     
-    st.markdown('</div>', unsafe_allow_html=True)  # Close prediction-table
+    # Sort by date (newest first)
+    df['_date_sort'] = pd.to_datetime(df['Date'])
+    df = df.sort_values('_date_sort', ascending=False)
+    df = df.drop('_date_sort', axis=1)
+    
+    # Display the DataFrame with custom formatting
+    st.markdown("### Prediction History")
+    st.dataframe(
+        df,
+        hide_index=True,
+        column_config={
+            "Date": st.column_config.TextColumn(
+                "Date",
+                width="small",
+            ),
+            "Home Team": st.column_config.TextColumn(
+                "Home Team",
+                width="medium",
+            ),
+            "Away Team": st.column_config.TextColumn(
+                "Away Team",
+                width="medium",
+            ),
+            "Predicted Winner": st.column_config.TextColumn(
+                "Predicted Winner",
+                width="medium",
+            ),
+            "Confidence": st.column_config.Column(
+                "Confidence",
+                width="small",
+                help="High (≥70%), Medium (50-69%), Low (<50%)",
+                required=True
+            ),
+            "Home Score Range": st.column_config.TextColumn(
+                "Home Score Range",
+                width="small",
+            ),
+            "Away Score Range": st.column_config.TextColumn(
+                "Away Score Range",
+                width="small",
+            ),
+            "Actual Score": st.column_config.TextColumn(
+                "Actual Score",
+                width="small",
+            ),
+            "Actual Winner": st.column_config.TextColumn(
+                "Actual Winner",
+                width="medium",
+            ),
+            "Result": st.column_config.TextColumn(
+                "Result",
+                width="small",
+            ),
+        },
+        height=600,
+        use_container_width=True,
+    )
+    
+    # Add custom CSS for better table styling
+    st.markdown("""
+        <style>
+        /* Table styling */
+        [data-testid="stDataFrame"] {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        /* Header styling */
+        [data-testid="stDataFrame"] th {
+            background-color: #f8fafc !important;
+            color: #475569 !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            font-size: 0.9em !important;
+            padding: 12px 16px !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+        
+        /* Cell styling */
+        [data-testid="stDataFrame"] td {
+            padding: 12px 16px !important;
+            font-size: 14px !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        
+        /* Row hover effect */
+        [data-testid="stDataFrame"] tr:hover td {
+            background-color: #f8fafc !important;
+        }
+        
+        /* Team name cells */
+        [data-testid="stDataFrame"] td:nth-child(2),
+        [data-testid="stDataFrame"] td:nth-child(3) {
+            font-weight: 500 !important;
+        }
+        
+        /* Score cells */
+        [data-testid="stDataFrame"] td:nth-child(6),
+        [data-testid="stDataFrame"] td:nth-child(7),
+        [data-testid="stDataFrame"] td:nth-child(8) {
+            font-family: 'SF Mono', 'Roboto Mono', monospace !important;
+            background-color: #f8fafc !important;
+        }
+        
+        /* Confidence cells */
+        [data-testid="stDataFrame"] td:nth-child(5) {
+            font-weight: 500 !important;
+        }
+        
+        /* Color confidence levels */
+        [data-testid="stDataFrame"] td:nth-child(5):contains("HIGH") {
+            color: #166534 !important;
+            background-color: #dcfce7 !important;
+        }
+        [data-testid="stDataFrame"] td:nth-child(5):contains("MEDIUM") {
+            color: #854d0e !important;
+            background-color: #fef9c3 !important;
+        }
+        [data-testid="stDataFrame"] td:nth-child(5):contains("LOW") {
+            color: #991b1b !important;
+            background-color: #fee2e2 !important;
+        }
+        
+        /* Result cells */
+        [data-testid="stDataFrame"] td:last-child {
+            font-weight: 500 !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
     st.markdown("<hr>", unsafe_allow_html=True)
     
@@ -531,7 +643,7 @@ def show_history():
     if st.button("📥 Export to CSV"):
         # Convert predictions to CSV format
         csv_rows = [
-            "Date,Match,Predicted,Win %,Home,Away,Score,Winner,Result"
+            "Date,Home Team,Away Team,Predicted,Confidence,Home,Away,Score,Winner,Result"
         ]
         for prediction in predictions:
             game_key = f"{prediction.get('home_team')}_{prediction.get('away_team')}"
@@ -555,14 +667,9 @@ def show_history():
             # Format date to only show the date part
             prediction_date = format_datetime(prediction.get('created_at', ''))
             
-            # Convert probability from decimal to percentage for CSV
-            win_prob = prediction.get('win_probability', 0)
-            if win_prob <= 1.0:
-                win_prob = win_prob * 100
-            
             csv_rows.append(
-                f"{prediction_date},{prediction.get('home_team', 'N/A')} vs {prediction.get('away_team', 'N/A')},"
-                f"{prediction.get('predicted_winner', 'N/A')},{win_prob:.1f}%,"
+                f"{prediction_date},{prediction.get('home_team', 'N/A')},{prediction.get('away_team', 'N/A')},"
+                f"{prediction.get('predicted_winner', 'N/A')},{prediction.get('confidence', 'N/A')},"
                 f"{prediction.get('home_score_min', 'N/A')}-{prediction.get('home_score_max', 'N/A')},"
                 f"{prediction.get('away_score_min', 'N/A')}-{prediction.get('away_score_max', 'N/A')},"
                 f"{actual_score},{actual_winner},{accuracy}"
